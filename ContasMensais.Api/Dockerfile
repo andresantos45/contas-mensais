@@ -1,21 +1,23 @@
-# Imagem base para build
+# =========================
+# Build stage
+# =========================
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+WORKDIR /src
 
-# Copiar csproj e restaurar dependências
-COPY *.csproj ./
-RUN dotnet restore
+# Copia tudo respeitando a estrutura
+COPY . .
+RUN dotnet restore ContasMensais.Api.csproj
+RUN dotnet publish ContasMensais.Api.csproj -c Release -o /app/publish
 
-# Copiar o restante do código
-COPY . ./
-RUN dotnet publish -c Release -o out
-
-# Imagem final para execução
+# =========================
+# Runtime stage
+# =========================
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --from=build /app/out ./
 
-# Render usa a variável PORT
-ENV ASPNETCORE_URLS=http://+:$PORT
+ENV ASPNETCORE_URLS=http://+:10000
+EXPOSE 10000
+
+COPY --from=build /app/publish .
 
 ENTRYPOINT ["dotnet", "ContasMensais.Api.dll"]

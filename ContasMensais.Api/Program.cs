@@ -57,7 +57,6 @@ using (var scope = app.Services.CreateScope())
         context.SaveChanges();
     }
 }
-
 // Middlewares
 app.UseCors();
 
@@ -66,12 +65,10 @@ app.UseSwaggerUI();
 
 app.UseAuthorization();
 
-app.UseDefaultFiles();
-app.UseStaticFiles();
+// 🔹 endpoints obrigatórios para o Render
+app.MapGet("/", () => "API Contas Mensais rodando no Render 🚀");
+app.MapGet("/health", () => Results.Ok("healthy"));
 
 app.MapControllers();
-
-// 🔹 Health check Render
-app.MapGet("/", () => "API Contas Mensais ONLINE");
 
 app.Run();

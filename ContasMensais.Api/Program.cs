@@ -5,9 +5,14 @@ using ContasMensais.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 🔹 PORTA DO RENDER (OBRIGATÓRIO)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // Controllers
 builder.Services.AddControllers();
 builder.Services.AddScoped<DashboardService>();
+
 // Entity Framework + SQLite
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -36,10 +41,8 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    // Cria banco e tabelas automaticamente
     context.Database.EnsureCreated();
 
-    // Popula categorias iniciais
     if (!context.Categorias.Any())
     {
         context.Categorias.AddRange(
@@ -67,5 +70,8 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.MapControllers();
+
+// 🔹 Health check Render
+app.MapGet("/", () => "API Contas Mensais ONLINE");
 
 app.Run();

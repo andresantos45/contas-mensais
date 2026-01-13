@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using ContasMensais.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+// 🔐 CHAVE JWT CENTRALIZADA (ÚNICO PONTO DA CHAVE)
+var jwtKey = builder.Configuration["JWT_KEY"]
+             ?? "CHAVE_SUPER_SECRETA_MIN_32_CARACTERES_123!";
 
 // 🔹 PORTA DO RENDER (OBRIGATÓRIO)
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
@@ -33,7 +36,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes("CHAVE_SUPER_SECRETA_MIN_32_CARACTERES_123!")
+                Encoding.UTF8.GetBytes(jwtKey)
             )
         };
     });

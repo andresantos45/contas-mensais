@@ -12,13 +12,13 @@ namespace ContasMensais.Api.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AppDbContext _context;
+private readonly IConfiguration _configuration;
 
-        private const string JWT_KEY = "CHAVE_SUPER_SECRETA_MIN_32_CARACTERES_123!";
-
-        public AuthController(AppDbContext context)
-        {
-            _context = context;
-        }
+public AuthController(AppDbContext context, IConfiguration configuration)
+{
+    _context = context;
+    _configuration = configuration;
+}
 
         // =========================
         // REGISTRO DE USUÁRIO
@@ -51,9 +51,12 @@ namespace ContasMensais.Api.Controllers
             if (usuario == null)
                 return Unauthorized("Usuário ou senha inválidos");
 
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(JWT_KEY)
-            );
+            var jwtKey = _configuration["JWT_KEY"]
+             ?? "CHAVE_SUPER_SECRETA_MIN_32_CARACTERES_123!";
+
+var key = new SymmetricSecurityKey(
+    Encoding.UTF8.GetBytes(jwtKey)
+);
 
             var creds = new SigningCredentials(
                 key,

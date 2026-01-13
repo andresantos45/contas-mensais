@@ -102,32 +102,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
     context.Database.EnsureCreated();
-
-    if (!context.Categorias.Any())
-    {
-        context.Categorias.AddRange(
-            new Categoria { Nome = "Moradia" },
-            new Categoria { Nome = "Alimentação" },
-            new Categoria { Nome = "Energia" },
-            new Categoria { Nome = "Água" },
-            new Categoria { Nome = "Internet" },
-            new Categoria { Nome = "Outros" }
-        );
-    }
-
-    if (!context.Usuarios.Any())
-    {
-        context.Usuarios.Add(new Usuario
-        {
-            Nome = "Admin",
-            Email = "admin@local",
-            SenhaHash = "admin"
-        });
-    }
-
-    context.SaveChanges();
 }
 
 // Middlewares

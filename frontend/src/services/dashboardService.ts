@@ -1,15 +1,10 @@
 // frontend/src/services/dashboardService.ts
 
+import api from "./api";
+
 export async function obterYoy(ano: number) {
-  const response = await fetch(
-    "https://localhost:5138/api/dashboard/yoy/" + ano
-  );
-
-  if (!response.ok) {
-    throw new Error("Erro ao buscar YoY");
-  }
-
-  return response.json();
+  const response = await api.get(`/dashboard/yoy/${ano}`);
+  return response.data;
 }
 
 /* =========================

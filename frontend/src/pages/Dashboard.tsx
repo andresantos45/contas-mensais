@@ -4,6 +4,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import GraficoMensal from "../components/Graficos/GraficoMensal";
 import GraficoCategoria from "../components/Graficos/GraficoCategoria";
+import api from "../services/api";
 
 export default function Dashboard() {
   const [modoEscuro, setModoEscuro] = useState(true);
@@ -19,7 +20,7 @@ export default function Dashboard() {
   const [valorMin, setValorMin] = useState<string>("");
   const [valorMax, setValorMax] = useState<string>("");
 
-  const API_URL = import.meta.env.VITE_API_URL;
+ 
 
   useEffect(() => {
   let ativo = true;
@@ -29,12 +30,14 @@ export default function Dashboard() {
 
     try {
       // período atual
-      const responseAtual = await fetch(
-  `${API_URL}/contas/${mesBusca}/${anoBusca}`
+      const responseAtual = await api.get(
+  `/contas/${mesBusca}/${anoBusca}`
 );
-const dadosAtual = await responseAtual.json();
 
-if (ativo) setContas(dadosAtual);
+if (ativo) {
+  setContas(responseAtual.data);
+}
+
 
       // período anterior
       await carregarPeriodoAnterior();
@@ -56,10 +59,10 @@ async function carregarPeriodoAnterior() {
 
   try {
     if (mesBusca === 0) {
-  const response = await fetch(
-  `${API_URL}/contas/0/${anoBusca - 1}`
+  const response = await api.get(
+  `/contas/0/${anoBusca - 1}`
 );
-  const dados = await response.json();
+const dados = response.data;
 
   total = dados.reduce(
     (soma: number, c: any) => soma + c.valor,
@@ -71,10 +74,10 @@ async function carregarPeriodoAnterior() {
       const anoAnterior = mesAnterior === 0 ? anoBusca - 1 : anoBusca;
       const mesFinal = mesAnterior === 0 ? 12 : mesAnterior;
 
-      const response = await fetch(
-  `${API_URL}/contas/${mesFinal}/${anoAnterior}`
+      const response = await api.get(
+  `/contas/${mesFinal}/${anoAnterior}`
 );
-      const dados = await response.json();
+const dados = response.data;
 
       total = dados.reduce(
         (soma: number, c: any) => soma + c.valor,

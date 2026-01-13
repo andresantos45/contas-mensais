@@ -1,3 +1,5 @@
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using ContasMensais.Api.Data;
 using ContasMensais.Api.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -5,9 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ContasMensais.Api.Controllers
 {
-    [ApiController]
-    [Route("api/contas")]
-    public class ContasController : ControllerBase
+   
+
+[ApiController]
+[Authorize]
+[Route("api/contas")]
+public class ContasController : ControllerBase
     {
         private readonly AppDbContext _context;
 
@@ -15,15 +20,28 @@ namespace ContasMensais.Api.Controllers
         {
             _context = context;
         }
+private int ObterUsuarioId()
+{
+    var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
 
+    if (userIdClaim == null)
+    throw new UnauthorizedAccessException("Usuário não autenticado");
+
+    return int.Parse(userIdClaim.Value);
+}
         // 🔍 MÊS OU ANO INTEIRO
         // mes = 0 → retorna o ano inteiro
         [HttpGet("{mes:int}/{ano:int}")]
         public async Task<IActionResult> Get(int mes, int ano)
         {
-            var query = _context.Contas
-                .Include(c => c.Categoria)
-                .Where(c => c.Data.Year == ano);
+            var usuarioId = ObterUsuarioId();
+
+var query = _context.Contas
+    .Include(c => c.Categoria)
+    .Where(c =>
+        c.UsuarioId == usuarioId &&
+        c.Data.Year == ano
+    );
 
             if (mes != 0)
             {
@@ -52,7 +70,10 @@ namespace ContasMensais.Api.Controllers
             if (conta == null)
                 return BadRequest("Conta inválida");
 
-            _context.Contas.Add(conta);
+            var usuarioId = ObterUsuarioId();
+conta.UsuarioId = usuarioId;
+
+_context.Contas.Add(conta);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(
@@ -76,22 +97,35 @@ namespace ContasMensais.Api.Controllers
 
         // ✏️ ATUALIZAR CONTA
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Put(int id, [FromBody] Conta conta)
-        {
-            if (id != conta.Id)
-                return BadRequest("Id inconsistente");
+public async Task<IActionResult> Put(int id, [FromBody] Conta contaAtualizada)
+{
+    var usuarioId = ObterUsuarioId();
 
-            _context.Entry(conta).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+    var conta = await _context.Contas
+        .FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId);
 
-            return Ok();
-        }
+    if (conta == null)
+        return NotFound("Conta não encontrada ou não pertence ao usuário");
+
+    // 🔒 Atualiza SOMENTE os campos permitidos
+    conta.Descricao = contaAtualizada.Descricao;
+    conta.Valor = contaAtualizada.Valor;
+    conta.Data = contaAtualizada.Data;
+    conta.CategoriaId = contaAtualizada.CategoriaId;
+
+    await _context.SaveChangesAsync();
+
+    return Ok("Conta atualizada com sucesso");
+}
 
         // ❌ DELETAR CONTA
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var conta = await _context.Contas.FindAsync(id);
+            var usuarioId = ObterUsuarioId();
+
+var conta = await _context.Contas
+    .FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId);
             if (conta == null)
                 return NotFound();
 

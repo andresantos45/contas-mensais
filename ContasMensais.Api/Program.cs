@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using ContasMensais.Api.Data;
 using ContasMensais.Api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -11,8 +14,31 @@ builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // Controllers
 builder.Services.AddControllers();
+
+// 🔎 OBRIGATÓRIO PARA O SWAGGER FUNCIONAR CORRETAMENTE
+builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddScoped<DashboardService>();
 
+// =========================
+// JWT AUTHENTICATION
+// =========================
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes("CHAVE_SUPER_SECRETA_MIN_32_CARACTERES_123!")
+            )
+        };
+    });
+// 🔐 AUTHORIZATION (SEM ISSO O AUTHORIZE NÃO APARECE)
+builder.Services.AddAuthorization();
 // Entity Framework + SQLite
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -20,17 +46,53 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 // Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "ContasMensais.Api",
+        Version = "v1"
+    });
 
-// CORS
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Digite: Bearer {seu_token}"
+    });
+
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// CORS (FRONTEND LOCAL + PRODUÇÃO)
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy
+            .WithOrigins(
+                "http://localhost:5173",
+                "https://contas-mensais-q4z8.onrender.com"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -53,19 +115,35 @@ using (var scope = app.Services.CreateScope())
             new Categoria { Nome = "Internet" },
             new Categoria { Nome = "Outros" }
         );
-
-        context.SaveChanges();
     }
+
+    if (!context.Usuarios.Any())
+    {
+        context.Usuarios.Add(new Usuario
+        {
+            Nome = "Admin",
+            Email = "admin@local",
+            SenhaHash = "admin"
+        });
+    }
+
+    context.SaveChanges();
 }
+
 // Middlewares
-app.UseCors();
+app.UseCors("AllowFrontend");
 
 app.UseSwagger();
-app.UseSwaggerUI();
 
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "ContasMensais.Api v1");
+});
+
+app.UseAuthentication();
 app.UseAuthorization();
 
-// 🔹 endpoints obrigatórios para o Render
+// Endpoints obrigatórios Render
 app.MapGet("/", () => "API Contas Mensais rodando no Render 🚀");
 app.MapGet("/health", () => Results.Ok("healthy"));
 

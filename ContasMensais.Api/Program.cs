@@ -91,11 +91,10 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "http://localhost:5173",
-                "https://contas-mensais-q4z8.onrender.com"
+                "https://contas-mensais-frontend.onrender.com"
             )
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowAnyMethod();
     });
 });
 

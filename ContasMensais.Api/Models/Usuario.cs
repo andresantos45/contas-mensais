@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace ContasMensais.Api.Models;
 
 public class Usuario
@@ -8,5 +10,6 @@ public class Usuario
 
     public string Email { get; set; } = string.Empty;
 
+    [Column("senha_hash")]
     public string SenhaHash { get; set; } = string.Empty;
 }

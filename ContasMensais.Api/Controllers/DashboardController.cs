@@ -1,12 +1,15 @@
 using ContasMensais.Api.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ContasMensais.Api.Controllers
 {
+
     [ApiController]
-    [Route("api/dashboard")]
-    public class DashboardController : ControllerBase
-    {
+[Authorize]
+[Route("api/dashboard")]
+public class DashboardController : ControllerBase
+{
         private readonly DashboardService _dashboardService;
 
         public DashboardController(DashboardService dashboardService)

@@ -6,9 +6,8 @@ export async function login(email: string, senha: string) {
     senha
   });
 
-  const { token } = response.data;
+  const token = response.data.token;
 
-  // 🔐 salva token
   localStorage.setItem("token", token);
 
   return token;
@@ -18,6 +17,6 @@ export function logout() {
   localStorage.removeItem("token");
 }
 
-export function isAutenticado() {
+export function isAuthenticated() {
   return !!localStorage.getItem("token");
 }

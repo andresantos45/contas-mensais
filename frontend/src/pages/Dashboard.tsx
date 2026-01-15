@@ -5,22 +5,37 @@ import autoTable from "jspdf-autotable";
 import GraficoMensal from "../components/Graficos/GraficoMensal";
 import GraficoCategoria from "../components/Graficos/GraficoCategoria";
 import api from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
+   const navigate = useNavigate();
+
+  function handleLogout() {
+    localStorage.removeItem("token");
+    navigate("/login", { replace: true });
+  }
   const [modoEscuro, setModoEscuro] = useState(true);
   const [contas, setContas] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [mesBusca, setMesBusca] = useState(1);
-  const [anoBusca, setAnoBusca] = useState(2026);
+  const [anoBusca, setAnoBusca] = useState(2025);
   const [totalPeriodoAnterior, setTotalPeriodoAnterior] = useState(0);
-  const [tipoGrafico, setTipoGrafico] =
-  useState<"mes" | "categoria">("mes");
+  const [tipoGrafico, setTipoGrafico] = useState<"mes" | "categoria">("mes");
   const [exportando, setExportando] = useState<null | "excel" | "pdf">(null);
   const [categoriaFiltro, setCategoriaFiltro] = useState<string>("todas");
   const [valorMin, setValorMin] = useState<string>("");
   const [valorMax, setValorMax] = useState<string>("");
+  const [categorias, setCategorias] = useState<any[]>([]);
+  const [novaCategoria, setNovaCategoria] = useState("");
+  const [contaEditando, setContaEditando] = useState<any | null>(null);
 
- 
+ // =======================
+// FORMULÁRIO – NOVA CONTA
+// =======================
+const [descricao, setDescricao] = useState("");
+const [valor, setValor] = useState("");
+const [data, setData] = useState("");
+const [categoriaId, setCategoriaId] = useState("");
 
   useEffect(() => {
   let ativo = true;
@@ -31,8 +46,11 @@ export default function Dashboard() {
     try {
       // período atual
       const responseAtual = await api.get(
-  `/contas/${mesBusca}/${anoBusca}`
+  `/api/contas/${mesBusca}/${anoBusca}`
 );
+
+const responseCategorias = await api.get("/api/categorias");
+setCategorias(responseCategorias.data);
 
 if (ativo) {
   setContas(responseAtual.data);
@@ -41,9 +59,13 @@ if (ativo) {
 
       // período anterior
       await carregarPeriodoAnterior();
-    } catch (erro) {
-      console.error("Erro ao carregar dados", erro);
-    } finally {
+    } catch (erro: any) {
+  if (erro.code === "ERR_NETWORK") {
+    alert("Servidor indisponível no momento. Tente novamente mais tarde.");
+  } else {
+    console.error("Erro ao carregar dados", erro);
+  }
+} finally {
       if (ativo) setLoading(false);
     }
   }
@@ -60,7 +82,7 @@ async function carregarPeriodoAnterior() {
   try {
     if (mesBusca === 0) {
   const response = await api.get(
-  `/contas/0/${anoBusca - 1}`
+  `/api/contas/0/${anoBusca - 1}`
 );
 const dados = response.data;
 
@@ -75,7 +97,7 @@ const dados = response.data;
       const mesFinal = mesAnterior === 0 ? 12 : mesAnterior;
 
       const response = await api.get(
-  `/contas/${mesFinal}/${anoAnterior}`
+  `/api/contas/${mesFinal}/${anoAnterior}`
 );
 const dados = response.data;
 
@@ -252,12 +274,150 @@ function exportarPDF() {
     : `contas_${mesBusca}_${anoBusca}.pdf`
 );
 }
+// =======================
+// CRIAR CONTA
+// =======================
+// =======================
+// CRIAR / EDITAR CONTA
+// =======================
+async function criarConta(e: React.FormEvent) {
+  e.preventDefault();
+
+  if (!descricao || !valor || !data || !categoriaId) {
+    alert("Preencha todos os campos");
+    return;
+  }
+
+  try {
+    if (contaEditando) {
+      // ✏️ EDITAR
+      await api.put(`/api/contas/${contaEditando.id}`, {
+        descricao,
+        valor: Number(valor),
+        data,
+        categoriaId: Number(categoriaId)
+      });
+
+      setContaEditando(null);
+    } else {
+      // ➕ CRIAR
+      await api.post("/api/contas", {
+        descricao,
+        valor: Number(valor),
+        data,
+        categoriaId: Number(categoriaId)
+      });
+    }
+
+    // limpa formulário
+    setDescricao("");
+    setValor("");
+    setData("");
+    setCategoriaId("");
+
+    // recarrega dados
+    const response = await api.get(
+      `/api/contas/${mesBusca}/${anoBusca}`
+    );
+    setContas(response.data);
+
+    await carregarPeriodoAnterior();
+  } catch (error) {
+    console.error(error);
+    alert("Erro ao salvar conta");
+  }
+}
+// =======================
+// CRIAR CATEGORIA
+// =======================
+async function criarCategoria(e: React.FormEvent) {
+  e.preventDefault();
+
+  if (!novaCategoria.trim()) {
+    alert("Informe o nome da categoria");
+    return;
+  }
+
+  // 🚫 evita categoria duplicada
+  if (
+    categorias.some(
+      (c: any) => c.nome.toLowerCase() === novaCategoria.toLowerCase()
+    )
+  ) {
+    alert("Categoria já existe");
+    return;
+  }
+
+  try {
+    const response = await api.post("/api/categorias", {
+      nome: novaCategoria
+    });
+
+    const categoriasAtualizadas = [...categorias, response.data].sort(
+      (a: any, b: any) => a.nome.localeCompare(b.nome)
+    );
+
+    setCategorias(categoriasAtualizadas);
+    setNovaCategoria("");
+  } catch (error) {
+    console.error(error);
+    alert("Erro ao criar categoria");
+  }
+}
+// =======================
+// EXCLUIR CONTA
+// =======================
+async function excluirConta(id: number) {
+  if (!window.confirm("Deseja excluir esta conta?")) return;
+
+  try {
+    await api.delete(`/api/contas/${id}`);
+
+    setContas(contas.filter(c => c.id !== id));
+    await carregarPeriodoAnterior();
+  } catch (error) {
+    console.error(error);
+    alert("Erro ao excluir conta");
+  }
+}
+// =======================
+// INICIAR EDIÇÃO
+// =======================
+function iniciarEdicao(conta: any) {
+  setContaEditando(conta);
+
+  setDescricao(conta.descricao);
+  setValor(String(conta.valor));
+
+  // monta data no formato YYYY-MM-DD
+  const mes = String(conta.mes).padStart(2, "0");
+  setData(`${conta.ano}-${mes}-01`);
+
+  setCategoriaId(String(conta.categoriaId ?? ""));
+}
   return (
     <div className={modoEscuro ? "dashboard dark" : "dashboard"}>
-      <h1>Dashboard</h1>
+      <h1>Contas Mensais</h1>
       <p style={{ opacity: 0.6 }}>
   {textoPeriodo}
 </p>
+  {/* 🔓 LOGOUT */}
+    <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+      <button
+        onClick={handleLogout}
+        style={{
+          background: "#dc2626",
+          color: "#fff",
+          border: "none",
+          padding: "8px 14px",
+          borderRadius: 8,
+          cursor: "pointer",
+          fontWeight: 600
+        }}
+      >
+        🚪 Sair
+      </button>
+    </div>
       {loading && (
   <p>
     Atualizando dados...
@@ -357,6 +517,106 @@ function exportarPDF() {
     📄 Exportar PDF
   </button>
 </div>
+{/* FORMULÁRIO — CRIAR CONTA */}
+<form
+  onSubmit={criarConta}
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(180px, 1fr)) auto",
+    gap: 12,
+    marginTop: 20,
+    alignItems: "end"
+  }}
+>
+  <div>
+    <label>Descrição</label>
+    <input
+      value={descricao}
+      onChange={e => setDescricao(e.target.value)}
+      required
+    />
+  </div>
+
+  <div>
+    <label>Valor</label>
+    <input
+      type="number"
+      value={valor}
+      onChange={e => setValor(e.target.value)}
+      required
+    />
+  </div>
+
+  <div>
+    <label>Data</label>
+    <input
+      type="date"
+      value={data}
+      onChange={e => setData(e.target.value)}
+      required
+    />
+  </div>
+
+  <div>
+  <label>Categoria</label>
+  <select
+    value={categoriaId}
+    onChange={e => setCategoriaId(e.target.value)}
+    required
+  >
+    <option value="">Selecione</option>
+
+    {categorias.map(cat => (
+      <option key={cat.id} value={cat.id}>
+        {cat.nome}
+      </option>
+    ))}
+  </select>
+</div>
+
+  <button type="submit" style={{ height: 40 }}>
+  {contaEditando ? "💾 Salvar edição" : "➕ Adicionar"}
+</button>
+{contaEditando && (
+  <button
+    type="button"
+    onClick={() => {
+      setContaEditando(null);
+      setDescricao("");
+      setValor("");
+      setData("");
+      setCategoriaId("");
+    }}
+    style={{ height: 40 }}
+  >
+    ❌ Cancelar
+  </button>
+)}
+</form>
+{/* FORMULÁRIO — CRIAR CATEGORIA */}
+<form
+  onSubmit={criarCategoria}
+  style={{
+    display: "flex",
+    gap: 12,
+    marginTop: 12,
+    alignItems: "end"
+  }}
+>
+  <div>
+    <label>Nova categoria</label>
+    <input
+      value={novaCategoria}
+      onChange={e => setNovaCategoria(e.target.value)}
+      placeholder="Ex: Alimentação"
+      required
+    />
+  </div>
+
+  <button type="submit" style={{ height: 40 }}>
+    ➕ Criar categoria
+  </button>
+</form>
 
  {/* GRID DE CARDS */}
 <div className="cards-grid">
@@ -469,7 +729,51 @@ function exportarPDF() {
   </div>
 </div>
 </div>
+{/* LISTA DE CONTAS */}
+<div style={{ marginTop: 32 }}>
+  <h2>Contas do período</h2>
 
+  {contasFiltradas.length === 0 && (
+    <p>Nenhuma conta cadastrada.</p>
+  )}
+
+  {contasFiltradas.map(conta => (
+    <div
+      key={conta.id}
+      style={{
+        display: "grid",
+        gridTemplateColumns: "2fr 1fr 1fr 1fr auto auto",
+        gap: 12,
+        alignItems: "center",
+        padding: 12,
+        borderBottom: "1px solid #334155"
+      }}
+    >
+      <div>{conta.descricao}</div>
+
+      <div>{conta.categoriaNome}</div>
+
+      <div>
+        {conta.valor.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL"
+        })}
+      </div>
+
+      <div>
+        {conta.mes}/{conta.ano}
+      </div>
+
+      <button onClick={() => iniciarEdicao(conta)}>
+        ✏️
+      </button>
+
+      <button onClick={() => excluirConta(conta.id)}>
+        ❌
+      </button>
+    </div>
+  ))}
+</div>
 {/* GRÁFICOS USANDO COMPONENTES */}
 <div className="graficos-container">
   {tipoGrafico === "mes" && (

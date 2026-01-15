@@ -59,11 +59,7 @@ namespace ContasMensais.Api.Data
                       .IsRequired()
                       .HasMaxLength(100);
 
-                entity.HasOne(c => c.Usuario)
-                      .WithMany()
-                      .HasForeignKey(c => c.UsuarioId)
-                      .OnDelete(DeleteBehavior.Cascade);
-            });
+                          });
         }
     }
 }

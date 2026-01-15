@@ -5,6 +5,7 @@ using ContasMensais.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace ContasMensais.Api.Controllers
 {
    
@@ -13,7 +14,7 @@ namespace ContasMensais.Api.Controllers
 [Authorize]
 [Route("api/contas")]
 public class ContasController : ControllerBase
-    {
+{
         private readonly AppDbContext _context;
 
         public ContasController(AppDbContext context)
@@ -43,22 +44,23 @@ var query = _context.Contas
         c.Data.Year == ano
     );
 
+
             if (mes != 0)
-            {
-                query = query.Where(c => c.Data.Month == mes);
-            }
+{
+    query = query.Where(c => c.Data.Month == mes);
+}
 
             var contas = await query
-                .Select(c => new
-                {
-                    c.Id,
-                    c.Descricao,
-                    c.Valor,
-                    Mes = c.Data.Month,
-                    Ano = c.Data.Year,
-                    CategoriaNome = c.Categoria != null ? c.Categoria.Nome : null
-                })
-                .ToListAsync();
+    .Select(c => new
+    {
+        c.Id,
+        c.Descricao,
+        c.Valor,
+        Mes = c.Data.Month,
+        Ano = c.Data.Year,
+        CategoriaNome = c.Categoria != null ? c.Categoria.Nome : null
+    })
+    .ToListAsync();
 
             return Ok(contas);
         }

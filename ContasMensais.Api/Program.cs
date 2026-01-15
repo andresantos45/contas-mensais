@@ -111,11 +111,13 @@ using (var scope = app.Services.CreateScope())
 // Middlewares
 app.UseCors("AllowFrontend");
 
+// Swagger (OBRIGATÓRIO)
 app.UseSwagger();
 
 app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "ContasMensais.Api v1");
+    options.RoutePrefix = "swagger";
 });
 
 app.UseAuthentication();

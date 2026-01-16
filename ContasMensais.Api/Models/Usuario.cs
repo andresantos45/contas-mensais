@@ -1,15 +1,21 @@
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ContasMensais.Api.Models;
-
-public class Usuario
+namespace ContasMensais.Api.Models
 {
-    public int Id { get; set; }
+    [Table("usuarios")]
+    public class Usuario
+    {
+        [Column("id")]
+        public int Id { get; set; }
 
-    public string Nome { get; set; } = string.Empty;
+        [Column("email")]
+        public string Email { get; set; } = string.Empty;
 
-    public string Email { get; set; } = string.Empty;
+        [Column("senha_hash")]
+        public string SenhaHash { get; set; } = string.Empty;
 
-    [Column("senha_hash")]
-    public string SenhaHash { get; set; } = string.Empty;
+        [Column("criado_em")]
+        public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
+    }
 }

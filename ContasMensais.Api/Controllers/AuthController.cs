@@ -36,11 +36,10 @@ public IActionResult Register([FromBody] RegisterDto dto)
         return BadRequest("Email já cadastrado");
 
     var usuario = new Usuario
-    {
-        Nome = dto.Nome,
-        Email = dto.Email,
-        SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha)
-    };
+{
+    Email = dto.Email,
+    SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha)
+};
 
     _context.Usuarios.Add(usuario);
     _context.SaveChanges();

@@ -1,13 +1,13 @@
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContasMensais.Api.Models
 {
-    [Table("usuarios")]
     public class Usuario
     {
-        [Column("id")]
         public int Id { get; set; }
+
+        [Column("nome")]
+        public string Nome { get; set; } = string.Empty;
 
         [Column("email")]
         public string Email { get; set; } = string.Empty;

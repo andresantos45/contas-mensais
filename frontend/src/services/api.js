@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL
+  baseURL: "https://contas-mensais-backend.onrender.com",
 });
 
 // 🔐 injeta token automaticamente
@@ -14,6 +14,7 @@ api.interceptors.request.use(config => {
 
   return config;
 });
+
 // 🚨 trata token inválido / expirado
 api.interceptors.response.use(
   response => response,
@@ -26,4 +27,5 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
 export default api;

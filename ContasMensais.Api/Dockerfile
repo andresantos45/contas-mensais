@@ -2,12 +2,13 @@
 # Build stage
 # =========================
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+WORKDIR /app
 
-# Copia tudo respeitando a estrutura
-COPY . .
-RUN dotnet restore ContasMensais.Api.csproj
-RUN dotnet publish ContasMensais.Api.csproj -c Release -o /app/publish
+COPY *.csproj ./
+RUN dotnet restore
+
+COPY . ./
+RUN dotnet publish -c Release -o out
 
 # =========================
 # Runtime stage
@@ -15,9 +16,9 @@ RUN dotnet publish ContasMensais.Api.csproj -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
-ENV ASPNETCORE_URLS=http://+:10000
-EXPOSE 10000
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+EXPOSE 8080
 
-COPY --from=build /app/publish .
+COPY --from=build /app/out .
 
 ENTRYPOINT ["dotnet", "ContasMensais.Api.dll"]

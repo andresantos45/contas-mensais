@@ -43,22 +43,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // 🔐 AUTHORIZATION (SEM ISSO O AUTHORIZE NÃO APARECE)
 builder.Services.AddAuthorization();
 // Entity Framework + SQLite
+// Entity Framework + PostgreSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    var connectionString =
-        builder.Services.AddDbContext<AppDbContext>(options =>
 {
     var connectionString =
         builder.Configuration.GetConnectionString("DefaultConnection")
         ?? Environment.GetEnvironmentVariable("DATABASE_URL");
 
-    options.UseNpgsql(
-        connectionString,
-        npgsqlOptions =>
-        {
-            npgsqlOptions.EnableRetryOnFailure();
-        }
-    );
+    options.UseNpgsql(connectionString);
 });
 
 // Swagger

@@ -45,7 +45,11 @@ builder.Services.AddAuthorization();
 // Entity Framework + SQLite
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlite("Data Source=contas.db");
+    var connectionString =
+        builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? Environment.GetEnvironmentVariable("DATABASE_URL");
+
+    options.UseNpgsql(connectionString);
 });
 
 // Swagger

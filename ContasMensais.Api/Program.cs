@@ -46,10 +46,19 @@ builder.Services.AddAuthorization();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     var connectionString =
+        builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    var connectionString =
         builder.Configuration.GetConnectionString("DefaultConnection")
         ?? Environment.GetEnvironmentVariable("DATABASE_URL");
 
-    options.UseNpgsql(connectionString);
+    options.UseNpgsql(
+        connectionString,
+        npgsqlOptions =>
+        {
+            npgsqlOptions.EnableRetryOnFailure();
+        }
+    );
 });
 
 // Swagger

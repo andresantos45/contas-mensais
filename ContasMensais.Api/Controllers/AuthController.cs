@@ -28,32 +28,32 @@ namespace ContasMensais.Api.Controllers
         // REGISTRO DE USUÁRIO
         // =========================
         [AllowAnonymous]
-        [HttpPost("register")]
-        public IActionResult Register(RegisterDto dto)
-        {
-            var existe = _context.Usuarios.Any(u => u.Email == dto.Email);
-            if (existe)
-                return BadRequest("Email já cadastrado");
+[HttpPost("register")]
+public IActionResult Register([FromBody] RegisterDto dto)
+{
+    var existe = _context.Usuarios.Any(u => u.Email == dto.Email);
+    if (existe)
+        return BadRequest("Email já cadastrado");
 
-            var usuario = new Usuario
-            {
-                Nome = dto.Nome,
-                Email = dto.Email,
-                SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha)
-            };
+    var usuario = new Usuario
+    {
+        Nome = dto.Nome,
+        Email = dto.Email,
+        SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha)
+    };
 
-            _context.Usuarios.Add(usuario);
-            _context.SaveChanges();
+    _context.Usuarios.Add(usuario);
+    _context.SaveChanges();
 
-            return Ok(new { message = "Usuário criado com sucesso" });
-        }
+    return Ok(new { message = "Usuário criado com sucesso" });
+}
 
         // =========================
         // LOGIN COM JWT
         // =========================
         [AllowAnonymous]
         [HttpPost("login")]
-        public IActionResult Login(LoginDto dto)
+public IActionResult Login([FromBody] LoginDto dto)
         {
             var usuario = _context.Usuarios
                 .FirstOrDefault(u => u.Email == dto.Email);

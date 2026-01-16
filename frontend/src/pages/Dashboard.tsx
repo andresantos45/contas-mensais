@@ -396,7 +396,23 @@ function iniciarEdicao(conta: any) {
   setCategoriaId(String(conta.categoriaId ?? ""));
 }
   return (
-    <div className={modoEscuro ? "dashboard dark" : "dashboard"}>
+  <div
+    style={{
+      minHeight: "100vh",
+      background: cores.fundo,
+      padding: "20px"
+    }}
+  >
+    <div
+      className={modoEscuro ? "dashboard dark" : "dashboard"}
+      style={{
+        maxWidth: "1200px",
+        margin: "0 auto",
+        background: cores.card,
+        borderRadius: 16,
+        padding: 24
+      }}
+    >
       <h1>Contas Mensais</h1>
       <p style={{ opacity: 0.6 }}>
   {textoPeriodo}
@@ -619,7 +635,14 @@ function iniciarEdicao(conta: any) {
 </form>
 
  {/* GRID DE CARDS */}
-<div className="cards-grid">
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+    gap: 16,
+    marginTop: 16
+  }}
+>
       {/* CARD – TOTAL DO PERÍODO */}
 <div
   style={{
@@ -785,7 +808,7 @@ function iniciarEdicao(conta: any) {
   )}
 </div>
       {loading && <p>Carregando dados...</p>}
-
     </div>
-  );
+  </div>
+);
 }

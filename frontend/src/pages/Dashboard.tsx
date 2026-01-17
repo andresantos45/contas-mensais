@@ -122,11 +122,13 @@ const dados = response.data;
   setTotalPeriodoAnterior(total);
 }
   const cores = {
-    fundo: modoEscuro ? "#0f172a" : "#f3f4f6",
-    card: modoEscuro ? "#020617" : "#ffffff",
-    texto: modoEscuro ? "#e5e7eb" : "#111827",
-    botao: modoEscuro ? "#22c55e" : "#2563eb"
-  };
+  fundo: modoEscuro ? "#0f172a" : "#f3f4f6",
+  card: modoEscuro ? "#020617" : "#ffffff",
+  texto: modoEscuro ? "#e5e7eb" : "#111827",
+  textoSuave: modoEscuro ? "#94a3b8" : "#4b5563",
+  borda: modoEscuro ? "#334155" : "#d1d5db",
+  botao: modoEscuro ? "#22c55e" : "#2563eb"
+};
   const categoriasDisponiveis = Array.from(
   new Set(contas.map(c => c.categoriaNome).filter(Boolean))
 );
@@ -516,15 +518,16 @@ function iniciarEdicao(conta: any) {
     }}
   >
     <div
-      className={modoEscuro ? "dashboard dark" : "dashboard"}
-      style={{
-        maxWidth: "1200px",
-        margin: "0 auto",
-        background: cores.card,
-        borderRadius: 16,
-        padding: 24
-      }}
-    >
+  className={modoEscuro ? "dashboard dark" : "dashboard"}
+  style={{
+    maxWidth: "1200px",
+    margin: "0 auto",
+    background: cores.card,
+    borderRadius: 16,
+    padding: 24,
+    color: cores.texto
+  }}
+>
       {/* HEADER DO DASHBOARD */}
 <div
   style={{
@@ -713,53 +716,109 @@ function iniciarEdicao(conta: any) {
   }}
 >
   <div>
-    <label>Descrição</label>
-    <input
-      value={descricao}
-      onChange={e => setDescricao(e.target.value)}
-      required
-    />
-  </div>
+  <label
+    style={{
+      color: cores.textoSuave,
+      fontSize: 13,
+      marginBottom: 4,
+      display: "block"
+    }}
+  >
+    Descrição
+  </label>
+
+  <input
+    value={descricao}
+    onChange={e => setDescricao(e.target.value)}
+    required
+    style={{
+      background: cores.card,
+      color: cores.texto,
+      border: `1px solid ${cores.borda}`,
+      borderRadius: 8,
+      padding: "8px 10px"
+    }}
+  />
+</div>
 
   <div>
-    <label>Valor</label>
-    <input
-      type="number"
-      value={valor}
-      onChange={e => setValor(e.target.value)}
-      required
-    />
-  </div>
+  <label style={{ color: cores.textoSuave, fontSize: 13, marginBottom: 4, display: "block" }}>
+    Valor
+  </label>
+
+  <input
+    type="number"
+    value={valor}
+    onChange={e => setValor(e.target.value)}
+    required
+    style={{
+      background: cores.card,
+      color: cores.texto,
+      border: `1px solid ${cores.borda}`,
+      borderRadius: 8,
+      padding: "8px 10px"
+    }}
+  />
+</div>
 
   <div>
-    <label>Data</label>
-    <input
-      type="date"
-      value={data}
-      onChange={e => setData(e.target.value)}
-      required
-    />
-  </div>
+  <label style={{ color: cores.textoSuave, fontSize: 13, marginBottom: 4, display: "block" }}>
+    Data
+  </label>
+
+  <input
+    type="date"
+    value={data}
+    onChange={e => setData(e.target.value)}
+    required
+    style={{
+      background: cores.card,
+      color: cores.texto,
+      border: `1px solid ${cores.borda}`,
+      borderRadius: 8,
+      padding: "8px 10px"
+    }}
+  />
+</div>
 
   <div>
-  <label>Categoria</label>
+  <label
+    style={{
+      color: cores.textoSuave,
+      fontSize: 13,
+      marginBottom: 4,
+      display: "block"
+    }}
+  >
+    Categoria
+  </label>
+
   <select
-  value={categoriaId}
-  onChange={e => setCategoriaId(e.target.value)}
-  required
->
-  <option value="">Selecione</option>
+    value={categoriaId}
+    onChange={e => setCategoriaId(e.target.value)}
+    required
+    style={{
+      background: cores.card,
+      color: cores.texto,
+      border: `1px solid ${cores.borda}`,
+      borderRadius: 8,
+      padding: "8px 10px"
+    }}
+  >
+    <option value="">Selecione</option>
 
-  {categorias.length === 0 && (
-    <option value="">Nenhuma categoria cadastrada</option>
-  )}
+    {categorias.length === 0 && (
+      <option value="" disabled>
+        Nenhuma categoria cadastrada
+      </option>
+    )}
 
-  {categorias.map(cat => (
-    <option key={cat.id} value={cat.id}>
-      {cat.nome}
-    </option>
-  ))}
-</select>
+    {categorias.map(cat => (
+      <option key={cat.id} value={cat.id}>
+        {cat.nome}
+      </option>
+    ))}
+  </select>
 </div>
 
   <button
@@ -828,14 +887,31 @@ function iniciarEdicao(conta: any) {
       }}
     >
       <div>
-        <label>Nova categoria</label>
-        <input
-          value={novaCategoria}
-          onChange={e => setNovaCategoria(e.target.value)}
-          placeholder="Ex: Alimentação"
-          required
-        />
-      </div>
+  <label
+    style={{
+      color: cores.textoSuave,
+      fontSize: 13,
+      marginBottom: 4,
+      display: "block"
+    }}
+  >
+    Nova categoria
+  </label>
+
+  <input
+    value={novaCategoria}
+    onChange={e => setNovaCategoria(e.target.value)}
+    placeholder="Ex: Alimentação"
+    required
+    style={{
+      background: cores.card,
+      color: cores.texto,
+      border: `1px solid ${cores.borda}`,
+      borderRadius: 8,
+      padding: "8px 10px"
+    }}
+  />
+</div>
 
       <button type="submit" style={{ height: 40 }}>
         ➕ Criar categoria
@@ -922,20 +998,24 @@ fontSize: 14
 
       }}
     >
-      <div>{conta.descricao}</div>
+      <div style={{ fontWeight: 500 }}>
+  {conta.descricao}
+</div>
 
-      <div>{conta.categoriaNome}</div>
+<div style={{ color: cores.textoSuave }}>
+  {conta.categoriaNome}
+</div>
 
-      <div>
-        {conta.valor.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL"
-        })}
-      </div>
+<div style={{ fontWeight: 500 }}>
+  {conta.valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  })}
+</div>
 
-      <div>
-        {conta.mes}/{conta.ano}
-      </div>
+<div style={{ color: cores.textoSuave }}>
+  {conta.mes}/{conta.ano}
+</div>
 
       <button onClick={() => iniciarEdicao(conta)}>
         ✏️

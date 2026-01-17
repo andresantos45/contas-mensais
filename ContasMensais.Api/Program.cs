@@ -105,12 +105,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// 🔴 GARANTIR QUE O BANCO E AS TABELAS EXISTEM
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.EnsureCreated();
-}
 
 // Middlewares
 app.UseCors("AllowFrontend");

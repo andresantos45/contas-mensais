@@ -49,26 +49,50 @@ namespace ContasMensais.Api.Controllers
 
         // ➕ CRIAR CATEGORIA
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Categoria categoria)
-        {
-            if (categoria == null || string.IsNullOrWhiteSpace(categoria.Nome))
-                return BadRequest("Categoria inválida");
+public async Task<IActionResult> Post([FromBody] Categoria categoria)
+{
+    if (categoria == null || string.IsNullOrWhiteSpace(categoria.Nome))
+        return BadRequest("Categoria inválida");
 
-            var usuarioId = ObterUsuarioId();
-            categoria.UsuarioId = usuarioId;
+    var usuarioId = ObterUsuarioId();
 
-            _context.Categorias.Add(categoria);
-            await _context.SaveChangesAsync();
+    var existe = await _context.Categorias.AnyAsync(c =>
+        c.UsuarioId == usuarioId &&
+        c.Nome.ToLower() == categoria.Nome.ToLower()
+    );
 
-            return CreatedAtAction(
-                nameof(Get),
-                new { id = categoria.Id },
-                new
-                {
-                    categoria.Id,
-                    categoria.Nome
-                }
-            );
-        }
+    if (existe)
+        return BadRequest("Categoria já existe");
+
+    categoria.UsuarioId = usuarioId;
+
+    _context.Categorias.Add(categoria);
+    await _context.SaveChangesAsync();
+
+    return Ok(new
+    {
+        categoria.Id,
+        categoria.Nome
+    });
+}
+
+    // 🗑️ DELETE TEMPORÁRIO (LIMPEZA)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var usuarioId = ObterUsuarioId();
+
+        var categoria = await _context.Categorias
+            .FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId);
+
+        if (categoria == null)
+            return NotFound();
+
+        _context.Categorias.Remove(categoria);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }
+
+    }

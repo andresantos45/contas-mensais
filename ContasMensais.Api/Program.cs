@@ -133,20 +133,39 @@ using (var scope = app.Services.CreateScope())
 
     context.Database.Migrate();
 
-    if (!context.Categorias.Any())
+    // ✅ LISTA OFICIAL DE CATEGORIAS PADRÃO
+    var categoriasPadrao = new[]
     {
-        context.Categorias.AddRange(
-            new Categoria { Nome = "Alimentação" },
-            new Categoria { Nome = "Moradia" },
-            new Categoria { Nome = "Transporte" },
-            new Categoria { Nome = "Saúde" },
-            new Categoria { Nome = "Lazer" },
-            new Categoria { Nome = "Educação" },
-            new Categoria { Nome = "Outros" }
-        );
+        "Alimentação",
+        "Moradia",
+        "Transporte",
+        "Saúde",
+        "Lazer",
+        "Educação",
+        "Outros"
+    };
 
-        context.SaveChanges();
+    // 🧹 REMOVE CATEGORIAS QUE NÃO SÃO PADRÃO
+    var categoriasInvalidas = context.Categorias
+        .Where(c => !categoriasPadrao.Contains(c.Nome))
+        .ToList();
+
+    if (categoriasInvalidas.Any())
+    {
+        context.Categorias.RemoveRange(categoriasInvalidas);
     }
+
+    // ➕ GARANTE QUE TODAS AS PADRÃO EXISTAM (SEM DUPLICAR)
+    foreach (var nome in categoriasPadrao)
+    {
+        if (!context.Categorias.Any(c => c.Nome == nome))
+        {
+            context.Categorias.Add(new Categoria { Nome = nome });
+        }
+    }
+
+    context.SaveChanges();
 }
+
 
 app.Run();

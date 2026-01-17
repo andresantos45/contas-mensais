@@ -258,54 +258,98 @@ async function exportarExcel() {
 }
 
 // =======================
-// EXPORTAÇÃO PARA PDF
+// EXPORTAÇÃO PARA PDF (7.3)
 // =======================
 function exportarPDF() {
-  if (contas.length === 0) {
+  if (contasFiltradas.length === 0) {
     alert("Nenhum dado para exportar");
     return;
   }
 
   const doc = new jsPDF();
 
-  doc.setFontSize(16);
-  doc.text("Relatório de Contas Mensais", 14, 20);
+  const nomesMeses = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
 
-  doc.setFontSize(11);
-  doc.text(
-  `Período: ${textoPeriodo}`,
-  14,
-  28
-);
+  let y = 20;
 
-  const linhas = contasFiltradas.map((c: any) => [
-    c.descricao,
-    c.categoriaNome,
-    c.valor.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    }),
-    `${c.mes}/${c.ano}`
-  ]);
+  doc.setFontSize(18);
+  doc.text("Relatório de Contas Mensais", 14, y);
+  y += 10;
 
-  autoTable(doc, {
-    startY: 35,
-    head: [["Descrição", "Categoria", "Valor", "Mês/Ano"]],
-    body: linhas,
-    styles: {
-      fontSize: 10
-    },
-    headStyles: {
-      fillColor: [34, 197, 94]
+  // 🔹 ANO INTEIRO → UM BLOCO POR MÊS
+  if (mesBusca === 0) {
+    for (let mes = 1; mes <= 12; mes++) {
+      const contasDoMes = contasFiltradas.filter(c => c.mes === mes);
+      if (contasDoMes.length === 0) continue;
+
+      doc.setFontSize(14);
+      doc.text(`${nomesMeses[mes - 1]} / ${anoBusca}`, 14, y);
+      y += 6;
+
+      const linhas = contasDoMes.map((c: any) => [
+        c.descricao,
+        c.categoriaNome,
+        c.valor.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL"
+        })
+      ]);
+
+      autoTable(doc, {
+        startY: y,
+        head: [["Descrição", "Categoria", "Valor"]],
+        body: linhas,
+        styles: { fontSize: 10 },
+        headStyles: { fillColor: [34, 197, 94] }
+      });
+
+      y = (doc as any).lastAutoTable.finalY + 10;
+
+      if (y > 260) {
+        doc.addPage();
+        y = 20;
+      }
     }
-  });
 
-  doc.save(
-  mesBusca === 0
-    ? `contas_ano_${anoBusca}.pdf`
-    : `contas_${mesBusca}_${anoBusca}.pdf`
-);
+    doc.save(`contas_${anoBusca}.pdf`);
+  }
+
+  // 🔹 MÊS ÚNICO
+  else {
+    doc.setFontSize(14);
+    doc.text(
+      `${nomesMeses[mesBusca - 1]} / ${anoBusca}`,
+      14,
+      y
+    );
+    y += 6;
+
+    const linhas = contasFiltradas.map((c: any) => [
+      c.descricao,
+      c.categoriaNome,
+      c.valor.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      })
+    ]);
+
+    autoTable(doc, {
+      startY: y,
+      head: [["Descrição", "Categoria", "Valor"]],
+      body: linhas,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [99, 102, 241] }
+    });
+
+    doc.save(
+      `contas_${nomesMeses[mesBusca - 1]}_${anoBusca}.pdf`
+    );
+  }
 }
+
 // =======================
 // CRIAR CONTA
 // =======================

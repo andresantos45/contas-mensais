@@ -296,17 +296,14 @@ async function criarConta(e: React.FormEvent) {
   }
 
   try {
-    const dataObj = new Date(data);
-    const mes = dataObj.getMonth() + 1;
-    const ano = dataObj.getFullYear();
+    const dataISO = new Date(data + "T00:00:00");
 
     if (contaEditando) {
-      // ✏️ EDITAR CONTA
+      // ✏️ EDITAR CONTA (ENVIA DATA, NÃO MES/ANO)
       await api.put(`/api/contas/${contaEditando.id}`, {
         descricao,
         valor: Number(valor),
-        mes,
-        ano,
+        data: dataISO,
         categoriaId: Number(categoriaId)
       });
 
@@ -314,23 +311,19 @@ async function criarConta(e: React.FormEvent) {
     } else {
       // ➕ CRIAR CONTA
       await api.post("/api/contas", {
-  descricao,
-  valor: Number(valor),
-  data: `${data}T00:00:00`,
-  categoriaId: Number(categoriaId)
-});
+        descricao,
+        valor: Number(valor),
+        data: dataISO,
+        categoriaId: Number(categoriaId)
+      });
     }
 
-    // limpa formulário
     setDescricao("");
     setValor("");
     setData("");
     setCategoriaId("");
 
-    // recarrega contas do período
-    const response = await api.get(
-      `/api/contas/${mesBusca}/${anoBusca}`
-    );
+    const response = await api.get(`/api/contas/${mesBusca}/${anoBusca}`);
     setContas(response.data);
 
     await carregarPeriodoAnterior();

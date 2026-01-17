@@ -702,40 +702,7 @@ function iniciarEdicao(conta: any) {
     ➕ Criar categoria
   </button>
 </form>
-{/* LISTA DE CATEGORIAS */}
-<div style={{ marginTop: 16 }}>
-  <h3>Categorias</h3>
 
-  {categorias.map(cat => (
-    <div
-      key={cat.id}
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "6px 4px",
-        borderBottom: "1px solid #334155",
-        fontSize: 14,
-      }}
-    >
-      <span>{cat.nome}</span>
-
-      <button
-        onClick={() => excluirCategoria(cat.id)}
-        style={{
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-          color: "#ef4444",
-          fontSize: 16,
-        }}
-        title="Excluir categoria"
-      >
-        ❌
-      </button>
-    </div>
-  ))}
-</div>
  {/* GRID DE CARDS */}
 <div
   style={{

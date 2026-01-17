@@ -976,12 +976,65 @@ function iniciarEdicao(conta: any) {
   />
 </div>
 {/* LISTA DE CONTAS */}
-<div style={{ marginTop: 32 }}>
-  <h2>Contas do período</h2>
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 16,
+    marginTop: 32,
+    marginBottom: 12,
+    flexWrap: "wrap",
+  }}
+>
+  {/* FILTRO MÊS / ANO */}
+  <select
+    value={mesBusca}
+    onChange={e => setMesBusca(Number(e.target.value))}
+    style={{
+      background: "#ffffff",
+      color: "#111827",
+      border: "1px solid #cbd5f5",
+      borderRadius: 8,
+      padding: "6px 10px",
+      fontWeight: 500,
+    }}
+  >
+    <option value={0}>Ano inteiro</option>
+    {[
+      "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+      "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+    ].map((nome, index) => (
+      <option key={index + 1} value={index + 1}>
+        {nome}
+      </option>
+    ))}
+  </select>
 
-  {contasFiltradas.length === 0 && (
-    <p>Nenhuma conta cadastrada.</p>
-  )}
+  <input
+    type="number"
+    value={anoBusca}
+    onChange={e => setAnoBusca(Number(e.target.value))}
+    style={{
+      width: 90,
+      background: "#ffffff",
+      color: "#111827",
+      border: "1px solid #cbd5f5",
+      borderRadius: 8,
+      padding: "6px 8px",
+      fontWeight: 500,
+    }}
+  />
+
+  {/* TÍTULO */}
+  <h2 style={{ margin: 0 }}>
+    Contas do período
+  </h2>
+</div>
+
+{contasFiltradas.length === 0 && (
+  <p>Nenhuma conta cadastrada.</p>
+)}
+
 
   {contasFiltradas.map(conta => (
     <div
@@ -1076,6 +1129,6 @@ fontSize: 14
 
   </div>
   </div>
-   </div>
+   
 );
 }

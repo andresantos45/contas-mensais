@@ -127,45 +127,5 @@ app.MapGet("/health", () => Results.Ok("healthy"));
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-    context.Database.Migrate();
-
-    // ✅ LISTA OFICIAL DE CATEGORIAS PADRÃO
-    var categoriasPadrao = new[]
-    {
-        "Alimentação",
-        "Moradia",
-        "Transporte",
-        "Saúde",
-        "Lazer",
-        "Educação",
-        "Outros"
-    };
-
-    // 🧹 REMOVE CATEGORIAS QUE NÃO SÃO PADRÃO
-    var categoriasInvalidas = context.Categorias
-        .Where(c => !categoriasPadrao.Contains(c.Nome))
-        .ToList();
-
-    if (categoriasInvalidas.Any())
-    {
-        context.Categorias.RemoveRange(categoriasInvalidas);
-    }
-
-    // ➕ GARANTE QUE TODAS AS PADRÃO EXISTAM (SEM DUPLICAR)
-    foreach (var nome in categoriasPadrao)
-    {
-        if (!context.Categorias.Any(c => c.Nome == nome))
-        {
-            context.Categorias.Add(new Categoria { Nome = nome });
-        }
-    }
-
-    context.SaveChanges();
-}
-
 
 app.Run();

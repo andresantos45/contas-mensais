@@ -51,7 +51,28 @@ const [categoriaId, setCategoriaId] = useState("");
 );
 
 const responseCategorias = await api.get("/api/categorias");
-setCategorias(responseCategorias.data);
+
+// 🔹 SEED DE CATEGORIAS POR USUÁRIO (SE ESTIVER VAZIO)
+if (responseCategorias.data.length === 0) {
+  const categoriasPadrao = [
+    "Alimentação",
+    "Moradia",
+    "Transporte",
+    "Saúde",
+    "Lazer",
+    "Educação",
+    "Outros",
+  ];
+
+  for (const nome of categoriasPadrao) {
+    await api.post("/api/categorias", { nome });
+  }
+
+  const recarregar = await api.get("/api/categorias");
+  setCategorias(recarregar.data);
+} else {
+  setCategorias(responseCategorias.data);
+}
 
 if (ativo) {
   setContas(responseAtual.data);

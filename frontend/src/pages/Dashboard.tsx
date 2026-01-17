@@ -6,6 +6,7 @@ import GraficoMensal from "../components/Graficos/GraficoMensal";
 import GraficoCategoria from "../components/Graficos/GraficoCategoria";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
+import DashboardCard from "../components/Dashboard/DashboardCard";
 
 export default function Dashboard() {
    const navigate = useNavigate();
@@ -640,117 +641,55 @@ function iniciarEdicao(conta: any) {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
     gap: 16,
-    marginTop: 16
+    marginTop: 24,
   }}
 >
-      {/* CARD – TOTAL DO PERÍODO */}
-<div
-  style={{
-    background: cores.card,
-    padding: 20,
-    borderRadius: 16,
-    marginTop: 16,
-    maxWidth: 320,
-    border: "1px solid #64748b"
-  }}
->
-  <div style={{ fontSize: 14, opacity: 0.7 }}>
-    Total do período
-  </div>
-
-  <div style={{ fontSize: 28, fontWeight: 700, marginTop: 8 }}>
-    {totalPeriodo.toLocaleString("pt-BR", {
+  <DashboardCard
+    titulo="Total do período"
+    valorPrincipal={totalPeriodo.toLocaleString("pt-BR", {
       style: "currency",
-      currency: "BRL"
+      currency: "BRL",
     })}
-  </div>
-</div>
-{/* CARD – MÉDIA MENSAL */}
-<div
-  style={{
-    background: cores.card,
-    padding: 20,
-    borderRadius: 16,
-    marginTop: 16,
-    maxWidth: 320,
-    border: "1px solid #64748b"
-  }}
->
-  <div style={{ fontSize: 14, opacity: 0.7 }}>
-  {mesBusca === 0 ? "Média mensal do ano" : "Valor do mês"}
-</div>
+  />
 
-  <div style={{ fontSize: 26, fontWeight: 700, marginTop: 6 }}>
-    {mediaMensal.toLocaleString("pt-BR", {
+  <DashboardCard
+    titulo={mesBusca === 0 ? "Média mensal do ano" : "Valor do mês"}
+    valorPrincipal={mediaMensal.toLocaleString("pt-BR", {
       style: "currency",
-      currency: "BRL"
+      currency: "BRL",
     })}
-  </div>
+    subtitulo={
+      mesBusca === 0
+        ? "cálculo baseado no ano inteiro"
+        : "referente ao mês selecionado"
+    }
+  />
 
-  <div style={{ fontSize: 13, opacity: 0.6 }}>
-  {mesBusca === 0
-    ? "cálculo baseado no ano inteiro"
-    : "referente ao mês selecionado"}
-</div>
-</div>
-{/* CARD – COMPARAÇÃO COM PERÍODO ANTERIOR */}
-<div
-  style={{
-    background: cores.card,
-    padding: 20,
-    borderRadius: 16,
-    marginTop: 16,
-    maxWidth: 320,
-    border:
+  <DashboardCard
+    titulo="Comparação com período anterior"
+    valorPrincipal={`${tendencia} ${diferenca.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    })}`}
+    subtitulo={`${percentual.toFixed(1)}%`}
+    corBorda={
       tipo === "alta"
-        ? "1px solid #16a34a"
+        ? "#16a34a"
         : tipo === "queda"
-        ? "1px solid #dc2626"
-        : "1px solid #64748b"
-  }}
->
-  <div style={{ fontSize: 14, opacity: 0.7 }}>
-    Comparação com período anterior
-  </div>
+        ? "#dc2626"
+        : "#334155"
+    }
+  />
 
-  <div style={{ fontSize: 26, fontWeight: 700, marginTop: 6 }}>
-    {tendencia}{" "}
-    {diferenca.toLocaleString("pt-BR", {
+  <DashboardCard
+    titulo="Categoria com maior gasto"
+    valorPrincipal={nomeCategoriaMaior}
+    subtitulo={valorCategoriaMaior.toLocaleString("pt-BR", {
       style: "currency",
-      currency: "BRL"
+      currency: "BRL",
     })}
-  </div>
-
-  <div style={{ fontSize: 14, opacity: 0.7 }}>
-    {percentual.toFixed(1)}%
-  </div>
-</div>
-{/* CARD – MAIOR CATEGORIA */}
-<div
-  style={{
-    background: cores.card,
-    padding: 20,
-    borderRadius: 16,
-    marginTop: 16,
-    maxWidth: 320,
-    border: "1px solid #0ea5e9"
-  }}
->
-  <div style={{ fontSize: 14, opacity: 0.7 }}>
-    Categoria com maior gasto
-  </div>
-
-  <div style={{ fontSize: 22, fontWeight: 700, marginTop: 6 }}>
-    {nomeCategoriaMaior}
-  </div>
-
-  <div style={{ fontSize: 18, marginTop: 4 }}>
-    {valorCategoriaMaior.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    })}
-  </div>
-</div>
+    corBorda="#0ea5e9"
+  />
 </div>
 {/* LISTA DE CONTAS */}
 <div style={{ marginTop: 32 }}>

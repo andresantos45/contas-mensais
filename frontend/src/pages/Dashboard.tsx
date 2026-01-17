@@ -553,9 +553,22 @@ function iniciarEdicao(conta: any) {
 >
   <option value={0}>Ano inteiro</option>
 
-  {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
-    <option key={m} value={m}>
-      Mês {m}
+  {[
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro"
+  ].map((nome, index) => (
+    <option key={index + 1} value={index + 1}>
+      {nome}
     </option>
   ))}
 </select>

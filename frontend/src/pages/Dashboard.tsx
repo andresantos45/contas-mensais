@@ -54,7 +54,7 @@ const responseCategorias = await api.get("/api/categorias");
 
 
 setCategorias(
-  responseCategorias.data.sort(
+  [...responseCategorias.data].sort(
     (a: any, b: any) => a.nome.localeCompare(b.nome)
   )
 );
@@ -391,12 +391,17 @@ async function excluirConta(id: number) {
   }
 }
 async function excluirCategoria(id: number) {
+  const emUso = contas.some(c => c.categoriaId === id);
+
+  if (emUso) {
+    alert("Esta categoria está vinculada a uma conta e não pode ser excluída.");
+    return;
+  }
+
   if (!window.confirm("Deseja excluir esta categoria?")) return;
 
   try {
     await api.delete(`/api/categorias/${id}`);
-
-    // remove do estado local
     setCategorias(categorias.filter(c => c.id !== id));
   } catch (error) {
     console.error(error);

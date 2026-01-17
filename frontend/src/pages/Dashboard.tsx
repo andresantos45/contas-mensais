@@ -686,17 +686,17 @@ function iniciarEdicao(conta: any) {
       Descrição
     </label>
     <input
-      value={descricao}
-      onChange={e => setDescricao(e.target.value)}
-      required
-      style={{
-        background: cores.card,
-        color: cores.texto,
-        border: `1px solid ${cores.borda}`,
-        borderRadius: 8,
-        padding: "8px 10px"
-      }}
-    />
+  value={descricao}
+  onChange={e => setDescricao(e.target.value)}
+  required
+  style={{
+    background: "#ffffff",
+    color: "#111827",
+    border: "1px solid #cbd5f5",
+    borderRadius: 8,
+    padding: "8px 10px"
+  }}
+/>
   </div>
 
   {/* VALOR */}
@@ -705,18 +705,18 @@ function iniciarEdicao(conta: any) {
       Valor
     </label>
     <input
-      type="number"
-      value={valor}
-      onChange={e => setValor(e.target.value)}
-      required
-      style={{
-        background: cores.card,
-        color: cores.texto,
-        border: `1px solid ${cores.borda}`,
-        borderRadius: 8,
-        padding: "8px 10px"
-      }}
-    />
+  type="number"
+  value={valor}
+  onChange={e => setValor(e.target.value)}
+  required
+  style={{
+    background: "#ffffff",
+    color: "#111827",
+    border: "1px solid #cbd5f5",
+    borderRadius: 8,
+    padding: "8px 10px"
+  }}
+/>
   </div>
 
   {/* DATA */}
@@ -725,18 +725,18 @@ function iniciarEdicao(conta: any) {
       Data
     </label>
     <input
-      type="date"
-      value={data}
-      onChange={e => setData(e.target.value)}
-      required
-      style={{
-        background: cores.card,
-        color: cores.texto,
-        border: `1px solid ${cores.borda}`,
-        borderRadius: 8,
-        padding: "8px 10px"
-      }}
-    />
+  type="date"
+  value={data}
+  onChange={e => setData(e.target.value)}
+  required
+  style={{
+    background: "#ffffff",
+    color: "#111827",
+    border: "1px solid #cbd5f5",
+    borderRadius: 8,
+    padding: "8px 10px"
+  }}
+/>
   </div>
 
   {/* CATEGORIA */}
@@ -745,17 +745,17 @@ function iniciarEdicao(conta: any) {
       Categoria
     </label>
     <select
-      value={categoriaId}
-      onChange={e => setCategoriaId(e.target.value)}
-      required
-      style={{
-        background: cores.card,
-        color: cores.texto,
-        border: `1px solid ${cores.borda}`,
-        borderRadius: 8,
-        padding: "8px 10px"
-      }}
-    >
+  value={categoriaId}
+  onChange={e => setCategoriaId(e.target.value)}
+  required
+  style={{
+    background: "#ffffff",
+    color: "#111827",
+    border: "1px solid #cbd5f5",
+    borderRadius: 8,
+    padding: "8px 10px"
+  }}
+>
       <option value="">Selecione</option>
       {categorias.map(cat => (
         <option key={cat.id} value={cat.id}>

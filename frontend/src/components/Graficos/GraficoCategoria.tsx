@@ -1,88 +1,29 @@
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Tooltip,
-  Legend
-} from "chart.js";
-import { Bar } from "react-chartjs-2";
+import { Pie } from "react-chartjs-2";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Tooltip,
-  Legend
-);
-
-type Props = {
-  dados: Record<string, number>;
-};
-
-export default function GraficoCategoria({ dados }: Props) {
+export default function GraficoCategoria({ dados }: any) {
   const labels = Object.keys(dados);
   const valores = Object.values(dados);
 
-  if (labels.length === 0) {
-    return <p>Nenhum dado para exibir</p>;
-  }
-
-  const chartData = {
+  const data = {
     labels,
     datasets: [
       {
-        label: "Total por categoria (R$)",
         data: valores,
-        backgroundColor: "#0ea5e9",
-        borderRadius: 6
-      }
-    ]
-  };
-
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        labels: {
-          color: "#e5e7eb"
-        }
+        backgroundColor: [
+          "#0ea5e9",
+          "#38bdf8",
+          "#0284c7",
+          "#0369a1",
+          "#075985",
+          "#0c4a6e",
+        ],
       },
-      tooltip: {
-        callbacks: {
-          label: function (context: any) {
-            return context.raw.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL"
-            });
-          }
-        }
-      }
-    },
-    scales: {
-      x: {
-        ticks: {
-          color: "#e5e7eb"
-        },
-        grid: {
-          color: "#334155"
-        }
-      },
-      y: {
-        ticks: {
-          color: "#e5e7eb"
-        },
-        grid: {
-          color: "#334155"
-        }
-      }
-    }
+    ],
   };
 
   return (
-    <div style={{ height: 320 }}>
-      <Bar data={chartData} options={options} />
+    <div style={{ height: 220 }}>
+      <Pie data={data} />
     </div>
   );
 }

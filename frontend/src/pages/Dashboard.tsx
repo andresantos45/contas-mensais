@@ -634,39 +634,6 @@ function iniciarEdicao(conta: any) {
   </p>
 )}
       
-<div
-  className="dashboard-controls"
-  style={{
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 12,
-    marginTop: 20,
-    marginBottom: 24,
-  }}
->
-  <select
-    value={mesBusca}
-    onChange={e => setMesBusca(Number(e.target.value))}
-  >
-    <option value={0}>Ano inteiro</option>
-    {[
-      "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-      "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-    ].map((nome, index) => (
-      <option key={index + 1} value={index + 1}>
-        {nome}
-      </option>
-    ))}
-  </select>
-
-  <input
-    type="number"
-    value={anoBusca}
-    onChange={e => setAnoBusca(Number(e.target.value))}
-    style={{ width: 90 }}
-  />
-</div>
-
      
   {/* FORMULÁRIO — CRIAR / EDITAR CONTA */}
 <form

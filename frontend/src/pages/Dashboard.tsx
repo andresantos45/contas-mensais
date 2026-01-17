@@ -314,12 +314,11 @@ async function criarConta(e: React.FormEvent) {
     } else {
       // ➕ CRIAR CONTA
       await api.post("/api/contas", {
-        descricao,
-        valor: Number(valor),
-        mes,
-        ano,
-        categoriaId: Number(categoriaId)
-      });
+  descricao,
+  valor: Number(valor),
+  data: `${data}T00:00:00`,
+  categoriaId: Number(categoriaId)
+});
     }
 
     // limpa formulário

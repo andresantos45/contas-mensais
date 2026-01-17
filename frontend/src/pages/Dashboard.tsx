@@ -296,22 +296,28 @@ async function criarConta(e: React.FormEvent) {
   }
 
   try {
+    const dataObj = new Date(data);
+    const mes = dataObj.getMonth() + 1;
+    const ano = dataObj.getFullYear();
+
     if (contaEditando) {
-      // ✏️ EDITAR
+      // ✏️ EDITAR CONTA
       await api.put(`/api/contas/${contaEditando.id}`, {
         descricao,
         valor: Number(valor),
-        data,
+        mes,
+        ano,
         categoriaId: Number(categoriaId)
       });
 
       setContaEditando(null);
     } else {
-      // ➕ CRIAR
+      // ➕ CRIAR CONTA
       await api.post("/api/contas", {
         descricao,
         valor: Number(valor),
-        data,
+        mes,
+        ano,
         categoriaId: Number(categoriaId)
       });
     }
@@ -322,7 +328,7 @@ async function criarConta(e: React.FormEvent) {
     setData("");
     setCategoriaId("");
 
-    // recarrega dados
+    // recarrega contas do período
     const response = await api.get(
       `/api/contas/${mesBusca}/${anoBusca}`
     );

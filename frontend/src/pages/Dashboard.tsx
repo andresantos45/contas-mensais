@@ -414,31 +414,60 @@ function iniciarEdicao(conta: any) {
         padding: 24
       }}
     >
-      <h1 style={{ fontSize: 28, fontWeight: 700 }}>
-  Contas Mensais
-</h1>
+      {/* HEADER DO DASHBOARD */}
+<div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 16,
+    marginBottom: 24,
+    flexWrap: "wrap",
+  }}
+>
+  {/* ESQUERDA — TÍTULO */}
+  <div>
+    <h1 style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>
+      Contas Mensais
+    </h1>
+    <p style={{ opacity: 0.65, marginTop: 4 }}>
+      {textoPeriodo}
+    </p>
+  </div>
 
-<p style={{ opacity: 0.65, marginTop: 4 }}>
-  {textoPeriodo}
-</p>
+  {/* DIREITA — AÇÕES */}
+  <div style={{ display: "flex", gap: 12 }}>
+    <button
+      onClick={() => setModoEscuro(!modoEscuro)}
+      style={{
+        background: cores.card,
+        color: cores.texto,
+        border: "1px solid #334155",
+        padding: "8px 14px",
+        borderRadius: 8,
+        cursor: "pointer",
+        fontWeight: 600,
+      }}
+    >
+      🌓 Tema
+    </button>
 
-  {/* 🔓 LOGOUT */}
-    <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-      <button
-        onClick={handleLogout}
-        style={{
-          background: "#dc2626",
-          color: "#fff",
-          border: "none",
-          padding: "8px 14px",
-          borderRadius: 8,
-          cursor: "pointer",
-          fontWeight: 600
-        }}
-      >
-        🚪 Sair
-      </button>
-    </div>
+    <button
+      onClick={handleLogout}
+      style={{
+        background: "#dc2626",
+        color: "#fff",
+        border: "none",
+        padding: "8px 14px",
+        borderRadius: 8,
+        cursor: "pointer",
+        fontWeight: 600,
+      }}
+    >
+      🚪 Sair
+    </button>
+  </div>
+</div>
       {loading && (
   <p>
     Atualizando dados...
@@ -475,14 +504,7 @@ function iniciarEdicao(conta: any) {
     style={{ width: 90 }}
   />
 
-  <button
-  className="btn btn-theme"
-  onClick={() => setModoEscuro(!modoEscuro)}
->
-  Tema alternativo
-</button>
-
-  <button
+   <button
     onClick={() => setTipoGrafico("mes")}
     style={{
       background: tipoGrafico === "mes" ? "#22c55e" : cores.card,

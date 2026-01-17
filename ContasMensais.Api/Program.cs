@@ -133,4 +133,26 @@ app.MapGet("/health", () => Results.Ok("healthy"));
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    context.Database.Migrate();
+
+    if (!context.Categorias.Any())
+    {
+        context.Categorias.AddRange(
+            new Categoria { Nome = "Alimentação" },
+            new Categoria { Nome = "Moradia" },
+            new Categoria { Nome = "Transporte" },
+            new Categoria { Nome = "Saúde" },
+            new Categoria { Nome = "Lazer" },
+            new Categoria { Nome = "Educação" },
+            new Categoria { Nome = "Outros" }
+        );
+
+        context.SaveChanges();
+    }
+}
+
 app.Run();

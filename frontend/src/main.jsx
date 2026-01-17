@@ -4,12 +4,7 @@ import App from "./App";
 import "./index.css";
 
 // 🔽 ADICIONAR ESTE BLOCO
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 // 🔴 REGISTRO OBRIGATÓRIO PARA GRÁFICOS DE PIZZA
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -23,5 +18,5 @@ if (!rootElement) {
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );

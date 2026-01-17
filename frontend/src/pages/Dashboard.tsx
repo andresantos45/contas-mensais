@@ -682,9 +682,16 @@ function iniciarEdicao(conta: any) {
 >
   {/* DESCRIÇÃO */}
   <div>
-    <label style={{ color: cores.textoSuave, fontSize: 13 }}>
-      Descrição
-    </label>
+    <label
+  style={{
+    color: cores.textoSuave,
+    fontSize: 13,
+    marginBottom: 6,
+    display: "block"
+  }}
+>
+  Descrição
+</label>
     <input
   value={descricao}
   onChange={e => setDescricao(e.target.value)}
@@ -701,9 +708,16 @@ function iniciarEdicao(conta: any) {
 
   {/* VALOR */}
   <div>
-    <label style={{ color: cores.textoSuave, fontSize: 13 }}>
-      Valor
-    </label>
+    <label
+  style={{
+    color: cores.textoSuave,
+    fontSize: 13,
+    marginBottom: 6,
+    display: "block"
+  }}
+>
+  Valor
+</label>
     <input
   type="number"
   value={valor}
@@ -721,9 +735,16 @@ function iniciarEdicao(conta: any) {
 
   {/* DATA */}
   <div>
-    <label style={{ color: cores.textoSuave, fontSize: 13 }}>
-      Data
-    </label>
+   <label
+  style={{
+    color: cores.textoSuave,
+    fontSize: 13,
+    marginBottom: 6,
+    display: "block"
+  }}
+>
+  Data
+</label>
     <input
   type="date"
   value={data}
@@ -741,9 +762,16 @@ function iniciarEdicao(conta: any) {
 
   {/* CATEGORIA */}
   <div>
-    <label style={{ color: cores.textoSuave, fontSize: 13 }}>
-      Categoria
-    </label>
+    <label
+  style={{
+    color: cores.textoSuave,
+    fontSize: 13,
+    marginBottom: 6,
+    display: "block"
+  }}
+>
+  Categoria
+</label>
     <select
   value={categoriaId}
   onChange={e => setCategoriaId(e.target.value)}

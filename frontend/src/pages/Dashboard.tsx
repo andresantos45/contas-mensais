@@ -29,6 +29,7 @@ export default function Dashboard() {
   const [categorias, setCategorias] = useState<any[]>([]);
   const [novaCategoria, setNovaCategoria] = useState("");
   const [contaEditando, setContaEditando] = useState<any | null>(null);
+  const [salvandoConta, setSalvandoConta] = useState(false);
 
  // =======================
 // FORMULÁRIO – NOVA CONTA
@@ -296,15 +297,22 @@ async function criarConta(e: React.FormEvent) {
   }
 
   try {
-    const dataISO = new Date(data + "T00:00:00");
+    setSalvandoConta(true);
+
+    const dataObj = new Date(data);
+
+    if (isNaN(dataObj.getTime())) {
+      alert("Data inválida");
+      return;
+    }
 
     if (contaEditando) {
-      // ✏️ EDITAR CONTA (ENVIA DATA, NÃO MES/ANO)
+      // ✏️ EDITAR CONTA
       await api.put(`/api/contas/${contaEditando.id}`, {
         descricao,
         valor: Number(valor),
-        data: dataISO,
-        categoriaId: Number(categoriaId)
+        data: dataObj,
+        categoriaId: Number(categoriaId),
       });
 
       setContaEditando(null);
@@ -313,23 +321,29 @@ async function criarConta(e: React.FormEvent) {
       await api.post("/api/contas", {
         descricao,
         valor: Number(valor),
-        data: dataISO,
-        categoriaId: Number(categoriaId)
+        data: dataObj,
+        categoriaId: Number(categoriaId),
       });
     }
 
+    // limpa formulário
     setDescricao("");
     setValor("");
     setData("");
     setCategoriaId("");
 
-    const response = await api.get(`/api/contas/${mesBusca}/${anoBusca}`);
+    // recarrega contas do período
+    const response = await api.get(
+      `/api/contas/${mesBusca}/${anoBusca}`
+    );
     setContas(response.data);
 
     await carregarPeriodoAnterior();
   } catch (error) {
     console.error(error);
     alert("Erro ao salvar conta");
+  } finally {
+    setSalvandoConta(false);
   }
 }
 // =======================

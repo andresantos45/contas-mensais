@@ -30,6 +30,7 @@ export default function Dashboard() {
   const [novaCategoria, setNovaCategoria] = useState("");
   const [contaEditando, setContaEditando] = useState<any | null>(null);
   const [salvandoConta, setSalvandoConta] = useState(false);
+  const [mostrarCategorias, setMostrarCategorias] = useState(false);
 
  // =======================
 // FORMULÁRIO – NOVA CONTA
@@ -414,6 +415,9 @@ async function criarConta(e: React.FormEvent) {
     setSalvandoConta(false);
   }
 }
+
+
+
 // =======================
 // CRIAR CATEGORIA
 // =======================
@@ -740,22 +744,42 @@ function iniciarEdicao(conta: any) {
   <div>
   <label>Categoria</label>
   <select
-    value={categoriaId}
-    onChange={e => setCategoriaId(e.target.value)}
-    required
-  >
-    <option value="">Selecione</option>
+  value={categoriaId}
+  onChange={e => setCategoriaId(e.target.value)}
+  required
+>
+  <option value="">Selecione</option>
 
-    {categorias.map(cat => (
-      <option key={cat.id} value={cat.id}>
-        {cat.nome}
-      </option>
-    ))}
-  </select>
+  {categorias.length === 0 && (
+    <option value="">Nenhuma categoria cadastrada</option>
+  )}
+
+  {categorias.map(cat => (
+    <option key={cat.id} value={cat.id}>
+      {cat.nome}
+    </option>
+  ))}
+</select>
 </div>
 
-  <button type="submit" style={{ height: 40 }}>
-  {contaEditando ? "💾 Salvar edição" : "➕ Adicionar"}
+  <button
+  type="submit"
+  disabled={salvandoConta}
+  style={{
+    height: 40,
+    background: salvandoConta ? "#64748b" : cores.botao,
+    color: "#fff",
+    border: "none",
+    borderRadius: 8,
+    cursor: salvandoConta ? "not-allowed" : "pointer",
+    fontWeight: 600,
+  }}
+>
+  {salvandoConta
+    ? "⏳ Salvando..."
+    : contaEditando
+    ? "💾 Salvar edição"
+    : "➕ Adicionar"}
 </button>
 {contaEditando && (
   <button
@@ -773,30 +797,52 @@ function iniciarEdicao(conta: any) {
   </button>
 )}
 </form>
-{/* FORMULÁRIO — CRIAR CATEGORIA */}
-<form
-  onSubmit={criarCategoria}
+
+<button
+  type="button"
+  onClick={() => setMostrarCategorias(!mostrarCategorias)}
   style={{
-    display: "flex",
-    gap: 12,
-    marginTop: 12,
-    alignItems: "end"
+    marginTop: 16,
+    background: "#334155",
+    color: "#fff",
+    border: "none",
+    padding: "8px 14px",
+    borderRadius: 8,
+    cursor: "pointer",
+    fontWeight: 600,
   }}
 >
-  <div>
-    <label>Nova categoria</label>
-    <input
-      value={novaCategoria}
-      onChange={e => setNovaCategoria(e.target.value)}
-      placeholder="Ex: Alimentação"
-      required
-    />
-  </div>
+  {mostrarCategorias ? "🔽 Ocultar categorias" : "⚙️ Gerenciar categorias"}
+</button>
 
-  <button type="submit" style={{ height: 40 }}>
-    ➕ Criar categoria
-  </button>
-</form>
+{mostrarCategorias && (
+  <>
+    {/* FORMULÁRIO — CRIAR CATEGORIA */}
+    <form
+      onSubmit={criarCategoria}
+      style={{
+        display: "flex",
+        gap: 12,
+        marginTop: 12,
+        alignItems: "end",
+      }}
+    >
+      <div>
+        <label>Nova categoria</label>
+        <input
+          value={novaCategoria}
+          onChange={e => setNovaCategoria(e.target.value)}
+          placeholder="Ex: Alimentação"
+          required
+        />
+      </div>
+
+      <button type="submit" style={{ height: 40 }}>
+        ➕ Criar categoria
+      </button>
+    </form>
+  </>
+)}
 
  {/* GRID DE CARDS */}
 <div

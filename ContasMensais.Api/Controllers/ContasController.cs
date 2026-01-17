@@ -67,35 +67,40 @@ var query = _context.Contas
 
         // ➕ CRIAR CONTA
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Conta conta)
-        {
-            if (conta == null)
-                return BadRequest("Conta inválida");
+public async Task<IActionResult> Post([FromBody] Conta conta)
+{
+    var usuarioId = ObterUsuarioId();
 
-            var usuarioId = ObterUsuarioId();
-conta.UsuarioId = usuarioId;
+    if (conta == null)
+        return BadRequest("Conta inválida");
 
-_context.Contas.Add(conta);
-            await _context.SaveChangesAsync();
+    if (conta.Valor <= 0)
+        return BadRequest("Valor inválido");
 
-            return CreatedAtAction(
-                nameof(Get),
-                new
-                {
-                    mes = conta.Data.Month,
-                    ano = conta.Data.Year
-                },
-                new
-                {
-                    conta.Id,
-                    conta.Descricao,
-                    conta.Valor,
-                    Mes = conta.Data.Month,
-                    Ano = conta.Data.Year,
-                    conta.CategoriaId
-                }
-            );
-        }
+    // 🔒 garante que a categoria pertence ao usuário
+    var categoriaExiste = await _context.Categorias.AnyAsync(c =>
+        c.Id == conta.CategoriaId &&
+        c.UsuarioId == usuarioId
+    );
+
+    if (!categoriaExiste)
+        return BadRequest("Categoria inválida para o usuário");
+
+    conta.UsuarioId = usuarioId;
+
+    _context.Contas.Add(conta);
+    await _context.SaveChangesAsync();
+
+    return Ok(new
+    {
+        conta.Id,
+        conta.Descricao,
+        conta.Valor,
+        Mes = conta.Data.Month,
+        Ano = conta.Data.Year,
+        conta.CategoriaId
+    });
+}
 
         // ✏️ ATUALIZAR CONTA
         [HttpPut("{id:int}")]

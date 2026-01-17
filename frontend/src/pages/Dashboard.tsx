@@ -21,7 +21,6 @@ export default function Dashboard() {
   const [mesBusca, setMesBusca] = useState(1);
   const [anoBusca, setAnoBusca] = useState(2025);
   const [totalPeriodoAnterior, setTotalPeriodoAnterior] = useState(0);
-  const [tipoGrafico, setTipoGrafico] = useState<"mes" | "categoria">("mes");
   const [exportando, setExportando] = useState<null | "excel" | "pdf">(null);
   const [categoriaFiltro, setCategoriaFiltro] = useState<string>("todas");
   const [valorMin, setValorMin] = useState<string>("");
@@ -1034,101 +1033,83 @@ function iniciarEdicao(conta: any) {
 {contasFiltradas.length === 0 && (
   <p>Nenhuma conta cadastrada.</p>
 )}
-
-
-  {contasFiltradas.map(conta => (
-    <div
-      key={conta.id}
-      style={{
-        display: "grid",
-        gridTemplateColumns: "2fr 1fr 1fr 1fr auto auto",
-        gap: 12,
-        alignItems: "center",
-        padding: "14px 8px",
-borderBottom: "1px solid #334155",
-fontSize: 14
-
-      }}
-    >
-      <div style={{ fontWeight: 500 }}>
-  {conta.descricao}
-</div>
-
-<div style={{ color: cores.textoSuave }}>
-  {conta.categoriaNome}
-</div>
-
-<div style={{ fontWeight: 500 }}>
-  {conta.valor.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL"
-  })}
-</div>
-
-<div style={{ color: cores.textoSuave }}>
-  {conta.mes}/{conta.ano}
-</div>
-
-      <button onClick={() => iniciarEdicao(conta)}>
-        ✏️
-      </button>
-
-      <button onClick={() => excluirConta(conta.id)}>
-        ❌
-      </button>
+ 
+ {contasFiltradas.map(conta => (
+  <div
+    key={conta.id}
+    style={{
+      display: "grid",
+      gridTemplateColumns: "2fr 1fr 1fr 1fr auto auto",
+      gap: 12,
+      alignItems: "center",
+      padding: "14px 8px",
+      borderBottom: "1px solid #334155",
+      fontSize: 14
+    }}
+  >
+    <div style={{ fontWeight: 500 }}>
+      {conta.descricao}
     </div>
-  ))}
-</div>
 
+    <div style={{ color: cores.textoSuave }}>
+      {conta.categoriaNome}
+    </div>
+
+    <div style={{ fontWeight: 500 }}>
+      {conta.valor.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      })}
+    </div>
+
+    <div style={{ color: cores.textoSuave }}>
+      {conta.mes}/{conta.ano}
+    </div>
+
+    <button onClick={() => iniciarEdicao(conta)}>✏️</button>
+    <button onClick={() => excluirConta(conta.id)}>❌</button>
+  </div>
+))}
+
+ 
+
+{/* GRÁFICOS — SEMPRE VISÍVEIS */}
 <div
   style={{
-    display: "flex",
-    gap: 12,
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gap: 24,
     marginTop: 32,
-    marginBottom: 12,
   }}
 >
-  <button
-    onClick={() => setTipoGrafico("mes")}
+  {/* PIZZA — POR MÊS */}
+  <div
     style={{
-      background: tipoGrafico === "mes" ? "#22c55e" : cores.card,
-      color: tipoGrafico === "mes" ? "#fff" : cores.texto,
-      borderRadius: 999,
-      padding: "8px 16px",
+      background: cores.card,
+      borderRadius: 16,
+      padding: 16,
       border: `1px solid ${cores.borda}`,
-      fontWeight: 600,
     }}
   >
-    📅 Por mês
-  </button>
-
-  <button
-    onClick={() => setTipoGrafico("categoria")}
-    style={{
-      background: tipoGrafico === "categoria" ? "#6366f1" : cores.card,
-      color: tipoGrafico === "categoria" ? "#fff" : cores.texto,
-      borderRadius: 999,
-      padding: "8px 16px",
-      border: `1px solid ${cores.borda}`,
-      fontWeight: 600,
-    }}
-  >
-    🗂️ Por categoria
-  </button>
-</div>
-
-{/* GRÁFICOS USANDO COMPONENTES */}
-<div className="graficos-container">
-  {tipoGrafico === "mes" && (
+    <h3 style={{ marginBottom: 12 }}>📅 Gastos por mês</h3>
     <GraficoMensal dados={totalPorMes} />
-  )}
+  </div>
 
-  {tipoGrafico === "categoria" && (
+  {/* PIZZA — POR CATEGORIA */}
+  <div
+    style={{
+      background: cores.card,
+      borderRadius: 16,
+      padding: 16,
+      border: `1px solid ${cores.borda}`,
+    }}
+  >
+    <h3 style={{ marginBottom: 12 }}>🗂️ Gastos por categoria</h3>
     <GraficoCategoria dados={totalPorCategoria} />
-  )}
+     </div>
+  </div>
 
+    </div>
   </div>
-  </div>
-   
 );
 }

@@ -29,7 +29,7 @@ namespace ContasMensais.Api.Controllers
             return int.Parse(userIdClaim.Value);
         }
 
-        // 📥 LISTAR CATEGORIAS DO USUÁRIO
+        // 📥 LISTAR
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -47,36 +47,49 @@ namespace ContasMensais.Api.Controllers
             return Ok(categorias);
         }
 
-        // ➕ CRIAR CATEGORIA
+        // ➕ CRIAR
         [HttpPost]
-public async Task<IActionResult> Post([FromBody] Categoria categoria)
-{
-    if (categoria == null || string.IsNullOrWhiteSpace(categoria.Nome))
-        return BadRequest("Categoria inválida");
+        public async Task<IActionResult> Post([FromBody] Categoria categoria)
+        {
+            if (string.IsNullOrWhiteSpace(categoria.Nome))
+                return BadRequest("Nome inválido");
 
-    var usuarioId = ObterUsuarioId();
+            var usuarioId = ObterUsuarioId();
+            categoria.UsuarioId = usuarioId;
 
-    var existe = await _context.Categorias.AnyAsync(c =>
-        c.UsuarioId == usuarioId &&
-        c.Nome.ToLower() == categoria.Nome.ToLower()
-    );
+            _context.Categorias.Add(categoria);
+            await _context.SaveChangesAsync();
 
-    if (existe)
-        return BadRequest("Categoria já existe");
+            return Ok(new
+            {
+                categoria.Id,
+                categoria.Nome
+            });
+        }
 
-    categoria.UsuarioId = usuarioId;
+        // ❌ EXCLUIR  ← ESTE BLOCO PRECISA EXISTIR
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var usuarioId = ObterUsuarioId();
 
-    _context.Categorias.Add(categoria);
-    await _context.SaveChangesAsync();
+            var categoria = await _context.Categorias
+                .FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId);
 
-    return Ok(new
-    {
-        categoria.Id,
-        categoria.Nome
-    });
-}
+            if (categoria == null)
+                return NotFound();
+
+            // 🔒 impede exclusão se estiver em uso
+            var emUso = await _context.Contas
+                .AnyAsync(c => c.CategoriaId == id && c.UsuarioId == usuarioId);
+
+            if (emUso)
+                return BadRequest("Categoria está vinculada a contas");
+
+            _context.Categorias.Remove(categoria);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
-    
-
-    

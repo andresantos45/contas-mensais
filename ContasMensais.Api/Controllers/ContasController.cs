@@ -75,7 +75,10 @@ public async Task<IActionResult> Post([FromBody] Conta conta)
         return BadRequest("Conta inválida");
 
     if (conta.Valor <= 0)
-        return BadRequest("Valor inválido");
+    return BadRequest("Valor inválido");
+
+if (conta.Data == default)
+    return BadRequest("Data inválida");
 
     // 🔒 garante que a categoria pertence ao usuário
     var categoriaExiste = await _context.Categorias.AnyAsync(c =>

@@ -566,7 +566,7 @@ function iniciarEdicao(conta: any) {
    {/* DIREITA — AÇÕES */}
   <div style={{ display: "flex", gap: 12 }}>
     <button
-      onClick={() => setMostrarCategorias(true)}
+      onClick={() => setMostrarCategorias(prev => !prev)}
       style={{
         background: cores.botao,
         color: "#fff",
@@ -752,23 +752,50 @@ function iniciarEdicao(conta: any) {
 </form>
 
 
-<button
-  type="button"
-  onClick={() => setMostrarCategorias(!mostrarCategorias)}
+
+
+
+  
+{mostrarCategorias && (
+  <>
+  <div
   style={{
+    display: "flex",
+    gap: 12,
     marginTop: 16,
-    background: "#334155",
-    color: "#fff",
-    border: "none",
-    padding: "8px 14px",
-    borderRadius: 8,
-    cursor: "pointer",
-    fontWeight: 600,
+    marginBottom: 16,
   }}
 >
+  <button
+    onClick={() => setModoEscuro(!modoEscuro)}
+    style={{
+      background: cores.card,
+      color: cores.texto,
+      border: `1px solid ${cores.borda}`,
+      padding: "8px 14px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: 600,
+    }}
+  >
+    🌓 Tema
+  </button>
 
-  {mostrarCategorias ? "🔽 Ocultar categorias" : "⚙️ Gerenciar categorias"}
-</button>
+  <button
+    onClick={handleLogout}
+    style={{
+      background: "#dc2626",
+      color: "#fff",
+      border: "none",
+      padding: "8px 14px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: 600,
+    }}
+  >
+    🚪 Sair
+  </button>
+</div>
 
 {/* BOTÕES DE EXPORTAÇÃO */}
 <div
@@ -816,47 +843,6 @@ function iniciarEdicao(conta: any) {
   </button>
 </div>
 
-  
-{mostrarCategorias && (
-  <>
-  <div
-  style={{
-    display: "flex",
-    gap: 12,
-    marginTop: 16,
-    marginBottom: 16,
-  }}
->
-  <button
-    onClick={() => setModoEscuro(!modoEscuro)}
-    style={{
-      background: cores.card,
-      color: cores.texto,
-      border: `1px solid ${cores.borda}`,
-      padding: "8px 14px",
-      borderRadius: 8,
-      cursor: "pointer",
-      fontWeight: 600,
-    }}
-  >
-    🌓 Tema
-  </button>
-
-  <button
-    onClick={handleLogout}
-    style={{
-      background: "#dc2626",
-      color: "#fff",
-      border: "none",
-      padding: "8px 14px",
-      borderRadius: 8,
-      cursor: "pointer",
-      fontWeight: 600,
-    }}
-  >
-    🚪 Sair
-  </button>
-</div>
     {/* FORMULÁRIO — CRIAR CATEGORIA */}
     <form
       onSubmit={criarCategoria}

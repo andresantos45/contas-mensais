@@ -202,7 +202,7 @@ const valorCategoriaMaior = categoriaMaior?.[1] ?? 0;
 // EXPORTAÇÃO PARA EXCEL
 // =======================
 async function exportarExcel() {
-  if (contas.length === 0) {
+  if (contasFiltradas.length === 0) {
     alert("Nenhum dado para exportar");
     return;
   }
@@ -210,29 +210,53 @@ async function exportarExcel() {
   try {
     setExportando("excel");
 
-    const dadosExcel = contasFiltradas.map((c: any) => ({
-      Descrição: c.descricao,
-      Categoria: c.categoriaNome,
-      Valor: c.valor,
-      Mês: c.mes,
-      Ano: c.ano
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(dadosExcel);
     const workbook = XLSX.utils.book_new();
 
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Contas");
+    const nomesMeses = [
+      "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
+      "Jul", "Ago", "Set", "Out", "Nov", "Dez"
+    ];
+
+    // agrupa contas por mês
+    const contasPorMes: Record<number, any[]> = {};
+
+    contasFiltradas.forEach(c => {
+      if (!contasPorMes[c.mes]) {
+        contasPorMes[c.mes] = [];
+      }
+
+      contasPorMes[c.mes].push({
+        Descrição: c.descricao,
+        Categoria: c.categoriaNome,
+        Valor: c.valor,
+        Mês: c.mes,
+        Ano: c.ano
+      });
+    });
+
+    // cria uma aba por mês
+    Object.entries(contasPorMes).forEach(([mes, dados]) => {
+      const worksheet = XLSX.utils.json_to_sheet(dados);
+      const nomeAba = nomesMeses[Number(mes) - 1];
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        nomeAba
+      );
+    });
 
     XLSX.writeFile(
-  workbook,
-  mesBusca === 0
-    ? `contas_ano_${anoBusca}.xlsx`
-    : `contas_${mesBusca}_${anoBusca}.xlsx`
-);
+      workbook,
+      mesBusca === 0
+        ? `contas_ano_${anoBusca}.xlsx`
+        : `contas_${mesBusca}_${anoBusca}.xlsx`
+    );
   } finally {
     setExportando(null);
   }
 }
+
 // =======================
 // EXPORTAÇÃO PARA PDF
 // =======================

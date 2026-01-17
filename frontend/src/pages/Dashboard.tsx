@@ -539,46 +539,45 @@ function iniciarEdicao(conta: any) {
     flexWrap: "wrap",
   }}
 >
-  {/* ESQUERDA — TÍTULO */}
-  <div>
-    <h1 style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>
-      Contas Mensais
-    </h1>
-    <p style={{ opacity: 0.65, marginTop: 4 }}>
-      {textoPeriodo}
-    </p>
-  </div>
+  {/* TÍTULO CENTRAL */}
+<div style={{ flex: 1, textAlign: "center" }}>
+  <h1
+    style={{
+      fontSize: 34,
+      fontWeight: 800,
+      margin: 0,
+      letterSpacing: 0.5
+    }}
+  >
+    Contas Mensais
+  </h1>
 
-  {/* DIREITA — AÇÕES */}
+  <p
+    style={{
+      marginTop: 6,
+      fontSize: 14,
+      color: cores.textoSuave
+    }}
+  >
+    {textoPeriodo}
+  </p>
+</div>
+
+   {/* DIREITA — AÇÕES */}
   <div style={{ display: "flex", gap: 12 }}>
     <button
-      onClick={() => setModoEscuro(!modoEscuro)}
+      onClick={() => setMostrarCategorias(true)}
       style={{
-        background: cores.card,
-        color: cores.texto,
-        border: "1px solid #334155",
-        padding: "8px 14px",
-        borderRadius: 8,
-        cursor: "pointer",
-        fontWeight: 600,
-      }}
-    >
-      🌓 Tema
-    </button>
-
-    <button
-      onClick={handleLogout}
-      style={{
-        background: "#dc2626",
+        background: cores.botao,
         color: "#fff",
         border: "none",
-        padding: "8px 14px",
-        borderRadius: 8,
+        padding: "10px 16px",
+        borderRadius: 10,
         cursor: "pointer",
-        fontWeight: 600,
+        fontWeight: 700,
       }}
     >
-      🚪 Sair
+      ⚙️ Gerenciar Regras
     </button>
   </div>
 </div>
@@ -631,137 +630,7 @@ function iniciarEdicao(conta: any) {
     style={{ width: 90 }}
   />
 
-   <button
-    onClick={() => setTipoGrafico("mes")}
-    style={{
-      background: tipoGrafico === "mes" ? "#22c55e" : cores.card,
-      color: tipoGrafico === "mes" ? "#fff" : cores.texto,
-      borderRadius: 999,
-      padding: "8px 14px",
-      border: "none",
-      fontWeight: 600
-    }}
-  >
-    📅 Por mês
-  </button>
-
-  <button
-    onClick={() => setTipoGrafico("categoria")}
-    style={{
-      background: tipoGrafico === "categoria" ? "#6366f1" : cores.card,
-      color: tipoGrafico === "categoria" ? "#fff" : cores.texto,
-      borderRadius: 999,
-      padding: "8px 14px",
-      border: "none",
-      fontWeight: 600
-    }}
-  >
-    🗂️ Por categoria
-  </button>
-</div>
-{/* BOTÕES DE EXPORTAÇÃO */}
-<div
-  className="export-buttons"
-  style={{
-    display: "flex",
-    gap: 12,
-    marginBottom: 24,
-    flexWrap: "wrap",
-  }}
->
-  <button
-    onClick={exportarExcel}
-    disabled={exportando === "excel"}
-    style={{
-      background: exportando === "excel" ? "#64748b" : "#16a34a",
-      color: "#fff",
-      padding: "10px 16px",
-      border: "none",
-      borderRadius: 8,
-      cursor: exportando === "excel" ? "not-allowed" : "pointer",
-      fontWeight: 600
-    }}
-  >
-    {exportando === "excel"
-      ? "⏳ Exportando..."
-      : "⬇️ Exportar Excel"}
-  </button>
-
-  <button
-    onClick={exportarPDF}
-    disabled={exportando !== null}
-    style={{
-      background: "#dc2626",
-      color: "#fff",
-      padding: "10px 16px",
-      border: "none",
-      borderRadius: 8,
-      cursor: exportando ? "not-allowed" : "pointer",
-      fontWeight: 600,
-      opacity: exportando ? 0.6 : 1
-    }}
-  >
-    📄 Exportar PDF
-  </button>
-</div>
-{/* FORMULÁRIO — CRIAR CONTA */}
-<form
-  onSubmit={criarConta}
-  style={{
-    display: "grid",
-    gridTemplateColumns: "repeat(4, minmax(180px, 1fr)) auto",
-    gap: 12,
-    marginTop: 20,
-    alignItems: "end"
-  }}
->
-  <div>
-  <label
-    style={{
-      color: cores.textoSuave,
-      fontSize: 13,
-      marginBottom: 4,
-      display: "block"
-    }}
-  >
-    Descrição
-  </label>
-
-  <input
-    value={descricao}
-    onChange={e => setDescricao(e.target.value)}
-    required
-    style={{
-      background: cores.card,
-      color: cores.texto,
-      border: `1px solid ${cores.borda}`,
-      borderRadius: 8,
-      padding: "8px 10px"
-    }}
-  />
-</div>
-
-  <div>
-  <label style={{ color: cores.textoSuave, fontSize: 13, marginBottom: 4, display: "block" }}>
-    Valor
-  </label>
-
-  <input
-    type="number"
-    value={valor}
-    onChange={e => setValor(e.target.value)}
-    required
-    style={{
-      background: cores.card,
-      color: cores.texto,
-      border: `1px solid ${cores.borda}`,
-      borderRadius: 8,
-      padding: "8px 10px"
-    }}
-  />
-</div>
-
-  <div>
+     <div>
   <label style={{ color: cores.textoSuave, fontSize: 13, marginBottom: 4, display: "block" }}>
     Data
   </label>
@@ -820,42 +689,137 @@ function iniciarEdicao(conta: any) {
     ))}
   </select>
 </div>
-
-  <button
-  type="submit"
-  disabled={salvandoConta}
+</div>
+  {/* FORMULÁRIO — CRIAR / EDITAR CONTA */}
+<form
+  onSubmit={criarConta}
   style={{
-    height: 40,
-    background: salvandoConta ? "#64748b" : cores.botao,
-    color: "#fff",
-    border: "none",
-    borderRadius: 8,
-    cursor: salvandoConta ? "not-allowed" : "pointer",
-    fontWeight: 600,
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(180px, 1fr)) auto",
+    gap: 12,
+    marginTop: 20,
+    alignItems: "end"
   }}
 >
-  {salvandoConta
-    ? "⏳ Salvando..."
-    : contaEditando
-    ? "💾 Salvar edição"
-    : "➕ Adicionar"}
-</button>
-{contaEditando && (
+  {/* DESCRIÇÃO */}
+  <div>
+    <label style={{ color: cores.textoSuave, fontSize: 13 }}>
+      Descrição
+    </label>
+    <input
+      value={descricao}
+      onChange={e => setDescricao(e.target.value)}
+      required
+      style={{
+        background: cores.card,
+        color: cores.texto,
+        border: `1px solid ${cores.borda}`,
+        borderRadius: 8,
+        padding: "8px 10px"
+      }}
+    />
+  </div>
+
+  {/* VALOR */}
+  <div>
+    <label style={{ color: cores.textoSuave, fontSize: 13 }}>
+      Valor
+    </label>
+    <input
+      type="number"
+      value={valor}
+      onChange={e => setValor(e.target.value)}
+      required
+      style={{
+        background: cores.card,
+        color: cores.texto,
+        border: `1px solid ${cores.borda}`,
+        borderRadius: 8,
+        padding: "8px 10px"
+      }}
+    />
+  </div>
+
+  {/* DATA */}
+  <div>
+    <label style={{ color: cores.textoSuave, fontSize: 13 }}>
+      Data
+    </label>
+    <input
+      type="date"
+      value={data}
+      onChange={e => setData(e.target.value)}
+      required
+      style={{
+        background: cores.card,
+        color: cores.texto,
+        border: `1px solid ${cores.borda}`,
+        borderRadius: 8,
+        padding: "8px 10px"
+      }}
+    />
+  </div>
+
+  {/* CATEGORIA */}
+  <div>
+    <label style={{ color: cores.textoSuave, fontSize: 13 }}>
+      Categoria
+    </label>
+    <select
+      value={categoriaId}
+      onChange={e => setCategoriaId(e.target.value)}
+      required
+      style={{
+        background: cores.card,
+        color: cores.texto,
+        border: `1px solid ${cores.borda}`,
+        borderRadius: 8,
+        padding: "8px 10px"
+      }}
+    >
+      <option value="">Selecione</option>
+      {categorias.map(cat => (
+        <option key={cat.id} value={cat.id}>
+          {cat.nome}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  {/* BOTÃO SALVAR */}
   <button
-    type="button"
-    onClick={() => {
-      setContaEditando(null);
-      setDescricao("");
-      setValor("");
-      setData("");
-      setCategoriaId("");
+    type="submit"
+    disabled={salvandoConta}
+    style={{
+      height: 40,
+      background: cores.botao,
+      color: "#fff",
+      border: "none",
+      borderRadius: 8,
+      fontWeight: 600
     }}
-    style={{ height: 40 }}
   >
-    ❌ Cancelar
+    {contaEditando ? "💾 Salvar" : "➕ Adicionar"}
   </button>
-)}
+
+  {/* BOTÃO CANCELAR */}
+  {contaEditando && (
+    <button
+      type="button"
+      onClick={() => {
+        setContaEditando(null);
+        setDescricao("");
+        setValor("");
+        setData("");
+        setCategoriaId("");
+      }}
+      style={{ height: 40 }}
+    >
+      ❌ Cancelar
+    </button>
+  )}
 </form>
+
 
 <button
   type="button"
@@ -871,11 +835,97 @@ function iniciarEdicao(conta: any) {
     fontWeight: 600,
   }}
 >
+
   {mostrarCategorias ? "🔽 Ocultar categorias" : "⚙️ Gerenciar categorias"}
 </button>
 
+{/* BOTÕES DE EXPORTAÇÃO */}
+<div
+  className="export-buttons"
+  style={{
+    display: "flex",
+    gap: 12,
+    marginBottom: 24,
+    flexWrap: "wrap",
+  }}
+>
+  <button
+    onClick={exportarExcel}
+    disabled={exportando === "excel"}
+    style={{
+      background: exportando === "excel" ? "#64748b" : "#16a34a",
+      color: "#fff",
+      padding: "10px 16px",
+      border: "none",
+      borderRadius: 8,
+      cursor: exportando === "excel" ? "not-allowed" : "pointer",
+      fontWeight: 600
+    }}
+  >
+    {exportando === "excel"
+      ? "⏳ Exportando..."
+      : "⬇️ Exportar Excel"}
+  </button>
+
+  <button
+    onClick={exportarPDF}
+    disabled={exportando !== null}
+    style={{
+      background: "#dc2626",
+      color: "#fff",
+      padding: "10px 16px",
+      border: "none",
+      borderRadius: 8,
+      cursor: exportando ? "not-allowed" : "pointer",
+      fontWeight: 600,
+      opacity: exportando ? 0.6 : 1
+    }}
+  >
+    📄 Exportar PDF
+  </button>
+</div>
+
+  
 {mostrarCategorias && (
   <>
+  <div
+  style={{
+    display: "flex",
+    gap: 12,
+    marginTop: 16,
+    marginBottom: 16,
+  }}
+>
+  <button
+    onClick={() => setModoEscuro(!modoEscuro)}
+    style={{
+      background: cores.card,
+      color: cores.texto,
+      border: `1px solid ${cores.borda}`,
+      padding: "8px 14px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: 600,
+    }}
+  >
+    🌓 Tema
+  </button>
+
+  <button
+    onClick={handleLogout}
+    style={{
+      background: "#dc2626",
+      color: "#fff",
+      border: "none",
+      padding: "8px 14px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: 600,
+    }}
+  >
+    🚪 Sair
+  </button>
+</div>
     {/* FORMULÁRIO — CRIAR CATEGORIA */}
     <form
       onSubmit={criarCategoria}
@@ -1027,6 +1077,44 @@ fontSize: 14
     </div>
   ))}
 </div>
+
+<div
+  style={{
+    display: "flex",
+    gap: 12,
+    marginTop: 32,
+    marginBottom: 12,
+  }}
+>
+  <button
+    onClick={() => setTipoGrafico("mes")}
+    style={{
+      background: tipoGrafico === "mes" ? "#22c55e" : cores.card,
+      color: tipoGrafico === "mes" ? "#fff" : cores.texto,
+      borderRadius: 999,
+      padding: "8px 16px",
+      border: `1px solid ${cores.borda}`,
+      fontWeight: 600,
+    }}
+  >
+    📅 Por mês
+  </button>
+
+  <button
+    onClick={() => setTipoGrafico("categoria")}
+    style={{
+      background: tipoGrafico === "categoria" ? "#6366f1" : cores.card,
+      color: tipoGrafico === "categoria" ? "#fff" : cores.texto,
+      borderRadius: 999,
+      padding: "8px 16px",
+      border: `1px solid ${cores.borda}`,
+      fontWeight: 600,
+    }}
+  >
+    🗂️ Por categoria
+  </button>
+</div>
+
 {/* GRÁFICOS USANDO COMPONENTES */}
 <div className="graficos-container">
   {tipoGrafico === "mes" && (
@@ -1036,9 +1124,9 @@ fontSize: 14
   {tipoGrafico === "categoria" && (
     <GraficoCategoria dados={totalPorCategoria} />
   )}
-</div>
-      {loading && <p>Carregando dados...</p>}
-    </div>
+
   </div>
+  </div>
+   </div>
 );
 }

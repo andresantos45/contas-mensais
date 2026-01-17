@@ -586,7 +586,7 @@ function iniciarEdicao(conta: any) {
     Atualizando dados...
   </p>
 )}
-      {/* CONTROLES SUPERIORES */}
+      
 <div
   className="dashboard-controls"
   style={{
@@ -598,30 +598,19 @@ function iniciarEdicao(conta: any) {
   }}
 >
   <select
-  value={mesBusca}
-  onChange={e => setMesBusca(Number(e.target.value))}
->
-  <option value={0}>Ano inteiro</option>
-
-  {[
-    "Janeiro",
-    "Fevereiro",
-    "Março",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro"
-  ].map((nome, index) => (
-    <option key={index + 1} value={index + 1}>
-      {nome}
-    </option>
-  ))}
-</select>
+    value={mesBusca}
+    onChange={e => setMesBusca(Number(e.target.value))}
+  >
+    <option value={0}>Ano inteiro</option>
+    {[
+      "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+      "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+    ].map((nome, index) => (
+      <option key={index + 1} value={index + 1}>
+        {nome}
+      </option>
+    ))}
+  </select>
 
   <input
     type="number"
@@ -629,67 +618,9 @@ function iniciarEdicao(conta: any) {
     onChange={e => setAnoBusca(Number(e.target.value))}
     style={{ width: 90 }}
   />
-
-     <div>
-  <label style={{ color: cores.textoSuave, fontSize: 13, marginBottom: 4, display: "block" }}>
-    Data
-  </label>
-
-  <input
-    type="date"
-    value={data}
-    onChange={e => setData(e.target.value)}
-    required
-    style={{
-      background: cores.card,
-      color: cores.texto,
-      border: `1px solid ${cores.borda}`,
-      borderRadius: 8,
-      padding: "8px 10px"
-    }}
-  />
 </div>
 
-  <div>
-  <label
-    style={{
-      color: cores.textoSuave,
-      fontSize: 13,
-      marginBottom: 4,
-      display: "block"
-    }}
-  >
-    Categoria
-  </label>
-
-  <select
-    value={categoriaId}
-    onChange={e => setCategoriaId(e.target.value)}
-    required
-    style={{
-      background: cores.card,
-      color: cores.texto,
-      border: `1px solid ${cores.borda}`,
-      borderRadius: 8,
-      padding: "8px 10px"
-    }}
-  >
-    <option value="">Selecione</option>
-
-    {categorias.length === 0 && (
-      <option value="" disabled>
-        Nenhuma categoria cadastrada
-      </option>
-    )}
-
-    {categorias.map(cat => (
-      <option key={cat.id} value={cat.id}>
-        {cat.nome}
-      </option>
-    ))}
-  </select>
-</div>
-</div>
+     
   {/* FORMULÁRIO — CRIAR / EDITAR CONTA */}
 <form
   onSubmit={criarConta}

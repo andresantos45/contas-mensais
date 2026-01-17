@@ -6,11 +6,13 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setErro("");
+    setLoading(true);
 
     try {
       const response = await api.post("/api/auth/login", {
@@ -19,13 +21,19 @@ export default function Login() {
       });
 
       const token = response.data.token;
+
+      if (!token) {
+        throw new Error("Token não retornado pela API");
+      }
+
       localStorage.setItem("token", token);
 
-      // ✅ REDIRECIONAMENTO CORRETO
       navigate("/dashboard", { replace: true });
-
-    } catch {
+    } catch (err) {
+      console.error("Erro no login:", err);
       setErro("Email ou senha inválidos");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -50,7 +58,9 @@ export default function Login() {
           required
         />
 
-        <button type="submit">Entrar</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Entrando..." : "Entrar"}
+        </button>
 
         {erro && <p style={{ color: "red" }}>{erro}</p>}
       </form>

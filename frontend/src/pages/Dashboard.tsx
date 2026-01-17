@@ -52,27 +52,12 @@ const [categoriaId, setCategoriaId] = useState("");
 
 const responseCategorias = await api.get("/api/categorias");
 
-// 🔹 SEED DE CATEGORIAS POR USUÁRIO (SE ESTIVER VAZIO)
-if (responseCategorias.data.length === 0) {
-  const categoriasPadrao = [
-    "Alimentação",
-    "Moradia",
-    "Transporte",
-    "Saúde",
-    "Lazer",
-    "Educação",
-    "Outros",
-  ];
 
-  for (const nome of categoriasPadrao) {
-    await api.post("/api/categorias", { nome });
-  }
-
-  const recarregar = await api.get("/api/categorias");
-  setCategorias(recarregar.data);
-} else {
-  setCategorias(responseCategorias.data);
-}
+setCategorias(
+  responseCategorias.data.sort(
+    (a: any, b: any) => a.nome.localeCompare(b.nome)
+  )
+);
 
 if (ativo) {
   setContas(responseAtual.data);
@@ -375,12 +360,15 @@ async function criarCategoria(e: React.FormEvent) {
       nome: novaCategoria
     });
 
-    const categoriasAtualizadas = [...categorias, response.data].sort(
-      (a: any, b: any) => a.nome.localeCompare(b.nome)
-    );
+    const recarregar = await api.get("/api/categorias");
 
-    setCategorias(categoriasAtualizadas);
-    setNovaCategoria("");
+setCategorias(
+  recarregar.data.sort(
+    (a: any, b: any) => a.nome.localeCompare(b.nome)
+  )
+);
+
+     setNovaCategoria("");
   } catch (error) {
     console.error(error);
     alert("Erro ao criar categoria");

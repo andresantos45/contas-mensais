@@ -75,24 +75,8 @@ public async Task<IActionResult> Post([FromBody] Categoria categoria)
         categoria.Nome
     });
 }
-
-    // 🗑️ DELETE TEMPORÁRIO (LIMPEZA)
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var usuarioId = ObterUsuarioId();
-
-        var categoria = await _context.Categorias
-            .FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId);
-
-        if (categoria == null)
-            return NotFound();
-
-        _context.Categorias.Remove(categoria);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
     }
 }
+    
 
-    }
+    

@@ -414,10 +414,14 @@ function iniciarEdicao(conta: any) {
         padding: 24
       }}
     >
-      <h1>Contas Mensais</h1>
-      <p style={{ opacity: 0.6 }}>
+      <h1 style={{ fontSize: 28, fontWeight: 700 }}>
+  Contas Mensais
+</h1>
+
+<p style={{ opacity: 0.65, marginTop: 4 }}>
   {textoPeriodo}
 </p>
+
   {/* 🔓 LOGOUT */}
     <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
       <button
@@ -441,7 +445,16 @@ function iniciarEdicao(conta: any) {
   </p>
 )}
       {/* CONTROLES SUPERIORES */}
-<div className="dashboard-controls">
+<div
+  className="dashboard-controls"
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 20,
+    marginBottom: 24,
+  }}
+>
   <select
   value={mesBusca}
   onChange={e => setMesBusca(Number(e.target.value))}
@@ -498,7 +511,15 @@ function iniciarEdicao(conta: any) {
   </button>
 </div>
 {/* BOTÕES DE EXPORTAÇÃO */}
-<div className="export-buttons">
+<div
+  className="export-buttons"
+  style={{
+    display: "flex",
+    gap: 12,
+    marginBottom: 24,
+    flexWrap: "wrap",
+  }}
+>
   <button
     onClick={exportarExcel}
     disabled={exportando === "excel"}
@@ -707,8 +728,10 @@ function iniciarEdicao(conta: any) {
         gridTemplateColumns: "2fr 1fr 1fr 1fr auto auto",
         gap: 12,
         alignItems: "center",
-        padding: 12,
-        borderBottom: "1px solid #334155"
+        padding: "14px 8px",
+borderBottom: "1px solid #334155",
+fontSize: 14
+
       }}
     >
       <div>{conta.descricao}</div>

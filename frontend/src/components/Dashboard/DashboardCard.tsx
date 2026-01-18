@@ -24,13 +24,19 @@ export default function DashboardCard({
         justifyContent: "space-between",
       }}
     >
-      <span style={{ fontSize: 14, opacity: 0.7 }}>{titulo}</span>
+      <span style={{ fontSize: 14, opacity: 0.7, color: "#94a3b8" }}>
+  {titulo}
+</span>
 
-      <strong style={{ fontSize: 26 }}>{valorPrincipal}</strong>
+      <strong style={{ fontSize: 26, color: "#e5e7eb" }}>
+  {valorPrincipal}
+</strong>
 
       {subtitulo && (
-        <span style={{ fontSize: 13, opacity: 0.6 }}>{subtitulo}</span>
-      )}
+  <span style={{ fontSize: 13, opacity: 0.6, color: "#94a3b8" }}>
+    {subtitulo}
+  </span>
+)}
     </div>
   );
 }

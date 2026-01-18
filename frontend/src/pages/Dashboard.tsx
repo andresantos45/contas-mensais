@@ -154,9 +154,9 @@ const totalPeriodo = contasFiltradas.reduce(
 const diferenca = totalPeriodo - totalPeriodoAnterior;
 
 const percentual =
-  totalPeriodoAnterior === 0
-    ? 0
-    : (diferenca / totalPeriodoAnterior) * 100;
+  totalPeriodoAnterior > 0
+    ? (diferenca / totalPeriodoAnterior) * 100
+    : null;
 
 const tipo =
   diferenca > 0 ? "alta" : diferenca < 0 ? "queda" : "neutro";
@@ -917,20 +917,24 @@ function iniciarEdicao(conta: any) {
   />
 
   <DashboardCard
-    titulo="Comparação com período anterior"
-    valorPrincipal={`${tendencia} ${diferenca.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    })}`}
-    subtitulo={`${percentual.toFixed(1)}%`}
-    corBorda={
-      tipo === "alta"
-        ? "#16a34a"
-        : tipo === "queda"
-        ? "#dc2626"
-        : "#334155"
-    }
-  />
+  titulo="Comparação com período anterior"
+  valorPrincipal={`${tendencia} ${diferenca.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  })}`}
+  subtitulo={
+    percentual !== null
+      ? `${percentual.toFixed(1)}%`
+      : "—"
+  }
+  corBorda={
+    tipo === "alta"
+      ? "#16a34a"
+      : tipo === "queda"
+      ? "#dc2626"
+      : "#334155"
+  }
+/>
 
   <DashboardCard
     titulo="Categoria com maior gasto"

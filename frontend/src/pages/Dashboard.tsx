@@ -39,41 +39,41 @@ const [valor, setValor] = useState("");
 const [data, setData] = useState("");
 const [categoriaId, setCategoriaId] = useState("");
 
+async function carregarContasPeriodo() {
+  const response = await api.get(
+    `/api/contas/${mesBusca}/${anoBusca}`
+  );
+  setContas(response.data);
+}
+
+async function carregarCategorias() {
+  const response = await api.get("/api/categorias");
+  setCategorias(
+    response.data.sort(
+      (a: any, b: any) => a.nome.localeCompare(b.nome)
+    )
+  );
+}
+
   useEffect(() => {
   let ativo = true;
 
   async function carregarTudo() {
-    setLoading(true);
-
     try {
-      // período atual
-      const responseAtual = await api.get(
-  `/api/contas/${mesBusca}/${anoBusca}`
-);
+      setLoading(true);
 
-const responseCategorias = await api.get("/api/categorias");
-
-
-setCategorias(
-  [...responseCategorias.data].sort(
-    (a: any, b: any) => a.nome.localeCompare(b.nome)
-  )
-);
-
-if (ativo) {
-  setContas(responseAtual.data);
-}
-
-
-      // período anterior
-      await carregarPeriodoAnterior();
+      await Promise.all([
+        carregarContasPeriodo(),
+        carregarCategorias(),
+        carregarPeriodoAnterior()
+      ]);
     } catch (erro: any) {
-  if (erro.code === "ERR_NETWORK") {
-    alert("Servidor indisponível no momento. Tente novamente mais tarde.");
-  } else {
-    console.error("Erro ao carregar dados", erro);
-  }
-} finally {
+      if (erro.code === "ERR_NETWORK") {
+        alert("Servidor indisponível no momento. Tente novamente mais tarde.");
+      } else {
+        console.error("Erro ao carregar dados", erro);
+      }
+    } finally {
       if (ativo) setLoading(false);
     }
   }
@@ -84,6 +84,7 @@ if (ativo) {
     ativo = false;
   };
 }, [mesBusca, anoBusca]);
+
 async function carregarPeriodoAnterior() {
   let total = 0;
 
@@ -178,6 +179,7 @@ const nomesMeses = [
 
 const totalPorMes = contasFiltradas.reduce(
   (acc: Record<string, number>, c: any) => {
+    if (!c.mes || c.mes < 1 || c.mes > 12) return acc; // ✅ proteção
     const nomeMes = nomesMeses[c.mes - 1];
     acc[nomeMes] = (acc[nomeMes] || 0) + Number(c.valor);
     return acc;
@@ -187,8 +189,9 @@ const totalPorMes = contasFiltradas.reduce(
 // === MAIOR CATEGORIA ===
 const totalPorCategoria = contasFiltradas.reduce(
   (acc: Record<string, number>, c: any) => {
+    if (!c.categoriaNome) return acc; // ✅ proteção
     acc[c.categoriaNome] =
-  (acc[c.categoriaNome] || 0) + Number(c.valor);
+      (acc[c.categoriaNome] || 0) + Number(c.valor);
     return acc;
   },
   {}
@@ -504,8 +507,12 @@ function iniciarEdicao(conta: any) {
   setValor(String(conta.valor));
 
   // monta data no formato YYYY-MM-DD
+  if (conta.data) {
+  setData(conta.data.slice(0, 10));
+} else {
   const mes = String(conta.mes).padStart(2, "0");
   setData(`${conta.ano}-${mes}-01`);
+}
 
   setCategoriaId(String(conta.categoriaId ?? ""));
 }
@@ -577,7 +584,8 @@ function iniciarEdicao(conta: any) {
         fontWeight: 700,
       }}
     >
-      ⚙️ Gerenciar Regras
+      ⚙️  Configurações
+
     </button>
   </div>
 
@@ -1015,7 +1023,7 @@ function iniciarEdicao(conta: any) {
       gap: 12,
       alignItems: "center",
       padding: "14px 8px",
-      borderBottom: "1px solid #334155",
+      borderBottom: `1px solid ${cores.borda}`,
       fontSize: 14
     }}
   >

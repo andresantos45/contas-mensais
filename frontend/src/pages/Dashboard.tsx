@@ -95,9 +95,9 @@ async function carregarPeriodoAnterior() {
 const dados = response.data;
 
   total = dados.reduce(
-    (soma: number, c: any) => soma + c.valor,
-    0
-  );
+  (soma: number, c: any) => soma + Number(c.valor),
+  0
+);
 } else {
       // MÊS ESPECÍFICO → MÊS ANTERIOR
       const mesAnterior = mesBusca - 1;
@@ -147,7 +147,7 @@ const contasFiltradas = contas.filter(c => {
   return true;
 });
 const totalPeriodo = contasFiltradas.reduce(
-  (soma: number, c: any) => soma + c.valor,
+  (soma: number, c: any) => soma + Number(c.valor),
   0
 );
 
@@ -179,7 +179,7 @@ const nomesMeses = [
 const totalPorMes = contasFiltradas.reduce(
   (acc: Record<string, number>, c: any) => {
     const nomeMes = nomesMeses[c.mes - 1];
-    acc[nomeMes] = (acc[nomeMes] || 0) + c.valor;
+    acc[nomeMes] = (acc[nomeMes] || 0) + Number(c.valor);
     return acc;
   },
   {}
@@ -187,7 +187,8 @@ const totalPorMes = contasFiltradas.reduce(
 // === MAIOR CATEGORIA ===
 const totalPorCategoria = contasFiltradas.reduce(
   (acc: Record<string, number>, c: any) => {
-    acc[c.categoriaNome] = (acc[c.categoriaNome] || 0) + c.valor;
+    acc[c.categoriaNome] =
+  (acc[c.categoriaNome] || 0) + Number(c.valor);
     return acc;
   },
   {}

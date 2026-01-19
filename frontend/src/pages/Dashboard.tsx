@@ -10,6 +10,7 @@ import DashboardHeader from "../components/Dashboard/DashboardHeader";
 import DashboardCards from "../components/Dashboard/DashboardCards.tsx";
 import DashboardFiltros from "../components/Dashboard/DashboardFiltros.tsx";
 import ListaContas from "../components/Dashboard/ListaContas.tsx";
+import FormConta from "../components/Dashboard/FormConta.tsx";
 
 export default function Dashboard() {
    const navigate = useNavigate();
@@ -553,168 +554,28 @@ function iniciarEdicao(conta: any) {
 )}
       
      
-  {/* FORMULÁRIO — CRIAR / EDITAR CONTA */}
-<form
-  onSubmit={criarConta}
-  style={{
-    display: "grid",
-    gridTemplateColumns: "repeat(4, minmax(180px, 1fr)) auto",
-    gap: 12,
-    marginTop: 20,
-    alignItems: "end"
-  }}
->
-  {/* DESCRIÇÃO */}
-  <div>
-    <label
-  style={{
-    color: cores.textoSuave,
-    fontSize: 13,
-    marginBottom: 6,
-    display: "block"
-  }}
->
-  Descrição
-</label>
-    <input
-  value={descricao}
-  onChange={e => setDescricao(e.target.value)}
-  required
-  style={{
-    background: "#ffffff",
-    color: "#111827",
-    border: "1px solid #cbd5f5",
-    borderRadius: 8,
-    padding: "8px 10px"
+  <FormConta
+  descricao={descricao}
+  setDescricao={setDescricao}
+  valor={valor}
+  setValor={setValor}
+  data={data}
+  setData={setData}
+  categoriaId={categoriaId}
+  setCategoriaId={setCategoriaId}
+  categorias={categorias}
+  contaEditando={contaEditando}
+  salvandoConta={salvandoConta}
+  criarConta={criarConta}
+  cores={cores}
+  cancelarEdicao={() => {
+    setContaEditando(null);
+    setDescricao("");
+    setValor("");
+    setData("");
+    setCategoriaId("");
   }}
 />
-  </div>
-
-  {/* VALOR */}
-  <div>
-    <label
-  style={{
-    color: cores.textoSuave,
-    fontSize: 13,
-    marginBottom: 6,
-    display: "block"
-  }}
->
-  Valor
-</label>
-    <input
-  type="number"
-  value={valor}
-  onChange={e => setValor(e.target.value)}
-  required
-  style={{
-    background: "#ffffff",
-    color: "#111827",
-    border: "1px solid #cbd5f5",
-    borderRadius: 8,
-    padding: "8px 10px"
-  }}
-/>
-  </div>
-
-  {/* DATA */}
-  <div>
-   <label
-  style={{
-    color: cores.textoSuave,
-    fontSize: 13,
-    marginBottom: 6,
-    display: "block"
-  }}
->
-  Data
-</label>
-    <input
-  type="date"
-  value={data}
-  onChange={e => setData(e.target.value)}
-  required
-  style={{
-    background: "#ffffff",
-    color: "#111827",
-    border: "1px solid #cbd5f5",
-    borderRadius: 8,
-    padding: "8px 10px"
-  }}
-/>
-  </div>
-
-  {/* CATEGORIA */}
-  <div>
-    <label
-  style={{
-    color: cores.textoSuave,
-    fontSize: 13,
-    marginBottom: 6,
-    display: "block"
-  }}
->
-  Categoria
-</label>
-    <select
-  value={categoriaId}
-  onChange={e => setCategoriaId(e.target.value)}
-  required
-  style={{
-    background: "#ffffff",
-    color: "#111827",
-    border: "1px solid #cbd5f5",
-    borderRadius: 8,
-    padding: "8px 10px"
-  }}
->
-      <option value="">Selecione</option>
-      {categorias.map(cat => (
-        <option key={cat.id} value={cat.id}>
-          {cat.nome}
-        </option>
-      ))}
-    </select>
-  </div>
-
-  {/* BOTÃO SALVAR */}
-  <button
-    type="submit"
-    disabled={salvandoConta}
-    style={{
-      height: 40,
-      background: cores.botao,
-      color: "#fff",
-      border: "none",
-      borderRadius: 8,
-      fontWeight: 600
-    }}
-  >
-    {contaEditando ? "💾 Salvar" : "➕ Adicionar"}
-  </button>
-
-  {/* BOTÃO CANCELAR */}
-  {contaEditando && (
-    <button
-      type="button"
-      onClick={() => {
-        setContaEditando(null);
-        setDescricao("");
-        setValor("");
-        setData("");
-        setCategoriaId("");
-      }}
-      style={{ height: 40 }}
-    >
-      ❌ Cancelar
-    </button>
-  )}
-</form>
-
-
-
-
-
   
 {mostrarCategorias && (
   <>

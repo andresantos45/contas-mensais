@@ -8,7 +8,8 @@ import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import DashboardHeader from "../components/Dashboard/DashboardHeader";
 import DashboardCards from "../components/Dashboard/DashboardCards.tsx";
-
+import DashboardFiltros from "../components/Dashboard/DashboardFiltros.tsx";
+import ListaContas from "../components/Dashboard/ListaContas.tsx";
 
 export default function Dashboard() {
    const navigate = useNavigate();
@@ -813,104 +814,19 @@ function iniciarEdicao(conta: any) {
   nomeCategoriaMaior={nomeCategoriaMaior}
   valorCategoriaMaior={valorCategoriaMaior}
 />
-{/* LISTA DE CONTAS */}
-<div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    gap: 16,
-    marginTop: 32,
-    marginBottom: 12,
-    flexWrap: "wrap",
-  }}
->
-  {/* FILTRO MÊS / ANO */}
-  <select
-    value={mesBusca}
-    onChange={e => setMesBusca(Number(e.target.value))}
-    style={{
-      background: "#ffffff",
-      color: "#111827",
-      border: "1px solid #cbd5f5",
-      borderRadius: 8,
-      padding: "6px 10px",
-      fontWeight: 500,
-    }}
-  >
-    <option value={0}>Ano inteiro</option>
-    {[
-      "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-      "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-    ].map((nome, index) => (
-      <option key={index + 1} value={index + 1}>
-        {nome}
-      </option>
-    ))}
-  </select>
+<DashboardFiltros
+  mesBusca={mesBusca}
+  setMesBusca={setMesBusca}
+  anoBusca={anoBusca}
+  setAnoBusca={setAnoBusca}
+/>
 
-  <input
-    type="number"
-    value={anoBusca}
-    onChange={e => setAnoBusca(Number(e.target.value))}
-    style={{
-      width: 90,
-      background: "#ffffff",
-      color: "#111827",
-      border: "1px solid #cbd5f5",
-      borderRadius: 8,
-      padding: "6px 8px",
-      fontWeight: 500,
-    }}
-  />
-
-  {/* TÍTULO */}
-  <h2 style={{ margin: 0 }}>
-    Contas do período
-  </h2>
-</div>
-
-{contasFiltradas.length === 0 && (
-  <p>Nenhuma conta cadastrada.</p>
-)}
- 
- {contasFiltradas.map(conta => (
-  <div
-    key={conta.id}
-    style={{
-      display: "grid",
-      gridTemplateColumns: "2fr 1fr 1fr 1fr auto auto",
-      gap: 12,
-      alignItems: "center",
-      padding: "14px 8px",
-      borderBottom: `1px solid ${cores.borda}`,
-      fontSize: 14
-    }}
-  >
-    <div style={{ fontWeight: 500 }}>
-      {conta.descricao}
-    </div>
-
-    <div style={{ color: cores.textoSuave }}>
-      {conta.categoriaNome}
-    </div>
-
-    <div style={{ fontWeight: 500 }}>
-      {conta.valor.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      })}
-    </div>
-
-    <div style={{ color: cores.textoSuave }}>
-      {conta.mes}/{conta.ano}
-    </div>
-
-    <button onClick={() => iniciarEdicao(conta)}>✏️</button>
-    <button onClick={() => excluirConta(conta.id)}>❌</button>
-  </div>
-))}
-
- 
+<ListaContas
+  contas={contasFiltradas}
+  cores={cores}
+  iniciarEdicao={iniciarEdicao}
+  excluirConta={excluirConta}
+/> 
 
 {/* GRÁFICOS — SEMPRE VISÍVEIS */}
 <div

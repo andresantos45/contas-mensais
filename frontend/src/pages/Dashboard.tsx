@@ -527,6 +527,10 @@ function iniciarEdicao(conta: any) {
   exportarExcel={exportarExcel}
   exportarPDF={exportarPDF}
   setMostrarCategorias={setMostrarCategorias}
+  mesBusca={mesBusca}
+  setMesBusca={setMesBusca}
+  anoBusca={anoBusca}
+  setAnoBusca={setAnoBusca}
 />
       {loading && (
   <p>

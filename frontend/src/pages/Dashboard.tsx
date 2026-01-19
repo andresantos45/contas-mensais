@@ -12,6 +12,8 @@ import ListaContas from "../components/Dashboard/ListaContas.tsx";
 import FormConta from "../components/Dashboard/FormConta.tsx";
 import GestaoCategorias from "../components/Dashboard/GestaoCategorias.tsx";
 import { calcularDashboard } from "../components/Dashboard/dashboardCalculations";
+import { Conta } from "../types/Conta";
+import { ContaExcel } from "../types/ContaExcel";
 
 export default function Dashboard() {
    const navigate = useNavigate();
@@ -21,7 +23,7 @@ export default function Dashboard() {
     navigate("/login", { replace: true });
   }
   const [modoEscuro, setModoEscuro] = useState(true);
-  const [contas, setContas] = useState<any[]>([]);
+  const [contas, setContas] = useState<Conta[]>([]);
   const [loading, setLoading] = useState(false);
   const [mesBusca, setMesBusca] = useState(1);
   const [anoBusca, setAnoBusca] = useState(2025);
@@ -29,7 +31,7 @@ export default function Dashboard() {
   const [exportando, setExportando] = useState<null | "excel" | "pdf">(null);  
   const [categorias, setCategorias] = useState<any[]>([]);
   const [novaCategoria, setNovaCategoria] = useState("");
-  const [contaEditando, setContaEditando] = useState<any | null>(null);
+  const [contaEditando, setContaEditando] = useState<Conta | null>(null);
   const [salvandoConta, setSalvandoConta] = useState(false);
   const [mostrarCategorias, setMostrarCategorias] = useState(false);
 
@@ -42,10 +44,10 @@ const [data, setData] = useState("");
 const [categoriaId, setCategoriaId] = useState("");
 
 async function carregarContasPeriodo() {
-  const response = await api.get(
-    `/api/contas/${mesBusca}/${anoBusca}`
-  );
-  setContas(response.data);
+  const response = await api.get<Conta[]>(
+  `/api/contas/${mesBusca}/${anoBusca}`
+);
+setContas(response.data);
 }
 
 async function carregarCategorias() {
@@ -98,7 +100,7 @@ async function carregarPeriodoAnterior() {
 const dados = response.data;
 
   total = dados.reduce(
-  (soma: number, c: any) => soma + Number(c.valor),
+  (soma: number, c: Conta) => soma + c.valor,
   0
 );
 } else {
@@ -113,7 +115,7 @@ const dados = response.data;
 const dados = response.data;
 
       total = dados.reduce(
-        (soma: number, c: any) => soma + c.valor,
+        (soma: number, c: Conta) => soma + c.valor,
         0
       );
     }
@@ -183,7 +185,7 @@ async function exportarExcel() {
     ];
 
     // agrupa contas por mês
-    const contasPorMes: Record<number, any[]> = {};
+    const contasPorMes: Record<number, ContaExcel[]> = {};
 
     contasFiltradas.forEach(c => {
       if (!contasPorMes[c.mes]) {
@@ -459,7 +461,7 @@ async function excluirCategoria(id: number) {
 // =======================
 // INICIAR EDIÇÃO
 // =======================
-function iniciarEdicao(conta: any) {
+function iniciarEdicao(conta: Conta) {
   setContaEditando(conta);
 
   setDescricao(conta.descricao);

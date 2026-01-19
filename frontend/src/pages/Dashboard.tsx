@@ -527,10 +527,6 @@ function iniciarEdicao(conta: any) {
   exportarExcel={exportarExcel}
   exportarPDF={exportarPDF}
   setMostrarCategorias={setMostrarCategorias}
-  mesBusca={mesBusca}
-  setMesBusca={setMesBusca}
-  anoBusca={anoBusca}
-  setAnoBusca={setAnoBusca}
 />
       {loading && (
   <p>
@@ -587,6 +583,55 @@ function iniciarEdicao(conta: any) {
   nomeCategoriaMaior={nomeCategoriaMaior}
   valorCategoriaMaior={valorCategoriaMaior}
 />
+
+{/* PESQUISA — MÊS / ANO (ACIMA DA LISTA, À ESQUERDA) */}
+<div
+  style={{
+    display: "flex",
+    justifyContent: "flex-start",
+    gap: 12,
+    margin: "24px 0 12px",
+    flexWrap: "wrap",
+  }}
+>
+  <select
+    value={mesBusca}
+    onChange={e => setMesBusca(Number(e.target.value))}
+    style={{
+      background: cores.card,
+      color: cores.texto,
+      border: `1px solid ${cores.borda}`,
+      borderRadius: 8,
+      padding: "8px 12px",
+      minWidth: 160,
+    }}
+  >
+    <option value={0}>Ano inteiro</option>
+    {[
+      "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+      "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+    ].map((nome, index) => (
+      <option key={index + 1} value={index + 1}>
+        {nome}
+      </option>
+    ))}
+  </select>
+
+  <input
+    type="number"
+    value={anoBusca}
+    onChange={e => setAnoBusca(Number(e.target.value))}
+    style={{
+      width: 90,
+      background: cores.card,
+      color: cores.texto,
+      border: `1px solid ${cores.borda}`,
+      borderRadius: 8,
+      padding: "8px 12px",
+      textAlign: "center",
+    }}
+  />
+</div>
 
 <ListaContas
   contas={contasFiltradas}

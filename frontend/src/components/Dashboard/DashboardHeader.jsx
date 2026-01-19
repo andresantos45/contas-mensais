@@ -4,11 +4,7 @@ export default function DashboardHeader({
   exportando,
   exportarExcel,
   exportarPDF,
-  setMostrarCategorias,
-  mesBusca,
-  setMesBusca,
-  anoBusca,
-  setAnoBusca
+  setMostrarCategorias
 }) {
   return (
   <>
@@ -45,54 +41,7 @@ export default function DashboardHeader({
 
           </div>
 
-    {/* PESQUISA — MÊS / ANO (NO LUGAR CERTO) */}
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        gap: 12,
-        marginBottom: 20,
-        flexWrap: "wrap",
-      }}
-    >
-      <select
-        value={mesBusca}
-        onChange={e => setMesBusca(Number(e.target.value))}
-        style={{
-          background: cores.card,
-          color: cores.texto,
-          border: `1px solid ${cores.borda}`,
-          borderRadius: 8,
-          padding: "8px 12px",
-          minWidth: 160,
-        }}
-      >
-        <option value={0}>Ano inteiro</option>
-        {[
-          "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-          "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-        ].map((nome, index) => (
-          <option key={index + 1} value={index + 1}>
-            {nome}
-          </option>
-        ))}
-      </select>
-
-      <input
-        type="number"
-        value={anoBusca}
-        onChange={e => setAnoBusca(Number(e.target.value))}
-        style={{
-          width: 90,
-          background: cores.card,
-          color: cores.texto,
-          border: `1px solid ${cores.borda}`,
-          borderRadius: 8,
-          padding: "8px 12px",
-          textAlign: "center",
-        }}
-      />
-    </div>
+    
 
     {/* AÇÕES — LADO DIREITO */}
 <div

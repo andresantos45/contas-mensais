@@ -8,7 +8,6 @@ import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import DashboardHeader from "../components/Dashboard/DashboardHeader";
 import DashboardCards from "../components/Dashboard/DashboardCards.tsx";
-import DashboardFiltros from "../components/Dashboard/DashboardFiltros.tsx";
 import ListaContas from "../components/Dashboard/ListaContas.tsx";
 import FormConta from "../components/Dashboard/FormConta.tsx";
 import GestaoCategorias from "../components/Dashboard/GestaoCategorias.tsx";
@@ -26,10 +25,7 @@ export default function Dashboard() {
   const [mesBusca, setMesBusca] = useState(1);
   const [anoBusca, setAnoBusca] = useState(2025);
   const [totalPeriodoAnterior, setTotalPeriodoAnterior] = useState(0);
-  const [exportando, setExportando] = useState<null | "excel" | "pdf">(null);
-  const [categoriaFiltro, setCategoriaFiltro] = useState<string>("todas");
-  const [valorMin, setValorMin] = useState<string>("");
-  const [valorMax, setValorMax] = useState<string>("");
+  const [exportando, setExportando] = useState<null | "excel" | "pdf">(null);  
   const [categorias, setCategorias] = useState<any[]>([]);
   const [novaCategoria, setNovaCategoria] = useState("");
   const [contaEditando, setContaEditando] = useState<any | null>(null);
@@ -134,24 +130,8 @@ const dados = response.data;
   borda: modoEscuro ? "#334155" : "#d1d5db",
   botao: modoEscuro ? "#22c55e" : "#2563eb"
 };
-  const categoriasDisponiveis = Array.from(
-  new Set(contas.map(c => c.categoriaNome).filter(Boolean))
-);
-const contasFiltradas = contas.filter(c => {
-  if (categoriaFiltro !== "todas" && c.categoriaNome !== categoriaFiltro) {
-    return false;
-  }
-
-  if (valorMin && c.valor < Number(valorMin)) {
-    return false;
-  }
-
-  if (valorMax && c.valor > Number(valorMax)) {
-    return false;
-  }
-
-  return true;
-});
+  
+const contasFiltradas = contas;
 const totalPeriodo = contasFiltradas.reduce(
   (soma: number, c: any) => soma + Number(c.valor),
   0
@@ -599,12 +579,6 @@ function iniciarEdicao(conta: any) {
   tipo={tipo}
   nomeCategoriaMaior={nomeCategoriaMaior}
   valorCategoriaMaior={valorCategoriaMaior}
-/>
-<DashboardFiltros
-  mesBusca={mesBusca}
-  setMesBusca={setMesBusca}
-  anoBusca={anoBusca}
-  setAnoBusca={setAnoBusca}
 />
 
 <ListaContas

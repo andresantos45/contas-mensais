@@ -539,28 +539,31 @@ function iniciarEdicao(conta: any) {
 )}
       
      
+  <div style={{ marginTop: 16 }}>
   <FormConta
-  descricao={descricao}
-  setDescricao={setDescricao}
-  valor={valor}
-  setValor={setValor}
-  data={data}
-  setData={setData}
-  categoriaId={categoriaId}
-  setCategoriaId={setCategoriaId}
-  categorias={categorias}
-  contaEditando={contaEditando}
-  salvandoConta={salvandoConta}
-  criarConta={criarConta}
-  cores={cores}
-  cancelarEdicao={() => {
-    setContaEditando(null);
-    setDescricao("");
-    setValor("");
-    setData("");
-    setCategoriaId("");
-  }}
-/>
+    descricao={descricao}
+    setDescricao={setDescricao}
+    valor={valor}
+    setValor={setValor}
+    data={data}
+    setData={setData}
+    categoriaId={categoriaId}
+    setCategoriaId={setCategoriaId}
+    categorias={categorias}
+    contaEditando={contaEditando}
+    salvandoConta={salvandoConta}
+    criarConta={criarConta}
+    cores={cores}
+    cancelarEdicao={() => {
+      setContaEditando(null);
+      setDescricao("");
+      setValor("");
+      setData("");
+      setCategoriaId("");
+    }}
+  />
+</div>
+
   
 <GestaoCategorias
   mostrar={mostrarCategorias}

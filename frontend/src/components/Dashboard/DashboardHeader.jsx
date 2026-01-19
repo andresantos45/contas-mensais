@@ -109,51 +109,66 @@ export default function DashboardHeader({
       />
     </div>
 
-    {/* EXPORTAÇÃO */}
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        gap: 12,
-        marginBottom: 24,
-        flexWrap: "wrap",
-      }}
-    >
-      <button
-        onClick={exportarExcel}
-        disabled={exportando === "excel"}
-        style={{
-          background: exportando === "excel" ? "#64748b" : "#16a34a",
-          color: "#fff",
-          padding: "10px 16px",
-          border: "none",
-          borderRadius: 8,
-          cursor: exportando === "excel" ? "not-allowed" : "pointer",
-          fontWeight: 600,
-        }}
-      >
-        {exportando === "excel"
-          ? "⏳ Exportando..."
-          : "⬇️ Exportar Excel"}
-      </button>
+    {/* AÇÕES — LADO DIREITO */}
+<div
+  style={{
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: 12,
+    marginBottom: 24,
+    flexWrap: "wrap",
+  }}
+>
+  <button
+    onClick={() => setMostrarCategorias(prev => !prev)}
+    style={{
+      background: cores.botao,
+      color: "#fff",
+      border: "none",
+      padding: "10px 16px",
+      borderRadius: 10,
+      cursor: "pointer",
+      fontWeight: 700,
+    }}
+  >
+    ⚙️ Configurações
+  </button>
 
-      <button
-        onClick={exportarPDF}
-        disabled={exportando !== null}
-        style={{
-          background: "#dc2626",
-          color: "#fff",
-          padding: "10px 16px",
-          border: "none",
-          borderRadius: 8,
-          cursor: exportando ? "not-allowed" : "pointer",
-          fontWeight: 600,
-          opacity: exportando ? 0.6 : 1,
-        }}
-      >
-        📄 Exportar PDF
-      </button>
-    </div>
+  <button
+    onClick={exportarExcel}
+    disabled={exportando === "excel"}
+    style={{
+      background: exportando === "excel" ? "#64748b" : "#16a34a",
+      color: "#fff",
+      padding: "10px 16px",
+      border: "none",
+      borderRadius: 8,
+      cursor: exportando === "excel" ? "not-allowed" : "pointer",
+      fontWeight: 600,
+    }}
+  >
+    {exportando === "excel"
+      ? "⏳ Exportando..."
+      : "⬇️ Exportar Excel"}
+  </button>
+
+  <button
+    onClick={exportarPDF}
+    disabled={exportando !== null}
+    style={{
+      background: "#dc2626",
+      color: "#fff",
+      padding: "10px 16px",
+      border: "none",
+      borderRadius: 8,
+      cursor: exportando ? "not-allowed" : "pointer",
+      fontWeight: 600,
+      opacity: exportando ? 0.6 : 1,
+    }}
+  >
+    📄 Exportar PDF
+  </button>
+</div>
   </>
 );
 }

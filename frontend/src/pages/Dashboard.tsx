@@ -144,7 +144,11 @@ const textoPeriodo =
 // DASHBOARD — CÁLCULOS CENTRALIZADOS
 // =======================
 
-const contasFiltradas = contas;
+const contasFiltradas = [...contas].sort((a, b) =>
+  a.descricao.localeCompare(b.descricao, "pt-BR", {
+    sensitivity: "base",
+  })
+);
 
 const {
   totalPeriodo,

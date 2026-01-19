@@ -1,3 +1,4 @@
+import { itemWrapper, acoes } from "./listaContasStyles";
 import { Conta } from "../../types/Conta";
 
 
@@ -23,16 +24,14 @@ export default function ItemConta({
 }: ItemContaProps) {
   return (
     <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "2fr 1fr 1fr 1fr auto auto",
-        gap: 12,
-        alignItems: "center",
-        padding: "14px 8px",
-        borderBottom: `1px solid ${cores.borda}`,
-        fontSize: 14
-      }}
-    >
+  style={{
+    ...itemWrapper,
+    gridTemplateColumns: "2fr 1fr 1fr 1fr auto auto",
+    padding: "14px 8px",
+    borderBottom: `1px solid ${cores.borda}`,
+    fontSize: 14,
+  }}
+>
       <div style={{ fontWeight: 500 }}>
         {conta.descricao}
       </div>
@@ -52,8 +51,10 @@ export default function ItemConta({
         {conta.mes}/{conta.ano}
       </div>
 
-      <button onClick={() => iniciarEdicao(conta)}>✏️</button>
-      <button onClick={() => excluirConta(conta.id)}>❌</button>
+      <div style={acoes}>
+  <button onClick={() => iniciarEdicao(conta)}>✏️</button>
+  <button onClick={() => excluirConta(conta.id)}>❌</button>
+</div>
     </div>
   );
 }

@@ -1,3 +1,10 @@
+import {
+  formGrid,
+  label,
+  inputBase,
+  buttonPrimary,
+} from "./formContaStyles";
+
 import { Categoria } from "../../types/Categoria";
 import { Conta } from "../../types/Conta";
 
@@ -43,120 +50,59 @@ export default function FormConta({
   cancelarEdicao,
 }: FormContaProps) {
   return (
-    <form
-      onSubmit={criarConta}
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(4, minmax(180px, 1fr)) auto",
-        gap: 12,
-        marginTop: 20,
-        alignItems: "end"
-      }}
-    >
+    <form onSubmit={criarConta} style={formGrid}>
       {/* DESCRIÇÃO */}
       <div>
-        <label
-          style={{
-            color: cores.textoSuave,
-            fontSize: 13,
-            marginBottom: 6,
-            display: "block"
-          }}
-        >
+        <label style={{ ...label, color: cores.textoSuave }}>
           Descrição
         </label>
         <input
           value={descricao}
           onChange={e => setDescricao(e.target.value)}
           required
-          style={{
-            background: "#ffffff",
-            color: "#111827",
-            border: "1px solid #cbd5f5",
-            borderRadius: 8,
-            padding: "8px 10px"
-          }}
+          style={inputBase}
         />
       </div>
 
       {/* VALOR */}
       <div>
-        <label
-          style={{
-            color: cores.textoSuave,
-            fontSize: 13,
-            marginBottom: 6,
-            display: "block"
-          }}
-        >
-          Valor
-        </label>
+        <label style={{ ...label, color: cores.textoSuave }}>
+  Valor
+</label>
         <input
           type="number"
           value={valor}
           onChange={e => setValor(e.target.value)}
           required
-          style={{
-            background: "#ffffff",
-            color: "#111827",
-            border: "1px solid #cbd5f5",
-            borderRadius: 8,
-            padding: "8px 10px"
-          }}
+          style={inputBase}
         />
       </div>
 
       {/* DATA */}
       <div>
-        <label
-          style={{
-            color: cores.textoSuave,
-            fontSize: 13,
-            marginBottom: 6,
-            display: "block"
-          }}
-        >
-          Data
-        </label>
+        <label style={{ ...label, color: cores.textoSuave }}>
+  Data
+</label>
         <input
-          type="date"
-          value={data}
-          onChange={e => setData(e.target.value)}
-          required
-          style={{
-            background: "#ffffff",
-            color: "#111827",
-            border: "1px solid #cbd5f5",
-            borderRadius: 8,
-            padding: "8px 10px"
-          }}
-        />
+  type="date"
+  value={data}
+  onChange={e => setData(e.target.value)}
+  required
+  style={inputBase}
+/>
       </div>
 
       {/* CATEGORIA */}
       <div>
-        <label
-          style={{
-            color: cores.textoSuave,
-            fontSize: 13,
-            marginBottom: 6,
-            display: "block"
-          }}
-        >
-          Categoria
-        </label>
+        <label style={{ ...label, color: cores.textoSuave }}>
+  Categoria
+</label>
         <select
-          value={categoriaId}
-          onChange={e => setCategoriaId(e.target.value)}
-          required
-          style={{
-            background: "#ffffff",
-            color: "#111827",
-            border: "1px solid #cbd5f5",
-            borderRadius: 8,
-            padding: "8px 10px"
-          }}
-        >
+  value={categoriaId}
+  onChange={e => setCategoriaId(e.target.value)}
+  required
+  style={inputBase}
+>
           <option value="">Selecione</option>
           {categorias.map(cat => (
             <option key={cat.id} value={cat.id}>
@@ -170,14 +116,7 @@ export default function FormConta({
       <button
         type="submit"
         disabled={salvandoConta}
-        style={{
-          height: 40,
-          background: cores.botao,
-          color: "#fff",
-          border: "none",
-          borderRadius: 8,
-          fontWeight: 600
-        }}
+        style={{ ...buttonPrimary, background: cores.botao }}
       >
         {contaEditando ? "💾 Salvar" : "➕ Adicionar"}
       </button>

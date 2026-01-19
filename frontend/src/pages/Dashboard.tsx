@@ -1,3 +1,9 @@
+import {
+  dashboardContainer,
+  dashboardCard,
+  sectionTitle,
+  gridGraficos,
+} from "../components/Dashboard/dashboardStyles";
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
@@ -485,23 +491,19 @@ function iniciarEdicao(conta: Conta) {
 }
   return (
   <div
-    style={{
-      minHeight: "100vh",
-      background: cores.fundo,
-      padding: "20px"
-    }}
-  >
-    <div
-  className={modoEscuro ? "dashboard dark" : "dashboard"}
   style={{
-    maxWidth: "1200px",
-    margin: "0 auto",
-    background: cores.card,
-    borderRadius: 16,
-    padding: 24,
-    color: cores.texto
+    ...dashboardContainer,
+    background: cores.fundo,
   }}
 >
+    <div
+  style={{
+    ...dashboardCard,
+    background: cores.card,
+    color: cores.texto,
+  }}
+>
+
       <DashboardHeader
   textoPeriodo={textoPeriodo}
   cores={cores}
@@ -569,13 +571,11 @@ function iniciarEdicao(conta: Conta) {
 {/* CONTAS DO PERÍODO */}
 <div style={{ margin: "24px 0 12px" }}>
   <h3
-    style={{
-      fontSize: 18,
-      fontWeight: 700,
-      marginBottom: 12,
-      color: cores.texto,
-    }}
-  >
+  style={{
+    ...sectionTitle,
+    color: cores.texto,
+  }}
+>
     Contas do Período
   </h3>
 
@@ -638,14 +638,7 @@ function iniciarEdicao(conta: Conta) {
 /> 
 
 {/* GRÁFICOS — SEMPRE VISÍVEIS */}
-<div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-    gap: 24,
-    marginTop: 32,
-  }}
->
+<div style={gridGraficos}>
   {/* PIZZA — POR MÊS */}
   <div
     style={{

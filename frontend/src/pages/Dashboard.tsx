@@ -584,54 +584,69 @@ function iniciarEdicao(conta: any) {
   valorCategoriaMaior={valorCategoriaMaior}
 />
 
-{/* PESQUISA — MÊS / ANO (ACIMA DA LISTA, À ESQUERDA) */}
-<div
-  style={{
-    display: "flex",
-    justifyContent: "flex-start",
-    gap: 12,
-    margin: "24px 0 12px",
-    flexWrap: "wrap",
-  }}
->
-  <select
-    value={mesBusca}
-    onChange={e => setMesBusca(Number(e.target.value))}
+{/* CONTAS DO PERÍODO */}
+<div style={{ margin: "24px 0 12px" }}>
+  <h3
     style={{
-      background: cores.card,
+      fontSize: 18,
+      fontWeight: 700,
+      marginBottom: 12,
       color: cores.texto,
-      border: `1px solid ${cores.borda}`,
-      borderRadius: 8,
-      padding: "8px 12px",
-      minWidth: 160,
     }}
   >
-    <option value={0}>Ano inteiro</option>
-    {[
-      "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-      "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-    ].map((nome, index) => (
-      <option key={index + 1} value={index + 1}>
-        {nome}
-      </option>
-    ))}
-  </select>
+    Contas do Período
+  </h3>
 
-  <input
-    type="number"
-    value={anoBusca}
-    onChange={e => setAnoBusca(Number(e.target.value))}
+  {/* PESQUISA — MÊS / ANO */}
+  <div
     style={{
-      width: 90,
-      background: cores.card,
-      color: cores.texto,
-      border: `1px solid ${cores.borda}`,
-      borderRadius: 8,
-      padding: "8px 12px",
-      textAlign: "center",
+      display: "flex",
+      gap: 12,
+      flexWrap: "wrap",
     }}
-  />
+  >
+    <select
+      value={mesBusca}
+      onChange={e => setMesBusca(Number(e.target.value))}
+      style={{
+        background: "#ffffff",          // ✅ BRANCO
+        color: "#111827",
+        border: "1px solid #d1d5db",
+        borderRadius: 8,
+        padding: "10px 12px",
+        minWidth: 160,
+        fontWeight: 500,
+      }}
+    >
+      <option value={0}>Ano inteiro</option>
+      {[
+        "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+        "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+      ].map((nome, index) => (
+        <option key={index + 1} value={index + 1}>
+          {nome}
+        </option>
+      ))}
+    </select>
+
+    <input
+      type="number"
+      value={anoBusca}
+      onChange={e => setAnoBusca(Number(e.target.value))}
+      style={{
+        width: 100,
+        background: "#ffffff",          // ✅ BRANCO
+        color: "#111827",
+        border: "1px solid #d1d5db",
+        borderRadius: 8,
+        padding: "10px 12px",
+        textAlign: "center",
+        fontWeight: 500,
+      }}
+    />
+  </div>
 </div>
+
 
 <ListaContas
   contas={contasFiltradas}

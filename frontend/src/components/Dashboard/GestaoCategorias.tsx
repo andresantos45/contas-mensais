@@ -2,7 +2,14 @@ interface GestaoCategoriasProps {
   mostrar: boolean;
   modoEscuro: boolean;
   setModoEscuro: (v: boolean) => void;
-  cores: any;
+  cores: {
+    fundo: string;
+    card: string;
+    texto: string;
+    textoSuave: string;
+    borda: string;
+    botao: string;
+  };
   novaCategoria: string;
   setNovaCategoria: (v: string) => void;
   criarCategoria: (e: React.FormEvent) => void;

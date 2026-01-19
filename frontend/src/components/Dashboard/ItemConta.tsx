@@ -1,7 +1,17 @@
+import { Conta } from "../../types/Conta";
+
+
 interface ItemContaProps {
-  conta: any;
-  cores: any;
-  iniciarEdicao: (conta: any) => void;
+  conta: Conta;
+  cores: {
+    fundo: string;
+    card: string;
+    texto: string;
+    textoSuave: string;
+    borda: string;
+    botao: string;
+  };
+  iniciarEdicao: (conta: Conta) => void;
   excluirConta: (id: number) => void;
 }
 

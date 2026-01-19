@@ -1,5 +1,7 @@
+import { Conta } from "../../types/Conta";
+
 export function calcularDashboard(
-  contas: any[],
+  contas: Conta[],
   mesBusca: number,
   anoBusca: number,
   totalPeriodoAnterior: number
@@ -22,8 +24,8 @@ export function calcularDashboard(
   const tipo: "alta" | "queda" | "neutro" =
   diferenca > 0 ? "alta" : diferenca < 0 ? "queda" : "neutro";
 
-  const tendencia =
-    tipo === "alta" ? "↑" : tipo === "queda" ? "↓" : "→";
+  const tendencia: "↑" | "↓" | "→" =
+  tipo === "alta" ? "↑" : tipo === "queda" ? "↓" : "→";
 
   const nomesMeses = [
     "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",

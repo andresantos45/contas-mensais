@@ -4,7 +4,7 @@ interface DashboardCardsProps {
   mesBusca: number;
   totalPeriodo: number;
   mediaMensal: number;
-  tendencia: string;
+  tendencia: "↑" | "↓" | "→";
   diferenca: number;
   percentual: number | null;
   tipo: "alta" | "queda" | "neutro";

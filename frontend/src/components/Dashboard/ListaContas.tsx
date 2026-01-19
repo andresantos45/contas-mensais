@@ -1,9 +1,17 @@
+import { Conta } from "../../types/Conta";
 import ItemConta from "./ItemConta";
 
 interface ListaContasProps {
-  contas: any[];
-  cores: any;
-  iniciarEdicao: (conta: any) => void;
+  contas: Conta[];
+  cores: {
+    fundo: string;
+    card: string;
+    texto: string;
+    textoSuave: string;
+    borda: string;
+    botao: string;
+  };
+  iniciarEdicao: (conta: Conta) => void;
   excluirConta: (id: number) => void;
 }
 

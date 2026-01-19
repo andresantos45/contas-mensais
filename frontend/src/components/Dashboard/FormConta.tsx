@@ -1,3 +1,6 @@
+import { Categoria } from "../../types/Categoria";
+import { Conta } from "../../types/Conta";
+
 interface FormContaProps {
   descricao: string;
   setDescricao: (v: string) => void;
@@ -7,13 +10,21 @@ interface FormContaProps {
   setData: (v: string) => void;
   categoriaId: string;
   setCategoriaId: (v: string) => void;
-  categorias: any[];
-  contaEditando: any | null;
+  categorias: Categoria[];
+  contaEditando: Conta | null;
   salvandoConta: boolean;
   criarConta: (e: React.FormEvent) => void;
-  cores: any;
+  cores: {
+    fundo: string;
+    card: string;
+    texto: string;
+    textoSuave: string;
+    borda: string;
+    botao: string;
+  };
   cancelarEdicao: () => void;
 }
+
 
 export default function FormConta({
   descricao,

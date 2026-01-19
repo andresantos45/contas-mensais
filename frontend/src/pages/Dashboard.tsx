@@ -14,6 +14,7 @@ import GestaoCategorias from "../components/Dashboard/GestaoCategorias.tsx";
 import { calcularDashboard } from "../components/Dashboard/dashboardCalculations";
 import { Conta } from "../types/Conta";
 import { ContaExcel } from "../types/ContaExcel";
+import { Categoria } from "../types/Categoria";
 
 export default function Dashboard() {
    const navigate = useNavigate();
@@ -29,7 +30,7 @@ export default function Dashboard() {
   const [anoBusca, setAnoBusca] = useState(2025);
   const [totalPeriodoAnterior, setTotalPeriodoAnterior] = useState(0);
   const [exportando, setExportando] = useState<null | "excel" | "pdf">(null);  
-  const [categorias, setCategorias] = useState<any[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [novaCategoria, setNovaCategoria] = useState("");
   const [contaEditando, setContaEditando] = useState<Conta | null>(null);
   const [salvandoConta, setSalvandoConta] = useState(false);
@@ -51,12 +52,12 @@ setContas(response.data);
 }
 
 async function carregarCategorias() {
-  const response = await api.get("/api/categorias");
-  setCategorias(
-    response.data.sort(
-      (a: any, b: any) => a.nome.localeCompare(b.nome)
-    )
-  );
+  const response = await api.get<Categoria[]>("/api/categorias");
+setCategorias(
+  response.data.sort(
+    (a, b) => a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
+  )
+);
 }
 
   useEffect(() => {
@@ -402,8 +403,8 @@ async function criarCategoria(e: React.FormEvent) {
   // 🚫 evita categoria duplicada
   if (
     categorias.some(
-      (c: any) => c.nome.toLowerCase() === novaCategoria.toLowerCase()
-    )
+  c => c.nome.toLowerCase() === novaCategoria.toLowerCase()
+)
   ) {
     alert("Categoria já existe");
     return;
@@ -418,8 +419,9 @@ async function criarCategoria(e: React.FormEvent) {
 
 setCategorias(
   recarregar.data.sort(
-    (a: any, b: any) => a.nome.localeCompare(b.nome)
-  )
+  (a: Categoria, b: Categoria) =>
+    a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
+)
 );
 
      setNovaCategoria("");

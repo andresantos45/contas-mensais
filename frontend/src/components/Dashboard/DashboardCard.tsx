@@ -25,19 +25,18 @@ export default function DashboardCard({
       }}
     >
       <span style={{ fontSize: 14, opacity: 0.7, color: "#94a3b8" }}>
-  {titulo}
-</span>
+        {titulo}
+      </span>
 
       <strong style={{ fontSize: 26, color: "#e5e7eb" }}>
-  {valorPrincipal}
-</strong>
+        {valorPrincipal}
+      </strong>
 
       {subtitulo && (
-  <span style={{ fontSize: 13, opacity: 0.6, color: "#94a3b8" }}>
-    {subtitulo}
-  </span>
-)}
+        <span style={{ fontSize: 13, opacity: 0.6, color: "#94a3b8" }}>
+          {subtitulo}
+        </span>
+      )}
     </div>
   );
 }
-

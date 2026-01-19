@@ -6,7 +6,9 @@ import GraficoMensal from "../components/Graficos/GraficoMensal";
 import GraficoCategoria from "../components/Graficos/GraficoCategoria";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
-import DashboardCard from "../components/Dashboard/DashboardCard";
+import DashboardHeader from "../components/Dashboard/DashboardHeader";
+import DashboardCards from "../components/Dashboard/DashboardCards.tsx";
+
 
 export default function Dashboard() {
    const navigate = useNavigate();
@@ -535,108 +537,14 @@ function iniciarEdicao(conta: any) {
     color: cores.texto
   }}
 >
-      {/* HEADER DO DASHBOARD */}
-<div
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 16,
-    marginBottom: 24,
-    flexWrap: "wrap",
-  }}
->
-  {/* TÍTULO CENTRAL */}
-<div style={{ flex: 1, textAlign: "center" }}>
-  <h1
-    style={{
-      fontSize: 34,
-      fontWeight: 800,
-      margin: 0,
-      letterSpacing: 0.5
-    }}
-  >
-    Contas Mensais
-  </h1>
-
-  <p
-    style={{
-      marginTop: 6,
-      fontSize: 14,
-      color: cores.textoSuave
-    }}
-  >
-    {textoPeriodo}
-  </p>
-</div>
-
-   {/* DIREITA — AÇÕES */}
-  <div style={{ display: "flex", gap: 12 }}>
-    <button
-      onClick={() => setMostrarCategorias(prev => !prev)}
-      style={{
-        background: cores.botao,
-        color: "#fff",
-        border: "none",
-        padding: "10px 16px",
-        borderRadius: 10,
-        cursor: "pointer",
-        fontWeight: 700,
-      }}
-    >
-      ⚙️  Configurações
-
-    </button>
-  </div>
-
-{/* BOTÕES DE EXPORTAÇÃO */}
-<div
-  style={{
-    display: "flex",
-    gap: 12,
-    marginTop: 12,
-    marginBottom: 24,
-    justifyContent: "flex-end",
-    flexWrap: "wrap",
-  }}
->
-  <button
-    onClick={exportarExcel}
-    disabled={exportando === "excel"}
-    style={{
-      background: exportando === "excel" ? "#64748b" : "#16a34a",
-      color: "#fff",
-      padding: "10px 16px",
-      border: "none",
-      borderRadius: 8,
-      cursor: exportando === "excel" ? "not-allowed" : "pointer",
-      fontWeight: 600
-    }}
-  >
-    {exportando === "excel"
-      ? "⏳ Exportando..."
-      : "⬇️ Exportar Excel"}
-  </button>
-
-  <button
-    onClick={exportarPDF}
-    disabled={exportando !== null}
-    style={{
-      background: "#dc2626",
-      color: "#fff",
-      padding: "10px 16px",
-      border: "none",
-      borderRadius: 8,
-      cursor: exportando ? "not-allowed" : "pointer",
-      fontWeight: 600,
-      opacity: exportando ? 0.6 : 1
-    }}
-  >
-    📄 Exportar PDF
-  </button>
-</div>
-
-</div>
+      <DashboardHeader
+  textoPeriodo={textoPeriodo}
+  cores={cores}
+  exportando={exportando}
+  exportarExcel={exportarExcel}
+  exportarPDF={exportarPDF}
+  setMostrarCategorias={setMostrarCategorias}
+/>
       {loading && (
   <p>
     Atualizando dados...
@@ -894,66 +802,17 @@ function iniciarEdicao(conta: any) {
   </>
 )}
 
- {/* GRID DE CARDS */}
-<div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-    gap: 16,
-    marginTop: 24,
-  }}
->
-  <DashboardCard
-    titulo="Total do período"
-    valorPrincipal={totalPeriodo.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    })}
-  />
-
-  <DashboardCard
-    titulo={mesBusca === 0 ? "Média mensal do ano" : "Valor do mês"}
-    valorPrincipal={mediaMensal.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    })}
-    subtitulo={
-      mesBusca === 0
-        ? "cálculo baseado no ano inteiro"
-        : "referente ao mês selecionado"
-    }
-  />
-
-  <DashboardCard
-  titulo="Comparação com período anterior"
-  valorPrincipal={`${tendencia} ${diferenca.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  })}`}
-  subtitulo={
-    percentual !== null
-      ? `${percentual.toFixed(1)}%`
-      : "—"
-  }
-  corBorda={
-    tipo === "alta"
-      ? "#16a34a"
-      : tipo === "queda"
-      ? "#dc2626"
-      : "#334155"
-  }
+ <DashboardCards
+  mesBusca={mesBusca}
+  totalPeriodo={totalPeriodo}
+  mediaMensal={mediaMensal}
+  tendencia={tendencia}
+  diferenca={diferenca}
+  percentual={percentual}
+  tipo={tipo}
+  nomeCategoriaMaior={nomeCategoriaMaior}
+  valorCategoriaMaior={valorCategoriaMaior}
 />
-
-  <DashboardCard
-    titulo="Categoria com maior gasto"
-    valorPrincipal={nomeCategoriaMaior}
-    subtitulo={valorCategoriaMaior.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    })}
-    corBorda="#0ea5e9"
-  />
-</div>
 {/* LISTA DE CONTAS */}
 <div
   style={{

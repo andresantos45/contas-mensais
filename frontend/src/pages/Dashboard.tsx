@@ -11,6 +11,7 @@ import DashboardCards from "../components/Dashboard/DashboardCards.tsx";
 import ListaContas from "../components/Dashboard/ListaContas.tsx";
 import FormConta from "../components/Dashboard/FormConta.tsx";
 import GestaoCategorias from "../components/Dashboard/GestaoCategorias.tsx";
+import { calcularDashboard } from "../components/Dashboard/dashboardCalculations";
 
 export default function Dashboard() {
    const navigate = useNavigate();
@@ -131,63 +132,36 @@ const dados = response.data;
   botao: modoEscuro ? "#22c55e" : "#2563eb"
 };
   
-const contasFiltradas = contas;
-const totalPeriodo = contasFiltradas.reduce(
-  (soma: number, c: any) => soma + Number(c.valor),
-  0
-);
 
-const diferenca = totalPeriodo - totalPeriodoAnterior;
-
-const percentual =
-  totalPeriodoAnterior > 0
-    ? (diferenca / totalPeriodoAnterior) * 100
-    : null;
-
-const tipo =
-  diferenca > 0 ? "alta" : diferenca < 0 ? "queda" : "neutro";
-
-const tendencia =
-  tipo === "alta" ? "↑" : tipo === "queda" ? "↓" : "→";
-  const divisorMedia = mesBusca === 0 ? 12 : 1;
-
-const mediaMensal = totalPeriodo / divisorMedia;
 const textoPeriodo =
   mesBusca === 0
     ? `Ano ${anoBusca}`
     : `Mês ${mesBusca}/${anoBusca}`;
-// === TOTAL POR MÊS ===
-const nomesMeses = [
-  "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-  "Jul", "Ago", "Set", "Out", "Nov", "Dez"
-];
 
-const totalPorMes = contasFiltradas.reduce(
-  (acc: Record<string, number>, c: any) => {
-    if (!c.mes || c.mes < 1 || c.mes > 12) return acc; // ✅ proteção
-    const nomeMes = nomesMeses[c.mes - 1];
-    acc[nomeMes] = (acc[nomeMes] || 0) + Number(c.valor);
-    return acc;
-  },
-  {}
+// =======================
+// DASHBOARD — CÁLCULOS CENTRALIZADOS
+// =======================
+
+const contasFiltradas = contas;
+
+const {
+  totalPeriodo,
+  mediaMensal,
+  diferenca,
+  percentual,
+  tipo,
+  tendencia,
+  totalPorMes,
+  totalPorCategoria,
+  nomeCategoriaMaior,
+  valorCategoriaMaior,
+} = calcularDashboard(
+  contasFiltradas,
+  mesBusca,
+  anoBusca,
+  totalPeriodoAnterior
 );
-// === MAIOR CATEGORIA ===
-const totalPorCategoria = contasFiltradas.reduce(
-  (acc: Record<string, number>, c: any) => {
-    if (!c.categoriaNome) return acc; // ✅ proteção
-    acc[c.categoriaNome] =
-      (acc[c.categoriaNome] || 0) + Number(c.valor);
-    return acc;
-  },
-  {}
-);
 
-const categoriaMaior = Object.entries(totalPorCategoria).sort(
-  (a, b) => b[1] - a[1]
-)[0];
-
-const nomeCategoriaMaior = categoriaMaior?.[0] ?? "—";
-const valorCategoriaMaior = categoriaMaior?.[1] ?? 0;
 
 // =======================
 // EXPORTAÇÃO PARA EXCEL

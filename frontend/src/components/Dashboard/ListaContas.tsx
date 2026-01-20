@@ -21,13 +21,21 @@ export default function ListaContas({
   iniciarEdicao,
   excluirConta,
 }: ListaContasProps) {
-  if (contas.length === 0) {
-    return <p>Nenhuma conta cadastrada.</p>;
-  }
-
   return (
-    <>
-      {contas.map(conta => (
+  <>
+    {contas.length === 0 ? (
+      <div
+        style={{
+          padding: "24px",
+          textAlign: "center",
+          color: cores.textoSuave,
+        }}
+      >
+        <p>Nenhuma conta cadastrada ainda.</p>
+        <p>Comece adicionando sua primeira conta 💸</p>
+      </div>
+    ) : (
+      contas.map(conta => (
         <ItemConta
           key={conta.id}
           conta={conta}
@@ -35,7 +43,8 @@ export default function ListaContas({
           iniciarEdicao={iniciarEdicao}
           excluirConta={excluirConta}
         />
-      ))}
-    </>
-  );
+      ))
+    )}
+  </>
+);
 }

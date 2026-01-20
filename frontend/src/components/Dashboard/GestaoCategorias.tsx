@@ -10,6 +10,11 @@ interface GestaoCategoriasProps {
     borda: string;
     botao: string;
   };
+  categorias: {
+    id: number;
+    nome: string;
+  }[];
+  excluirCategoria: (id: number) => void;
   novaCategoria: string;
   setNovaCategoria: (v: string) => void;
   criarCategoria: (e: React.FormEvent) => void;
@@ -21,6 +26,8 @@ export default function GestaoCategorias({
   modoEscuro,
   setModoEscuro,
   cores,
+  categorias,
+  excluirCategoria,
   novaCategoria,
   setNovaCategoria,
   criarCategoria,
@@ -110,7 +117,48 @@ export default function GestaoCategorias({
         <button type="submit" style={{ height: 40 }}>
           ➕ Criar categoria
         </button>
-      </form>
+       </form>
+
+      {/* LISTA DE CATEGORIAS */}
+      <div style={{ marginTop: 20 }}>
+        {categorias.length === 0 ? (
+          <p style={{ color: cores.textoSuave }}>
+            Nenhuma categoria cadastrada.
+          </p>
+        ) : (
+          categorias.map(categoria => (
+            <div
+              key={categoria.id}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "8px 12px",
+                border: `1px solid ${cores.borda}`,
+                borderRadius: 8,
+                marginBottom: 8,
+              }}
+            >
+              <span>{categoria.nome}</span>
+
+              <button
+                onClick={() => excluirCategoria(categoria.id)}
+                style={{
+                  background: "#dc2626",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 6,
+                  padding: "6px 10px",
+                  cursor: "pointer",
+                  fontSize: 12,
+                }}
+              >
+                🗑️ Excluir
+              </button>
+            </div>
+          ))
+        )}
+      </div>
     </>
   );
 }

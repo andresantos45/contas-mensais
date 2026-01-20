@@ -550,6 +550,8 @@ function iniciarEdicao(conta: Conta) {
   modoEscuro={modoEscuro}
   setModoEscuro={setModoEscuro}
   cores={cores}
+  categorias={categorias}
+  excluirCategoria={excluirCategoria}
   novaCategoria={novaCategoria}
   setNovaCategoria={setNovaCategoria}
   criarCategoria={criarCategoria}

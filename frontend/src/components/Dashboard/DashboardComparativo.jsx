@@ -18,24 +18,32 @@ function DashboardComparativo({
       </div>
 
       <div
-        style={{
-          fontSize: 26,
-          fontWeight: 800,
-          color:
-            tipo === "aumento"
-              ? "#16a34a"
-              : tipo === "reducao"
-              ? "#dc2626"
-              : "#9ca3af"
-        }}
-      >
-        {tipo === "aumento" && "▲ "}
-        {tipo === "reducao" && "▼ "}
-        {tipo === "neutro" && "● "}
-        {tipo === "neutro"
-          ? "0,0%"
-          : `${Math.abs(percentual).toFixed(1)}%`}
-      </div>
+  style={{
+    fontSize: 26,
+    fontWeight: 800,
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    color:
+      tipo === "aumento"
+        ? "#16a34a"
+        : tipo === "reducao"
+        ? "#dc2626"
+        : "#2563eb" // azul para igual
+  }}
+>
+  {/* ÍCONE */}
+  {tipo === "aumento" && <span style={{ fontSize: "1em" }}>▲</span>}
+  {tipo === "reducao" && <span style={{ fontSize: "1em" }}>▼</span>}
+  {tipo === "neutro" && <span style={{ fontSize: "1em" }}>=</span>}
+
+  {/* TEXTO */}
+  <span>
+    {tipo === "neutro"
+      ? "0,0%"
+      : `${Math.abs(percentual).toFixed(1)}%`}
+  </span>
+</div>
 
       <div style={{ fontSize: 14, opacity: 0.7 }}>
         {tipo === "aumento" && (

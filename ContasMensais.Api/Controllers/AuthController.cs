@@ -67,13 +67,13 @@ public IActionResult Register([FromBody] RegisterDto dto)
             if (!BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.SenhaHash))
                 return Unauthorized("Usuário ou senha inválidos");
 
-            var isAdmin = usuario.Email == "admin@contasmensais.com";
+            
 
 var claims = new[]
 {
     new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
     new Claim(ClaimTypes.Email, usuario.Email),
-    new Claim("admin", isAdmin ? "true" : "false")
+    new Claim(ClaimTypes.Role, usuario.Role) // 👈 LINHA CRÍTICA
 };
 
             var jwtKey = _configuration["JWT_KEY"]

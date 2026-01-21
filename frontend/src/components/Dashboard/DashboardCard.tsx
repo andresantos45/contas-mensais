@@ -1,8 +1,11 @@
+type VariacaoTipo = "positivo" | "negativo" | "neutro";
+
 interface DashboardCardProps {
   titulo: string;
   valorPrincipal: React.ReactNode;
   subtitulo?: React.ReactNode;
   corBorda?: string;
+  variacao?: VariacaoTipo;
 }
 
 export default function DashboardCard({
@@ -10,14 +13,32 @@ export default function DashboardCard({
   valorPrincipal,
   subtitulo,
   corBorda = "#334155",
+  variacao = "neutro", // 👈 ADICIONE AQUI
 }: DashboardCardProps) {
+
+  const coresVariacao = {
+  positivo: {
+    borda: "#22c55e",
+    valor: "#22c55e",
+  },
+  negativo: {
+    borda: "#ef4444",
+    valor: "#ef4444",
+  },
+  neutro: {
+    borda: corBorda,
+    valor: "#e5e7eb",
+  },
+};
+
+const variacaoAtual = coresVariacao[variacao as VariacaoTipo];
   return (
     <div
       style={{
         background: "#020617",
         padding: 20,
         borderRadius: 16,
-        border: `1px solid ${corBorda}`,
+        border: `1px solid ${variacaoAtual.borda}`, // 👈 SUBSTITUA
         height: 140, // altura fixa e consistente
         display: "flex",
         flexDirection: "column",
@@ -37,7 +58,7 @@ export default function DashboardCard({
     gap: 6, // 👈 espaçamento controlado
   }}
 >
-  <strong style={{ fontSize: 26, color: "#e5e7eb" }}>
+  <strong style={{ fontSize: 26, color: variacaoAtual.valor }}>
     {valorPrincipal}
   </strong>
 

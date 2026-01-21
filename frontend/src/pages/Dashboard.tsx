@@ -511,6 +511,7 @@ function iniciarEdicao(conta: Conta) {
   exportarExcel={exportarExcel}
   exportarPDF={exportarPDF}
   setMostrarCategorias={setMostrarCategorias}
+  handleLogout={handleLogout} // 👈 AQUI
 />
       {loading && (
   <p>

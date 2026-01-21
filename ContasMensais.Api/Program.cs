@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ContasMensais.Api.Data;
-using ContasMensais.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using ContasMensais.Api.Services;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 // 🔐 CHAVE JWT CENTRALIZADA (ÚNICO PONTO DA CHAVE)
@@ -39,7 +39,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtKey)
             ),
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+
+            // 🔑 LINHAS CRÍTICAS (SEM ISSO ROLE NÃO FUNCIONA)
+            RoleClaimType = ClaimTypes.Role,
+            NameClaimType = ClaimTypes.NameIdentifier
         };
     });
 // 🔐 AUTHORIZATION (SEM ISSO O AUTHORIZE NÃO APARECE)

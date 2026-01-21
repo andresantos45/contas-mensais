@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function DashboardHeader({
   textoPeriodo,
@@ -10,6 +10,23 @@ export default function DashboardHeader({
   handleLogout, // 👈 ADICIONE AQUI
 }) {
   const [mostrarModalSair, setMostrarModalSair] = useState(false);
+
+  useEffect(() => {
+  function handleKeyDown(event) {
+    if (event.key === "Escape") {
+      setMostrarModalSair(false);
+    }
+  }
+
+  if (mostrarModalSair) {
+    window.addEventListener("keydown", handleKeyDown);
+  }
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, [mostrarModalSair]);
+
   return (
   <>
     {/* CABEÇALHO */}
@@ -145,6 +162,7 @@ export default function DashboardHeader({
   
 {mostrarModalSair && (
   <div
+  onClick={() => setMostrarModalSair(false)}
     style={{
       position: "fixed",
       inset: 0,
@@ -156,6 +174,7 @@ export default function DashboardHeader({
     }}
   >
     <div
+    onClick={e => e.stopPropagation()}
       style={{
         background: cores.card,
         color: cores.texto,

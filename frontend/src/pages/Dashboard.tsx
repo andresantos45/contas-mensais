@@ -562,7 +562,6 @@ function iniciarEdicao(conta: Conta) {
   mesBusca={mesBusca}
   totalPeriodo={totalPeriodo}
   mediaMensal={mediaMensal}
-  tendencia={tendencia}
   diferenca={diferenca}
   percentual={percentual}
   tipo={tipo}

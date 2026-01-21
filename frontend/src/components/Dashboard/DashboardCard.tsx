@@ -1,7 +1,7 @@
 interface DashboardCardProps {
   titulo: string;
-  valorPrincipal: string;
-  subtitulo?: string;
+  valorPrincipal: React.ReactNode;
+  subtitulo?: React.ReactNode;
   corBorda?: string;
 }
 

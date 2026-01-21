@@ -4,7 +4,6 @@ interface DashboardCardsProps {
   mesBusca: number;
   totalPeriodo: number;
   mediaMensal: number;
-  tendencia: "↑" | "↓" | "→";
   diferenca: number;
   percentual: number | null;
   tipo: "alta" | "queda" | "neutro";
@@ -16,7 +15,6 @@ export default function DashboardCards({
   mesBusca,
   totalPeriodo,
   mediaMensal,
-  tendencia,
   diferenca,
   percentual,
   tipo,
@@ -54,20 +52,48 @@ export default function DashboardCards({
       />
 
       <DashboardCard
-        titulo="Comparação com período anterior"
-        valorPrincipal={`${tendencia} ${diferenca.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        })}`}
-        subtitulo={percentual !== null ? `${percentual.toFixed(1)}%` : "—"}
-        corBorda={
+  titulo="Comparação com período anterior"
+  valorPrincipal={
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        fontSize: "1em",
+        fontWeight: 700,
+        color:
           tipo === "alta"
             ? "#16a34a"
             : tipo === "queda"
             ? "#dc2626"
-            : "#334155"
-        }
-      />
+            : "#2563eb",
+      }}
+    >
+      {tipo === "alta" && <span>▲</span>}
+      {tipo === "queda" && <span>▼</span>}
+      {tipo === "neutro" && <span>=</span>}
+
+      <span>
+        {Math.abs(diferenca).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        })}
+      </span>
+    </span>
+  }
+  subtitulo={
+    percentual !== null
+      ? `${Math.abs(percentual).toFixed(1)}%`
+      : "—"
+  }
+  corBorda={
+    tipo === "alta"
+      ? "#16a34a"
+      : tipo === "queda"
+      ? "#dc2626"
+      : "#2563eb"
+  }
+/>
 
       <DashboardCard
         titulo="Categoria com maior gasto"

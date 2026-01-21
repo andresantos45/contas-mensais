@@ -20,6 +20,8 @@ export default function Login() {
         senha,
       });
 
+      console.log("Resposta login:", response.data);
+
       const token = response.data.token;
 
       if (!token) {
@@ -29,9 +31,19 @@ export default function Login() {
       localStorage.setItem("token", token);
 
       navigate("/dashboard", { replace: true });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Erro no login:", err);
-      setErro("Email ou senha inválidos");
+
+      if (err.response) {
+        console.error("Resposta da API:", err.response.data);
+        setErro(
+          typeof err.response.data === "string"
+            ? err.response.data
+            : "Erro retornado pela API"
+        );
+      } else {
+        setErro("Erro inesperado ao tentar logar");
+      }
     } finally {
       setLoading(false);
     }
@@ -62,9 +74,8 @@ export default function Login() {
           {loading ? "Entrando..." : "Entrar"}
         </button>
 
-
         {erro && <p style={{ color: "red" }}>{erro}</p>}
       </form>
     </div>
   );
- }
+}

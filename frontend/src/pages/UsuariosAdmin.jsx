@@ -20,8 +20,14 @@ export default function UsuariosAdmin() {
     const confirmar = window.confirm("Deseja excluir este usuário?");
     if (!confirmar) return;
 
-    await excluirUsuario(id);
-    carregarUsuarios();
+    try {
+  await excluirUsuario(id);
+  carregarUsuarios();
+} catch (err) {
+  alert(
+    err.response?.data || "Erro ao excluir usuário"
+  );
+}
   }
 
   useEffect(() => {
@@ -50,12 +56,22 @@ export default function UsuariosAdmin() {
               <td>{u.email}</td>
               <td>{u.role}</td>
               <td>
-                {u.role !== "admin" && (
-                  <button onClick={() => handleExcluir(u.id)}>
-                    Excluir
-                  </button>
-                )}
-              </td>
+  <button
+    onClick={() => handleExcluir(u.id)}
+    disabled={
+      u.role === "admin" &&
+      usuarios.filter(x => x.role === "admin").length === 1
+    }
+    title={
+      u.role === "admin" &&
+      usuarios.filter(x => x.role === "admin").length === 1
+        ? "Não é permitido excluir o último administrador"
+        : "Excluir usuário"
+    }
+  >
+    Excluir
+  </button>
+</td>
             </tr>
           ))}
         </tbody>

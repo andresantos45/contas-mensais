@@ -32,6 +32,12 @@ export default function DashboardCard({
 };
 
 const variacaoAtual = coresVariacao[variacao as VariacaoTipo];
+    const iconeVariacao =
+  variacao === "positivo"
+    ? "▲"
+    : variacao === "negativo"
+    ? "▼"
+    : null;
   return (
     <div
       style={{
@@ -58,9 +64,23 @@ const variacaoAtual = coresVariacao[variacao as VariacaoTipo];
     gap: 6, // 👈 espaçamento controlado
   }}
 >
-  <strong style={{ fontSize: 26, color: variacaoAtual.valor }}>
-    {valorPrincipal}
-  </strong>
+  <strong
+  style={{
+    fontSize: 26,
+    color: variacaoAtual.valor,
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+  }}
+>
+  {iconeVariacao && (
+    <span style={{ fontSize: 18 }}>
+      {iconeVariacao}
+    </span>
+  )}
+
+  {valorPrincipal}
+</strong>
 
   {subtitulo && (
     <span style={{ fontSize: 13, opacity: 0.6, color: "#94a3b8" }}>

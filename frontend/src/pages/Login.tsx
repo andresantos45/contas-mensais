@@ -62,8 +62,9 @@ export default function Login() {
           {loading ? "Entrando..." : "Entrar"}
         </button>
 
+
         {erro && <p style={{ color: "red" }}>{erro}</p>}
       </form>
     </div>
   );
-}
+ }

@@ -86,6 +86,14 @@ export default function DashboardCards({
       ? `${Math.abs(percentual).toFixed(1)}%`
       : "—"
   }
+  tooltip="Comparação feita com base no total do período anterior"
+  variacao={
+    tipo === "alta"
+      ? "positivo"
+      : tipo === "queda"
+      ? "negativo"
+      : "neutro"
+  }
   corBorda={
     tipo === "alta"
       ? "#16a34a"
@@ -94,6 +102,7 @@ export default function DashboardCards({
       : "#2563eb"
   }
 />
+
 
       <DashboardCard
         titulo="Categoria com maior gasto"

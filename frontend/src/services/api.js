@@ -5,7 +5,7 @@ const api = axios.create({
 });
 
 // 🔐 injeta token automaticamente
-api.interceptors.request.use(config => {
+api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
   if (token) {
@@ -16,10 +16,14 @@ api.interceptors.request.use(config => {
 });
 
 // 🚨 trata token inválido / expirado
-api.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response?.status === 401) {
+aapi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // ⚠️ NÃO redirecionar automaticamente se já estiver na tela de login
+    if (
+      error.response?.status === 401 &&
+      window.location.pathname !== "/login"
+    ) {
       localStorage.removeItem("token");
       window.location.href = "/login";
     }

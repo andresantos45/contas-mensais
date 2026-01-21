@@ -31,9 +31,9 @@ export default function DashboardCard({
     valor: "#ef4444",
   },
   neutro: {
-    borda: corBorda,
-    valor: "#e5e7eb",
-  },
+  borda: corBorda,
+  valor: "#cbd5f5",
+},
 };
 
 const variacaoAtual = coresVariacao[variacao as VariacaoTipo];
@@ -54,17 +54,26 @@ const [showTooltip, setShowTooltip] = useState(false);
     padding: 20,
     borderRadius: 16,
     border: `1px solid ${variacaoAtual.borda}`,
-    height: 140,
+    height: window.innerWidth < 480 ? 120 : 140,
     display: "flex",
     flexDirection: "column",
     transition: "all 0.25s ease",
     transform: hover ? "translateY(-2px)" : "translateY(0)",
     boxShadow: hover
-      ? "0 10px 25px rgba(0,0,0,0.25)"
-      : "none",
+  ? `0 10px 25px rgba(0,0,0,0.25),
+     0 0 0 1px ${variacaoAtual.borda}`
+  : "none",
   }}
 >
-      <span style={{ fontSize: 14, opacity: 0.7, color: "#94a3b8" }}>
+      <span
+  style={{
+    fontSize: 13,
+    letterSpacing: "0.3px",
+    textTransform: "uppercase",
+    opacity: 0.65,
+    color: "#94a3b8",
+  }}
+>
         {titulo}
       </span>
 
@@ -74,18 +83,19 @@ const [showTooltip, setShowTooltip] = useState(false);
     display: "flex",
     flexDirection: "column",
     justifyContent: "center", // ✅ centraliza SÓ o valor
-    alignItems: "flex-start",
+    alignItems: window.innerWidth < 480 ? "center" : "flex-start",
     gap: 6, // 👈 espaçamento controlado
   }}
 >
   <strong
   style={{
-    fontSize: 26,
+    fontSize: window.innerWidth < 480 ? 22 : 26, // 👈 RESPONSIVO 
     color: variacaoAtual.valor,
     display: "flex",
     alignItems: "center",
     gap: 6,
-    transition: "color 0.25s ease", // 👈 AQUI
+    transition: "color 0.25s ease, transform 0.25s ease",
+    transform: hover ? "scale(1.03)" : "scale(1)",
   }}
 >
   {iconeVariacao && (

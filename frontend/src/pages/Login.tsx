@@ -15,12 +15,10 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await api.post("/api/auth/login", {
+      const response = await api.post("/auth/login", {
         email,
         senha,
       });
-
-      console.log("Resposta login:", response.data);
 
       const token = response.data.token;
 
@@ -29,13 +27,12 @@ export default function Login() {
       }
 
       localStorage.setItem("token", token);
-
       navigate("/dashboard", { replace: true });
+
     } catch (err: any) {
       console.error("Erro no login:", err);
 
-      if (err.response) {
-        console.error("Resposta da API:", err.response.data);
+      if (err.response?.data) {
         setErro(
           typeof err.response.data === "string"
             ? err.response.data
@@ -44,6 +41,7 @@ export default function Login() {
       } else {
         setErro("Erro inesperado ao tentar logar");
       }
+
     } finally {
       setLoading(false);
     }

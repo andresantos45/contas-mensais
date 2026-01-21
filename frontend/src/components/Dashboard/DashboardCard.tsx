@@ -21,7 +21,7 @@ export default function DashboardCard({
         minHeight: 110,
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
+        justifyContent: "center",
       }}
     >
       <span style={{ fontSize: 14, opacity: 0.7, color: "#94a3b8" }}>

@@ -5,6 +5,7 @@ using ContasMensais.Api.Data;
 using ContasMensais.Api.Models;
 using System.Security.Claims;
 
+
 namespace ContasMensais.Api.Controllers
 {
     [ApiController]
@@ -19,15 +20,16 @@ namespace ContasMensais.Api.Controllers
             _context = context;
         }
 
-        private int ObterUsuarioId()
-        {
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+        
+private int ObterUsuarioId()
+{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (userIdClaim == null)
-                throw new UnauthorizedAccessException("Usuário não autenticado");
+    if (string.IsNullOrEmpty(userId))
+        throw new UnauthorizedAccessException("Usuário não autenticado");
 
-            return int.Parse(userIdClaim.Value);
-        }
+    return int.Parse(userId);
+}
 
         // 📥 LISTAR
         [HttpGet]

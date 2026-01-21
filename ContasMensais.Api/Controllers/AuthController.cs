@@ -39,10 +39,10 @@ public IActionResult Register([FromBody] RegisterDto dto)
         return BadRequest("Email já cadastrado");
 
     var usuario = new Usuario
-    {
-        Nome = dto.Nome, // 🔴 ESTE ERA O PROBLEMA
-        Email = dto.Email,
-        SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha)
+{
+    Nome = dto.Nome,
+    Email = dto.Email,
+    SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha),
     };
 
     _context.Usuarios.Add(usuario);
@@ -67,11 +67,14 @@ public IActionResult Register([FromBody] RegisterDto dto)
             if (!BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.SenhaHash))
                 return Unauthorized("Usuário ou senha inválidos");
 
-            var claims = new[]
-            {
-                new Claim("id", usuario.Id.ToString()),
-                new Claim(ClaimTypes.Email, usuario.Email)
-            };
+            var isAdmin = usuario.Email == "admin@contasmensais.com";
+
+var claims = new[]
+{
+    new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+    new Claim(ClaimTypes.Email, usuario.Email),
+    new Claim("admin", isAdmin ? "true" : "false")
+};
 
             var jwtKey = _configuration["JWT_KEY"]
                 ?? "CHAVE_SUPER_SECRETA_MIN_32_CARACTERES_123!";
@@ -94,7 +97,16 @@ public IActionResult Register([FromBody] RegisterDto dto)
             var tokenString = new JwtSecurityTokenHandler()
                 .WriteToken(token);
 
-            return Ok(new { token = tokenString });
+            return Ok(new
+{
+    token = tokenString,
+    usuario = new
+    {
+        usuario.Id,
+        usuario.Nome,
+        usuario.Email
+    }
+});
         }
     }
 }

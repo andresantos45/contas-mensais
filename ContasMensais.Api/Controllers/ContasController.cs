@@ -4,6 +4,7 @@ using ContasMensais.Api.Data;
 using ContasMensais.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 
 namespace ContasMensais.Api.Controllers
@@ -21,14 +22,16 @@ public class ContasController : ControllerBase
         {
             _context = context;
         }
+
+
 private int ObterUsuarioId()
 {
-    var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    if (userIdClaim == null)
-    throw new UnauthorizedAccessException("Usuário não autenticado");
+    if (string.IsNullOrEmpty(userId))
+        throw new UnauthorizedAccessException("Usuário não autenticado");
 
-    return int.Parse(userIdClaim.Value);
+    return int.Parse(userId);
 }
         // 🔍 MÊS OU ANO INTEIRO
         // mes = 0 → retorna o ano inteiro
@@ -67,7 +70,7 @@ var query = _context.Contas
 
         // ➕ CRIAR CONTA
         [HttpPost]
-public async Task<IActionResult> Post([FromBody] Conta conta)
+        public async Task<IActionResult> Post([FromBody] Conta conta)
 {
     var usuarioId = ObterUsuarioId();
 

@@ -22,6 +22,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<AuthService>();
 
 // =========================
 // JWT AUTHENTICATION
@@ -37,7 +38,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtKey)
-            )
+            ),
+            ClockSkew = TimeSpan.Zero
         };
     });
 // 🔐 AUTHORIZATION (SEM ISSO O AUTHORIZE NÃO APARECE)

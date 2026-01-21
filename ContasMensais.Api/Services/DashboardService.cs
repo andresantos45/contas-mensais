@@ -13,10 +13,13 @@ namespace ContasMensais.Api.Services
             _context = context;
         }
 
-        public async Task<List<YoyDto>> CalcularYoyAsync(int ano)
+        public async Task<List<YoyDto>> CalcularYoyAsync(int ano, int usuarioId)
         {
             var dados = await _context.Contas
-                .Where(d => d.Data.Year == ano || d.Data.Year == ano - 1)
+                .Where(d =>
+                    d.UsuarioId == usuarioId &&
+                    (d.Data.Year == ano || d.Data.Year == ano - 1)
+                )
                 .GroupBy(d => new { d.Data.Year, d.Data.Month })
                 .Select(g => new
                 {

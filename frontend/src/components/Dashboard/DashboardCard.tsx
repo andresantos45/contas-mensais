@@ -89,9 +89,9 @@ const [showTooltip, setShowTooltip] = useState(false);
   }}
 >
   {iconeVariacao && (
-    <span style={{ fontSize: 18 }}>
-      {iconeVariacao}
-    </span>
+    <span style={{ fontSize: 14, opacity: 0.85 }}>
+  {iconeVariacao}
+</span>
   )}
 
   {valorPrincipal}

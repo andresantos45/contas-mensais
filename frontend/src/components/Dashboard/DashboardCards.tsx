@@ -69,10 +69,7 @@ export default function DashboardCards({
             : "#2563eb",
       }}
     >
-      {tipo === "alta" && <span>▲</span>}
-      {tipo === "queda" && <span>▼</span>}
-      {tipo === "neutro" && <span>=</span>}
-
+      
       <span>
         {Math.abs(diferenca).toLocaleString("pt-BR", {
           style: "currency",

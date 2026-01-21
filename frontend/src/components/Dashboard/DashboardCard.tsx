@@ -18,7 +18,7 @@ export default function DashboardCard({
         padding: 20,
         borderRadius: 16,
         border: `1px solid ${corBorda}`,
-        minHeight: 110,
+        height: 140, // altura fixa e consistente
         display: "flex",
         flexDirection: "column",
          }}
@@ -33,6 +33,8 @@ export default function DashboardCard({
     display: "flex",
     flexDirection: "column",
     justifyContent: "center", // ✅ centraliza SÓ o valor
+    alignItems: "flex-start",
+    gap: 6, // 👈 espaçamento controlado
   }}
 >
   <strong style={{ fontSize: 26, color: "#e5e7eb" }}>

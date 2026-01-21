@@ -2,24 +2,17 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import UsuariosAdmin from "./pages/UsuariosAdmin";
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");
-
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-
+  if (!token) return <Navigate to="/login" replace />;
   return children;
 }
 
 function AdminRoute({ children }) {
   const token = localStorage.getItem("token");
-
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
+  if (!token) return <Navigate to="/login" replace />;
 
   try {
     const decoded = jwtDecode(token);
@@ -42,15 +35,15 @@ export default function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* Rota inicial SEMPRE vai para login */}
+        {/* Rota raiz */}
         <Route
-  path="/"
-  element={
-    localStorage.getItem("token")
-      ? <Navigate to="/dashboard" replace />
-      : <Navigate to="/login" replace />
-  }
-/>
+          path="/"
+          element={
+            localStorage.getItem("token")
+              ? <Navigate to="/dashboard" replace />
+              : <Navigate to="/login" replace />
+          }
+        />
 
         {/* Login */}
         <Route path="/login" element={<Login />} />
@@ -65,17 +58,17 @@ export default function App() {
           }
         />
 
-          {/* Admin - Usuários */}
-<Route
-  path="/admin/usuarios"
-  element={
-    <AdminRoute>
-      <UsuariosAdmin />
-    </AdminRoute>
-  }
-/>
+        {/* 🔐 ADMIN */}
+        <Route
+          path="/admin/usuarios"
+          element={
+            <AdminRoute>
+              <UsuariosAdmin />
+            </AdminRoute>
+          }
+        />
 
-        {/* Qualquer rota inválida */}
+        {/* ⚠️ SEMPRE POR ÚLTIMO */}
         <Route path="*" element={<Navigate to="/login" replace />} />
 
       </Routes>

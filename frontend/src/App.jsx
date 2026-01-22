@@ -13,6 +13,27 @@ function RotaProtegida({ children }) {
   return children;
 }
 
+function RotaAdmin({ children }) {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+
+    if (payload.role !== "admin") {
+      return <Navigate to="/dashboard" replace />;
+    }
+
+    return children;
+  } catch {
+    localStorage.removeItem("token");
+    return <Navigate to="/login" replace />;
+  }
+}
+
 export default function App() {
   return (
     <Routes>
@@ -29,13 +50,13 @@ export default function App() {
 
   {/* 🔓 TEMPORÁRIO – apenas exige login */}
   <Route
-    path="/admin/usuarios"
-    element={
-      <RotaProtegida>
-        <UsuariosAdmin />
-      </RotaProtegida>
-    }
-  />
+  path="/admin/usuarios"
+  element={
+    <RotaAdmin>
+      <UsuariosAdmin />
+    </RotaAdmin>
+  }
+/>
 
   <Route path="*" element={<Navigate to="/login" replace />} />
 </Routes>

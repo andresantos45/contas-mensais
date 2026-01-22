@@ -64,8 +64,14 @@ async function handleCriarUsuario(e) {
 
     carregarUsuarios();
   } catch (err) {
-    alert(err.response?.data || "Erro ao criar usuário");
-  } finally {
+  console.error("ERRO AO CRIAR USUÁRIO:", err.response);
+  alert(
+    err.response?.data?.message ||
+    JSON.stringify(err.response?.data) ||
+    "Erro ao criar usuário"
+  );
+}
+finally {
     setCriando(false);
   }
 }

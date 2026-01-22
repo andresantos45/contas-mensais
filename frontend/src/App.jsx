@@ -48,9 +48,9 @@ export default function App() {
   <Route
   path="/admin/usuarios"
   element={
-    <RotaAdmin>
+    <RotaProtegidaAdmin>
       <UsuariosAdmin />
-    </RotaAdmin>
+    </RotaProtegidaAdmin>
   }
 />
 

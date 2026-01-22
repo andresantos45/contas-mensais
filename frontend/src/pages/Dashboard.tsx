@@ -524,7 +524,18 @@ export default function Dashboard() {
           setMostrarCategorias={setMostrarCategorias}
           handleLogout={handleLogout} // 👈 AQUI
         />
-        {loading && <p>Atualizando dados...</p>}
+        {loading && (
+  <div
+    style={{
+      padding: 16,
+      textAlign: "center",
+      color: cores.textoSuave,
+      fontStyle: "italic",
+    }}
+  >
+    Atualizando dados…
+  </div>
+)}
 
         <div style={{ marginTop: 16 }}>
           <FormConta

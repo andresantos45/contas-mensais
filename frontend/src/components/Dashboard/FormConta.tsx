@@ -114,12 +114,21 @@ export default function FormConta({
 
       {/* BOTÃO SALVAR */}
       <button
-        type="submit"
-        disabled={salvandoConta}
-        style={{ ...buttonPrimary, background: cores.botao }}
-      >
-        {contaEditando ? "💾 Salvar" : "➕ Adicionar"}
-      </button>
+  type="submit"
+  disabled={salvandoConta}
+  style={{
+    ...buttonPrimary,
+    background: cores.botao,
+    opacity: salvandoConta ? 0.6 : 1,
+    cursor: salvandoConta ? "not-allowed" : "pointer",
+  }}
+>
+  {salvandoConta
+    ? "⏳ Salvando..."
+    : contaEditando
+    ? "💾 Salvar"
+    : "➕ Adicionar"}
+</button>
 
       {/* BOTÃO CANCELAR */}
       {contaEditando && (

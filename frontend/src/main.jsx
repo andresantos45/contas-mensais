@@ -24,7 +24,7 @@
 
 export default function App() {
   return (
-    <div style={{ padding: 40, color: "#fff" }}>
+    <div style={{ padding: 40, color: "#000" }}>
       <h1>App renderizou</h1>
       <p>Se você está vendo isso, o problema é rota/autenticação</p>
     </div>

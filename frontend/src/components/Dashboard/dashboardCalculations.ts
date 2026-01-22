@@ -6,8 +6,23 @@ export function calcularDashboard(
   anoBusca: number,
   totalPeriodoAnterior: number
 ) {
+  if (!contas || contas.length === 0) {
+    return {
+      totalPeriodo: 0,
+      mediaMensal: 0,
+      diferenca: 0,
+      percentual: 0,
+      tipo: "neutro" as const,
+      tendencia: "→" as const,
+      totalPorMes: {},
+      totalPorCategoria: {},
+      nomeCategoriaMaior: "—",
+      valorCategoriaMaior: 0,
+    };
+  }
+
   const totalPeriodo = contas.reduce(
-    (soma: number, c: any) => soma + Number(c.valor),
+    (soma: number, c: Conta) => soma + Number(c.valor),
     0
   );
 
@@ -22,18 +37,18 @@ export function calcularDashboard(
       : null;
 
   const tipo: "alta" | "queda" | "neutro" =
-  diferenca > 0 ? "alta" : diferenca < 0 ? "queda" : "neutro";
+    diferenca > 0 ? "alta" : diferenca < 0 ? "queda" : "neutro";
 
   const tendencia: "↑" | "↓" | "→" =
-  tipo === "alta" ? "↑" : tipo === "queda" ? "↓" : "→";
+    tipo === "alta" ? "↑" : tipo === "queda" ? "↓" : "→";
 
   const nomesMeses = [
     "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-    "Jul", "Ago", "Set", "Out", "Nov", "Dez"
+    "Jul", "Ago", "Set", "Out", "Nov", "Dez",
   ];
 
   const totalPorMes = contas.reduce(
-    (acc: Record<string, number>, c: any) => {
+    (acc: Record<string, number>, c: Conta) => {
       if (!c.mes || c.mes < 1 || c.mes > 12) return acc;
       const nomeMes = nomesMeses[c.mes - 1];
       acc[nomeMes] = (acc[nomeMes] || 0) + Number(c.valor);
@@ -43,7 +58,7 @@ export function calcularDashboard(
   );
 
   const totalPorCategoria = contas.reduce(
-    (acc: Record<string, number>, c: any) => {
+    (acc: Record<string, number>, c: Conta) => {
       if (!c.categoriaNome) return acc;
       acc[c.categoriaNome] =
         (acc[c.categoriaNome] || 0) + Number(c.valor);

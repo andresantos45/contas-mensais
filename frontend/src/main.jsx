@@ -1,12 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css";
 
-// 🔽 ADICIONAR ESTE BLOCO
+// ChartJS (ok ficar aqui)
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-
-// 🔴 REGISTRO OBRIGATÓRIO PARA GRÁFICOS DE PIZZA
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const rootElement = document.getElementById("root");
@@ -15,10 +14,10 @@ if (!rootElement) {
   throw new Error("Elemento #root não encontrado no HTML");
 }
 
-RReactDOM.createRoot(rootElement).render(
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <BrowserRouter>   {/* ✅ AQUI */}
+    <BrowserRouter>
       <App />
-    </BrowserRouter>  {/* ✅ AQUI */}
+    </BrowserRouter>
   </React.StrictMode>
 );

@@ -120,7 +120,7 @@ export default function Dashboard() {
 
     try {
       if (mesBusca === 0) {
-        const response = await api.get(`/Contas/0/${anoBusca - 1}`);
+        const response = await api.get(`/contas/0/${anoBusca - 1}`);
         const dados = response.data;
 
         total = dados.reduce((soma: number, c: Conta) => soma + c.valor, 0);
@@ -130,7 +130,7 @@ export default function Dashboard() {
         const anoAnterior = mesAnterior === 0 ? anoBusca - 1 : anoBusca;
         const mesFinal = mesAnterior === 0 ? 12 : mesAnterior;
 
-        const response = await api.get(`/Contas/${mesFinal}/${anoAnterior}`);
+        const response = await api.get(`/contas/${mesFinal}/${anoAnterior}`);
         const dados = response.data;
 
         total = dados.reduce((soma: number, c: Conta) => soma + c.valor, 0);
@@ -369,7 +369,7 @@ export default function Dashboard() {
 
       if (contaEditando) {
         // ✏️ EDITAR CONTA
-        await api.put(`/Contas/${contaEditando.id}`, {
+        await api.put(`/contas/${contaEditando.id}`, {
           descricao,
           valor: Number(valor),
           data: dataObj,
@@ -379,7 +379,7 @@ export default function Dashboard() {
         setContaEditando(null);
       } else {
         // ➕ CRIAR CONTA
-        await api.post("/Contas", {
+        await api.post("/contas", {
           descricao,
           valor: Number(valor),
           data: dataObj,
@@ -394,7 +394,7 @@ export default function Dashboard() {
       setCategoriaId("");
 
       // recarrega contas do período
-      const response = await api.get(`/Contas/${mesBusca}/${anoBusca}`);
+      const response = await api.get(`/contas/${mesBusca}/${anoBusca}`);
       setContas(response.data);
 
       await carregarPeriodoAnterior();
@@ -428,11 +428,11 @@ export default function Dashboard() {
     }
 
     try {
-      const response = await api.post("/Categorias", {
+      const response = await api.post("/categorias", {
         nome: novaCategoria,
       });
 
-      const recarregar = await api.get("/Categorias");
+      const recarregar = await api.get("/categorias");
 
       setCategorias(
         recarregar.data.sort((a: Categoria, b: Categoria) =>
@@ -453,7 +453,7 @@ export default function Dashboard() {
     if (!window.confirm("Deseja excluir esta conta?")) return;
 
     try {
-      await api.delete(`/Contas/${id}`);
+      await api.delete(`/contas/${id}`);
 
       setContas(contas.filter((c) => c.id !== id));
       await carregarPeriodoAnterior();
@@ -475,7 +475,7 @@ export default function Dashboard() {
     if (!window.confirm("Deseja excluir esta categoria?")) return;
 
     try {
-      await api.delete(`/Categorias/${id}`);
+      await api.delete(`/categorias/${id}`);
       setCategorias(categorias.filter((c) => c.id !== id));
     } catch (error) {
       console.error(error);
@@ -685,181 +685,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-// export default function Dashboard() {
-//   const navigate = useNavigate();
-
-//   const [mesBusca] = useState(0);
-//   const [anoBusca] = useState(2025);
-
-//   const [contas, setContas] = useState<Conta[]>([]);
-//   const [totalPeriodoAnterior, setTotalPeriodoAnterior] = useState(0);
-//   const [contaEditando, setContaEditando] = useState<Conta | null>(null);
-//   const [descricao, setDescricao] = useState("");
-//   const [valor, setValor] = useState("");
-//   const [data, setData] = useState("");
-//   const [categoriaId, setCategoriaId] = useState("");
-
-//   useEffect(() => {
-//     setContas([
-//       {
-//         id: 1,
-//         descricao: "Aluguel",
-//         valor: 800,
-//         mes: 1,
-//         ano: 2025,
-//         categoriaId: 1,
-//         categoriaNome: "Moradia",
-//       },
-//       {
-//         id: 2,
-//         descricao: "Mercado",
-//         valor: 300,
-//         mes: 1,
-//         ano: 2025,
-//         categoriaId: 2,
-//         categoriaNome: "Alimentação",
-//       },
-//       {
-//         id: 3,
-//         descricao: "Internet",
-//         valor: 150,
-//         mes: 1,
-//         ano: 2025,
-//         categoriaId: 3,
-//         categoriaNome: "Serviços",
-//       },
-//     ]);
-
-//     setTotalPeriodoAnterior(900);
-//   }, []);
-
-//   const contasFiltradas = contas;
-
-//   function handleLogout() {
-//     localStorage.removeItem("token");
-//     navigate("/login", { replace: true });
-//   }
-
-//   function iniciarEdicao(conta: Conta) {
-//     setContaEditando(conta);
-//     setDescricao(conta.descricao);
-//     setValor(String(conta.valor));
-//     setData(`${conta.ano}-${String(conta.mes).padStart(2, "0")}-01`);
-//     setCategoriaId(String(conta.categoriaId ?? ""));
-//   }
-
-//   function excluirConta(id: number) {
-//     setContas((prev) => prev.filter((conta) => conta.id !== id));
-//   }
-
-//   const cores = {
-//     fundo: "#0f172a",
-//     card: "#020617",
-//     texto: "#e5e7eb",
-//     textoSuave: "#94a3b8",
-//     borda: "#334155",
-//     botao: "#22c55e",
-//   };
-//   const {
-//     totalPeriodo,
-//     mediaMensal,
-//     diferenca,
-//     percentual,
-//     tipo,
-//     nomeCategoriaMaior,
-//     valorCategoriaMaior,
-//   } = calcularDashboard(
-//     contasFiltradas,
-//     mesBusca,
-//     anoBusca,
-//     totalPeriodoAnterior
-//   );
-
-//   function cancelarEdicao() {
-//     setContaEditando(null);
-//     setDescricao("");
-//     setValor("");
-//     setData("");
-//     setCategoriaId("");
-//   }
-
-//   function criarConta(e: React.FormEvent) {
-//     e.preventDefault();
-
-//     if (!descricao || !valor) return;
-
-//     if (contaEditando) {
-//       setContas((prev) =>
-//         prev.map((c) =>
-//           c.id === contaEditando.id
-//             ? {
-//                 ...c,
-//                 descricao,
-//                 valor: Number(valor),
-//               }
-//             : c
-//         )
-//       );
-//       cancelarEdicao();
-//     }
-//   }
-
-//   return (
-//     <div
-//       style={{
-//         background: cores.fundo,
-//         minHeight: "100vh",
-//         padding: 24,
-//       }}
-//     >
-//       <DashboardHeader
-//         textoPeriodo="Dashboard Teste"
-//         cores={cores}
-//         exportando={null}
-//         exportarExcel={() => {}}
-//         exportarPDF={() => {}}
-//         setMostrarCategorias={() => {}}
-//         handleLogout={handleLogout}
-//       />
-//       <DashboardCards
-//         mesBusca={0}
-//         totalPeriodo={totalPeriodo}
-//         mediaMensal={mediaMensal}
-//         diferenca={diferenca}
-//         percentual={percentual}
-//         tipo={tipo}
-//         nomeCategoriaMaior={nomeCategoriaMaior}
-//         valorCategoriaMaior={valorCategoriaMaior}
-//       />
-
-//       <FormConta
-//         descricao={descricao}
-//         setDescricao={setDescricao}
-//         valor={valor}
-//         setValor={setValor}
-//         data={data}
-//         setData={setData}
-//         categoriaId={categoriaId}
-//         setCategoriaId={setCategoriaId}
-//         categorias={[]}
-//         contaEditando={contaEditando}
-//         salvandoConta={false}
-//         criarConta={criarConta}
-//         cores={cores}
-//         cancelarEdicao={cancelarEdicao}
-//       />
-
-//       <ListaContas
-//         contas={contasFiltradas}
-//         cores={cores}
-//         iniciarEdicao={iniciarEdicao}
-//         excluirConta={excluirConta}
-//       />
-
-//       <p style={{ color: cores.texto, marginTop: 24 }}>
-//         ETAPA 2 — HEADER REAL FUNCIONANDO
-//       </p>
-//     </div>
-//   );
-// }

@@ -17,6 +17,6 @@ export async function excluirUsuario(id: number) {
 }
 
 export async function criarUsuario(dados: CriarUsuarioDTO) {
-  const response = await api.post("/admin/usuarios", dados);
+  const response = await api.post("/auth/register", dados);
   return response.data;
 }

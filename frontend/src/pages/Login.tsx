@@ -27,17 +27,11 @@ export default function Login() {
       }
 
       localStorage.setItem("token", token);
+
       navigate("/dashboard", { replace: true });
-    } catch (err: any) {
-      if (err.response?.data) {
-        setErro(
-          typeof err.response.data === "string"
-            ? err.response.data
-            : "Erro retornado pela API"
-        );
-      } else {
-        setErro("Erro inesperado ao tentar logar");
-      }
+    } catch (err) {
+      console.error("Erro no login:", err);
+      setErro("Email ou senha inválidos");
     } finally {
       setLoading(false);
     }

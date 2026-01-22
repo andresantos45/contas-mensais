@@ -16,7 +16,7 @@ api.interceptors.request.use((config) => {
 });
 
 // 🚨 trata token inválido / expirado
-aapi.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
   (error) => {
     // ⚠️ NÃO redirecionar automaticamente se já estiver na tela de login

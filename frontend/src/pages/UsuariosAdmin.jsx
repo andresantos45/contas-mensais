@@ -25,20 +25,24 @@ const [criando, setCriando] = useState(false);
     }
   }
 
-  async function handleExcluir(id) {
-    const confirmar = window.confirm("Deseja excluir este usuário?");
-    if (!confirmar) return;
+  async function handleExcluir(id, role) {
+  const admins = usuarios.filter(u => u.role === "admin");
 
-    try {
-  await excluirUsuario(id);
-  carregarUsuarios();
-} catch (err) {
-  alert(
-    err.response?.data || "Erro ao excluir usuário"
-  );
-}
+  if (role === "admin" && admins.length === 1) {
+    alert("Não é permitido excluir o último administrador");
+    return;
   }
 
+  const confirmar = window.confirm("Deseja excluir este usuário?");
+  if (!confirmar) return;
+
+  try {
+    await excluirUsuario(id);
+    carregarUsuarios();
+  } catch (err) {
+    alert(err.response?.data || "Erro ao excluir usuário");
+  }
+}
 async function handleCriarUsuario(e) {
   e.preventDefault();
 
@@ -137,18 +141,12 @@ finally {
               <td>{u.role}</td>
               <td>
   <button
-    onClick={() => handleExcluir(u.id)}
-    disabled={
-      u.role === "admin" &&
-      usuarios.filter(x => x.role === "admin").length === 1
-    }
-    title={
-      u.role === "admin" &&
-      usuarios.filter(x => x.role === "admin").length === 1
-        ? "Não é permitido excluir o último administrador"
-        : "Excluir usuário"
-    }
-  >
+  onClick={() => handleExcluir(u.id, u.role)}
+  disabled={
+    u.role === "admin" &&
+    usuarios.filter(x => x.role === "admin").length === 1
+  }
+>
     Excluir
   </button>
 </td>

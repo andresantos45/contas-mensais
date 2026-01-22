@@ -57,11 +57,12 @@ export default function FormConta({
           Descrição
         </label>
         <input
-          value={descricao}
-          onChange={e => setDescricao(e.target.value)}
-          required
-          style={inputBase}
-        />
+  value={descricao}
+  onChange={e => setDescricao(e.target.value)}
+  required
+  placeholder="Ex: Mercado, Aluguel, Internet..."
+  style={inputBase}
+/>
       </div>
 
       {/* VALOR */}
@@ -70,12 +71,14 @@ export default function FormConta({
   Valor
 </label>
         <input
-          type="number"
-          value={valor}
-          onChange={e => setValor(e.target.value)}
-          required
-          style={inputBase}
-        />
+  type="number"
+  min="0.01"
+  step="0.01"
+  value={valor}
+  onChange={e => setValor(e.target.value)}
+  required
+  style={inputBase}
+/>
       </div>
 
       {/* DATA */}
@@ -103,7 +106,9 @@ export default function FormConta({
   required
   style={inputBase}
 >
-          <option value="">Selecione</option>
+          <option value="" disabled>
+  Selecione uma categoria
+</option>
           {categorias.map(cat => (
             <option key={cat.id} value={cat.id}>
               {cat.nome}

@@ -53,7 +53,7 @@ export default function Dashboard() {
   async function carregarContasPeriodo() {
     try {
       const response = await api.get<Conta[]>(
-        `/Contas/${mesBusca}/${anoBusca}`
+        `/contas/${mesBusca}/${anoBusca}`
       );
       setContas(response.data);
     } catch (error: any) {

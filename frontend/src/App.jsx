@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import UsuariosAdmin from "./pages/UsuariosAdmin";
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");

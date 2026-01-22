@@ -40,13 +40,13 @@ export default function App() {
   <Route path="/login" element={<Login />} />
 
   <Route
-    path="/dashboard"
-    element={
-      <RotaProtegida>
-        <Dashboard />
-      </RotaProtegida>
-    }
-  />
+  path="/dashboard"
+  element={
+    <RotaProtegida>
+      <UsuariosAdmin />
+    </RotaProtegida>
+  }
+/>
 
   {/* 🔓 TEMPORÁRIO – apenas exige login */}
   <Route

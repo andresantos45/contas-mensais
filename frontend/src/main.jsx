@@ -15,8 +15,10 @@ if (!rootElement) {
   throw new Error("Elemento #root não encontrado no HTML");
 }
 
-ReactDOM.createRoot(rootElement).render(
+RReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+    <BrowserRouter>   {/* ✅ AQUI */}
+      <App />
+    </BrowserRouter>  {/* ✅ AQUI */}
+  </React.StrictMode>
 );

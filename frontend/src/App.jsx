@@ -32,46 +32,39 @@ function AdminRoute({ children }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <Routes>
 
-        {/* Rota raiz */}
-        <Route
-          path="/"
-          element={
-            localStorage.getItem("token")
-              ? <Navigate to="/dashboard" replace />
-              : <Navigate to="/login" replace />
-          }
-        />
+      <Route
+        path="/"
+        element={
+          localStorage.getItem("token")
+            ? <Navigate to="/dashboard" replace />
+            : <Navigate to="/login" replace />
+        }
+      />
 
-        {/* Login */}
-        <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<Login />} />
 
-        {/* Dashboard protegido */}
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        }
+      />
 
-        {/* 🔐 ADMIN */}
-        <Route
-          path="/admin/usuarios"
-          element={
-            <AdminRoute>
-              <UsuariosAdmin />
-            </AdminRoute>
-          }
-        />
+      <Route
+        path="/admin/usuarios"
+        element={
+          <AdminRoute>
+            <UsuariosAdmin />
+          </AdminRoute>
+        }
+      />
 
-        {/* ⚠️ SEMPRE POR ÚLTIMO */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
 
-      </Routes>
-    </BrowserRouter>
+    </Routes>
   );
 }

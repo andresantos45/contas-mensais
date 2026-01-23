@@ -97,32 +97,33 @@ builder.Services.AddSwaggerGen(options =>
 // CORS (FRONTEND LOCAL + PRODUÇÃO)
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    options.AddDefaultPolicy(policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:5173",
-                "https://contas-mensais-frontend.onrender.com"
-            )
+            .AllowAnyOrigin()
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials(); // 🔑 OBRIGATÓRIO
+            .AllowAnyMethod();
     });
 });
 var app = builder.Build();
 
 
 // Middlewares
-app.UseCors("AllowFrontend");
+app.UseRouting();
+
+app.UseCors();
 
 // Swagger (OBRIGATÓRIO)
-app.UseSwagger();
-
-app.UseSwaggerUI(options =>
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "ContasMensais.Api v1");
-    options.RoutePrefix = "swagger";
-});
+    app.UseSwagger();
+
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "ContasMensais.Api v1");
+        options.RoutePrefix = "swagger";
+    });
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

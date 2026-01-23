@@ -30,11 +30,13 @@ export default function UsuariosAdmin() {
   async function handleExcluir(id, role) {
     const admins = usuarios.filter((u) => u.role === "admin");
 
+    // 🚫 BLOQUEIA ANTES DE QUALQUER CONFIRM
     if (role === "admin" && admins.length === 1) {
       alert("Não é permitido excluir o último administrador");
       return;
     }
 
+    // ✅ CONFIRM SÓ PARA CASOS PERMITIDOS
     const confirmar = window.confirm("Deseja excluir este usuário?");
     if (!confirmar) return;
 
@@ -45,6 +47,7 @@ export default function UsuariosAdmin() {
       alert(err.response?.data || "Erro ao excluir usuário");
     }
   }
+
   async function handleCriarUsuario(e) {
     e.preventDefault();
 

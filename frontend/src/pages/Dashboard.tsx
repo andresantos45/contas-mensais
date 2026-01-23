@@ -486,21 +486,22 @@ export default function Dashboard() {
   // INICIAR EDIÇÃO
   // =======================
   function iniciarEdicao(conta: Conta) {
-    setContaEditando(conta);
+  console.log("Conta em edição:", conta);
 
-    setDescricao(conta.descricao);
-    setValor(String(conta.valor));
+  setContaEditando(conta);
 
-    // monta data no formato YYYY-MM-DD
-    if (conta.data) {
-      setData(conta.data.slice(0, 10));
-    } else {
-      const mes = String(conta.mes).padStart(2, "0");
-      setData(`${conta.ano}-${mes}-01`);
-    }
+  setDescricao(conta.descricao);
+  setValor(String(conta.valor));
 
-    setCategoriaId(String(conta.categoriaId ?? ""));
+  if (conta.data) {
+    setData(conta.data.slice(0, 10));
+  } else {
+    const mes = String(conta.mes).padStart(2, "0");
+    setData(`${conta.ano}-${mes}-01`);
   }
+
+  setCategoriaId(String(conta.categoriaId ?? ""));
+}
   return (
     <div
       style={{

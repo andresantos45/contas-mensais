@@ -13,5 +13,9 @@ namespace ContasMensais.Api.DTOs
 
         [Required]
         public string Senha { get; set; } = string.Empty;
+
+        [Required]
+        [RegularExpression("admin|user")]
+        public string Role { get; set; } = "user";
     }
 }

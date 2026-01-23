@@ -27,7 +27,7 @@ namespace ContasMensais.Api.Controllers
         // =========================
         // REGISTRO DE USUÁRIO
         // =========================
-        [AllowAnonymous]
+        [Authorize(Roles = "admin")]
 [HttpPost("register")]
 public IActionResult Register([FromBody] RegisterDto dto)
 {
@@ -38,12 +38,15 @@ public IActionResult Register([FromBody] RegisterDto dto)
     if (existe)
         return BadRequest("Email já cadastrado");
 
-    var usuario = new Usuario
+    var roleFinal = dto.Role == "admin" ? "admin" : "user";
+
+var usuario = new Usuario
 {
     Nome = dto.Nome,
     Email = dto.Email,
     SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha),
-    };
+    Role = roleFinal
+};
 
     _context.Usuarios.Add(usuario);
     _context.SaveChanges();

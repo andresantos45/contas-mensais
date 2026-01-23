@@ -57,59 +57,61 @@ public IActionResult Register([FromBody] RegisterDto dto)
         // LOGIN COM JWT
         // =========================
         [AllowAnonymous]
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginDto dto)
-        {
-            var usuario = _context.Usuarios
-                .FirstOrDefault(u => u.Email == dto.Email);
-
-            if (usuario == null)
-                return Unauthorized("Usuário ou senha inválidos");
-
-            if (!BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.SenhaHash))
-                return Unauthorized("Usuário ou senha inválidos");
-
-            
-
-var claims = new[]
+[HttpPost("login")]
+public IActionResult Login([FromBody] LoginDto dto)
 {
-    new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-    new Claim(ClaimTypes.Email, usuario.Email),
-    new Claim(ClaimTypes.Role, usuario.Role) // 👈 LINHA CRÍTICA
-};
+    var usuario = _context.Usuarios
+        .FirstOrDefault(u => u.Email == dto.Email);
 
-            var jwtKey = _configuration["JWT_KEY"]
-                ?? "CHAVE_SUPER_SECRETA_MIN_32_CARACTERES_123!";
+    if (usuario == null)
+        return Unauthorized("Usuário ou senha inválidos");
 
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey)
-            );
+    if (!BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.SenhaHash))
+        return Unauthorized("Usuário ou senha inválidos");
 
-            var creds = new SigningCredentials(
-                key,
-                SecurityAlgorithms.HmacSha256
-            );
-
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.Now.AddHours(8),
-                signingCredentials: creds
-            );
-
-            var tokenString = new JwtSecurityTokenHandler()
-                .WriteToken(token);
-
-            return Ok(new
-{
-    token = tokenString,
-    usuario = new
+    var claims = new[]
     {
-        usuario.Id,
-        usuario.Nome,
-        usuario.Email,
-        usuario.Role
-    }
-});
+        new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+        new Claim(ClaimTypes.Email, usuario.Email),
+        new Claim(ClaimTypes.Role, usuario.Role)
+    };
+
+    var jwtKey = _configuration["JWT_KEY"]
+        ?? "CHAVE_SUPER_SECRETA_MIN_32_CARACTERES_123!";
+
+    var key = new SymmetricSecurityKey(
+        Encoding.UTF8.GetBytes(jwtKey)
+    );
+
+    var creds = new SigningCredentials(
+        key,
+        SecurityAlgorithms.HmacSha256
+    );
+
+    var tokenHandler = new JwtSecurityTokenHandler();
+
+    var tokenDescriptor = new SecurityTokenDescriptor
+    {
+        Subject = new ClaimsIdentity(claims),
+        Expires = DateTime.UtcNow.AddHours(8),
+        SigningCredentials = creds
+    };
+
+    var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+    var tokenString = tokenHandler.WriteToken(securityToken);
+
+    return Ok(new
+    {
+        token = tokenString,
+        usuario = new
+        {
+            usuario.Id,
+            usuario.Nome,
+            usuario.Email,
+            usuario.Role
         }
+    });
+}
+
     }
 }

@@ -1,4 +1,3 @@
-
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContasMensais.Api.Models
@@ -15,7 +14,8 @@ namespace ContasMensais.Api.Models
 
         [Column("senha_hash")]
         public string SenhaHash { get; set; } = string.Empty;
-        [Column("role")]
+
+        [Column("Role")] // ⚠️ EXATAMENTE ASSIM (R MAIÚSCULO)
         public string Role { get; set; } = "user";
 
         [Column("criado_em")]

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import {
   formGrid,
   label,
@@ -49,6 +51,13 @@ export default function FormConta({
   cores,
   cancelarEdicao,
 }: FormContaProps) {
+
+  useEffect(() => {
+    if (contaEditando && categorias.length > 0) {
+      setCategoriaId(String(contaEditando.categoriaId));
+    }
+  }, [contaEditando, categorias, setCategoriaId]);
+
   return (
     <form onSubmit={criarConta} style={formGrid}>
       {/* DESCRIÇÃO */}

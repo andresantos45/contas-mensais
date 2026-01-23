@@ -135,10 +135,10 @@ export default function UsuariosAdmin() {
       >
         <thead>
           <tr style={{ color: corCabecalho }}>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Ações</th>
+            <th style={{ textAlign: "left" }}>Nome</th>
+            <th style={{ textAlign: "left" }}>Email</th>
+            <th style={{ textAlign: "left" }}>Role</th>
+            <th style={{ textAlign: "left" }}>Ações</th>
           </tr>
         </thead>
         <tbody>

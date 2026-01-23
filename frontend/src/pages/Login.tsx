@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../services/api";
+import { login } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -15,20 +15,12 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await api.post("/auth/login", {
-        email,
-        senha,
-      });
+      const data = await login(email, senha);
 
-      const token = response.data.token;
+localStorage.setItem("token", data.token);
+localStorage.setItem("role", data.usuario.role);
 
-      if (!token) {
-        throw new Error("Token não retornado pela API");
-      }
-
-      localStorage.setItem("token", token);
-
-      navigate("/dashboard", { replace: true });
+navigate("/dashboard", { replace: true });
     } catch (err) {
       console.error("Erro no login:", err);
       setErro("Email ou senha inválidos");

@@ -110,7 +110,7 @@ export default function FormConta({
   Selecione uma categoria
 </option>
           {categorias.map(cat => (
-            <option key={cat.id} value={cat.id}>
+            <option key={cat.id} value={String(cat.id)}>
               {cat.nome}
             </option>
           ))}

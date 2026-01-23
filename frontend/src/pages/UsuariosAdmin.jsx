@@ -134,7 +134,12 @@ export default function UsuariosAdmin() {
         }}
       >
         <thead>
-          <tr style={{ color: corCabecalho }}>
+          <tr
+            style={{
+              color: corCabecalho,
+              borderBottom: "1px solid #334155",
+            }}
+          >
             <th style={{ textAlign: "left" }}>Nome</th>
             <th style={{ textAlign: "left" }}>Email</th>
             <th style={{ textAlign: "left" }}>Role</th>
@@ -143,10 +148,36 @@ export default function UsuariosAdmin() {
         </thead>
         <tbody>
           {usuarios.map((u) => (
-            <tr key={u.id}>
-              <td style={{ color: corTexto }}>{u.nome}</td>
-              <td style={{ color: corTextoSuave }}>{u.email}</td>
-              <td style={{ fontWeight: 600 }}>{u.role}</td>
+            <tr
+              key={u.id}
+              style={{
+                borderBottom: "1px solid #1e293b",
+              }}
+            >
+              <td
+                style={{
+                  color: corTexto,
+                  padding: "12px 8px",
+                }}
+              >
+                {u.nome}
+              </td>
+              <td
+                style={{
+                  color: corTexto,
+                  padding: "12px 8px",
+                }}
+              >
+                {u.email}
+              </td>
+              <td
+                style={{
+                  color: corTexto,
+                  padding: "12px 8px",
+                }}
+              >
+                {u.role}
+              </td>
               <td>
                 <button
                   onClick={() => handleExcluir(u.id, u.role)}

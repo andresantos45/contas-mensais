@@ -2,20 +2,26 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import UsuariosAdmin from "./pages/UsuariosAdmin";
+import { jwtDecode } from "jwt-decode";
 
 function RotaProtegidaAdmin({ children }) {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
 
   if (!token) {
     return <Navigate to="/login" replace />;
   }
 
-  if (role !== "admin") {
-    return <Navigate to="/dashboard" replace />;
-  }
+  try {
+    const decoded = jwtDecode(token);
 
-  return children;
+    if (decoded.role !== "admin") {
+      return <Navigate to="/dashboard" replace />;
+    }
+
+    return children;
+  } catch {
+    return <Navigate to="/login" replace />;
+  }
 }
 
 function RotaProtegida({ children }) {

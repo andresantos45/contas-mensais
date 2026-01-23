@@ -14,7 +14,10 @@ function RotaProtegidaAdmin({ children }) {
   try {
     const decoded = jwtDecode(token);
 
-    if (decoded.role !== "admin") {
+    const role =
+      decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+    if (role !== "admin") {
       return <Navigate to="/dashboard" replace />;
     }
 
@@ -23,7 +26,6 @@ function RotaProtegidaAdmin({ children }) {
     return <Navigate to="/login" replace />;
   }
 }
-
 function RotaProtegida({ children }) {
   const token = localStorage.getItem("token");
 

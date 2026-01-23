@@ -17,6 +17,11 @@ export async function excluirUsuario(id: number) {
 }
 
 export async function criarUsuario(dados: CriarUsuarioDTO) {
-  const response = await api.post("/auth/register", dados);
-  return response.data;
+  const token = localStorage.getItem("token");
+
+  const response = await api.post("/auth/register", dados, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }

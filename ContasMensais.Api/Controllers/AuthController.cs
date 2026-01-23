@@ -9,6 +9,7 @@ using BCrypt.Net;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
+
 namespace ContasMensais.Api.Controllers
 {
     [ApiController]
@@ -38,14 +39,12 @@ public IActionResult Register([FromBody] RegisterDto dto)
     if (existe)
         return BadRequest("Email já cadastrado");
 
-    var roleFinal = dto.Role == "admin" ? "admin" : "user";
-
-var usuario = new Usuario
+    var usuario = new Usuario
 {
     Nome = dto.Nome,
     Email = dto.Email,
     SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha),
-    Role = roleFinal
+    Role = dto.Role == "admin" ? "admin" : "user"
 };
 
     _context.Usuarios.Add(usuario);
@@ -107,7 +106,8 @@ var claims = new[]
     {
         usuario.Id,
         usuario.Nome,
-        usuario.Email
+        usuario.Email,
+        usuario.Role
     }
 });
         }

@@ -1,3 +1,4 @@
+
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContasMensais.Api.Models
@@ -15,7 +16,7 @@ namespace ContasMensais.Api.Models
         [Column("senha_hash")]
         public string SenhaHash { get; set; } = string.Empty;
         [Column("role")]
-        public string Role { get; set; } = string.Empty;
+        public string Role { get; set; } = "user";
 
         [Column("criado_em")]
         public DateTime CriadoEm { get; set; } = DateTime.UtcNow;

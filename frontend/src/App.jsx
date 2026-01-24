@@ -13,9 +13,7 @@ function RotaProtegidaAdmin({ children }) {
 
   try {
     const decoded = jwtDecode(token);
-
-    const role =
-      decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+    const role = decoded.role; // 👈 CORRETO
 
     if (role !== "admin") {
       return <Navigate to="/dashboard" replace />;
@@ -36,33 +34,31 @@ function RotaProtegida({ children }) {
   return children;
 }
 
-
-
 export default function App() {
   return (
     <Routes>
-  <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<Login />} />
 
-  <Route
-  path="/dashboard"
-  element={
-    <RotaProtegida>
-      <Dashboard />
-    </RotaProtegida>
-  }
-/>
+      <Route
+        path="/dashboard"
+        element={
+          <RotaProtegida>
+            <Dashboard />
+          </RotaProtegida>
+        }
+      />
 
-  {/* 🔓 TEMPORÁRIO – apenas exige login */}
-  <Route
-  path="/admin/usuarios"
-  element={
-    <RotaProtegidaAdmin>
-      <UsuariosAdmin />
-    </RotaProtegidaAdmin>
-  }
-/>
+      {/* 🔓 TEMPORÁRIO – apenas exige login */}
+      <Route
+        path="/admin/usuarios"
+        element={
+          <RotaProtegidaAdmin>
+            <UsuariosAdmin />
+          </RotaProtegidaAdmin>
+        }
+      />
 
-  <Route path="*" element={<Navigate to="/login" replace />} />
-</Routes>
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   );
 }

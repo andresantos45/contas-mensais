@@ -430,11 +430,11 @@ export default function Dashboard() {
       if (contaEditando) {
         // ✏️ EDITAR CONTA
         await api.put(`/contas/${contaEditando.id}`, {
-          descricao,
-          valor: Number(valor),
-          data: dataObj,
-          categoriaId: Number(categoriaId),
-        });
+  descricao,
+  valor: Number(valor),
+  data: dataObj.toISOString(),
+  categoriaId: Number(categoriaId),
+});
 
         setToast({
           mensagem: "Conta atualizada com sucesso",
@@ -444,11 +444,11 @@ export default function Dashboard() {
       } else {
         // ➕ CRIAR CONTA
         await api.post("/contas", {
-          descricao,
-          valor: Number(valor),
-          data: dataObj,
-          categoriaId: Number(categoriaId),
-        });
+  descricao,
+  valor: Number(valor),
+  data: dataObj.toISOString(),
+  categoriaId: Number(categoriaId),
+});
 
         setToast({
           mensagem: "Conta criada com sucesso",
@@ -576,14 +576,18 @@ export default function Dashboard() {
       const ano = ultimaContaExcluida.ano;
       const mes = ultimaContaExcluida.mes;
 
-      const dataString = `${ano}-${String(mes).padStart(2, "0")}-01`;
+      const dataObj = new Date(
+  ultimaContaExcluida.ano,
+  ultimaContaExcluida.mes - 1,
+  1
+);
 
-      await api.post("/contas", {
-        descricao: ultimaContaExcluida.descricao,
-        valor: ultimaContaExcluida.valor,
-        data: dataString,
-        categoriaId: ultimaContaExcluida.categoriaId!,
-      });
+await api.post("/contas", {
+  descricao: ultimaContaExcluida.descricao,
+  valor: ultimaContaExcluida.valor,
+  data: dataObj.toISOString(),
+  categoriaId: ultimaContaExcluida.categoriaId!,
+});
 
       setToast({
         mensagem: "Exclusão desfeita",

@@ -63,6 +63,7 @@ export default function Dashboard() {
   mensagem: string;
   tipo?: "sucesso" | "erro";
 } | null>(null);
+  const [contaParaExcluir, setContaParaExcluir] = useState<Conta | null>(null);
 
   useEffect(() => {
     if (mostrarConfigModal) {
@@ -518,21 +519,11 @@ setCategoriaId("");
   // EXCLUIR CONTA
   // =======================
   async function excluirConta(id: number) {
-    if (!window.confirm("Deseja excluir esta conta?")) return;
+  const conta = contas.find((c) => c.id === id);
+  if (!conta) return;
 
-    try {
-      await api.delete(`/contas/${id}`);
-
-      setContas(contas.filter((c) => c.id !== id));
-      await carregarPeriodoAnterior();
-    } catch (error) {
-      console.error(error);
-      setToast({
-  mensagem: "Erro ao excluir conta",
-  tipo: "erro",
-});
-    }
-  }
+  setContaParaExcluir(conta);
+}
   async function excluirCategoria(id: number) {
     const emUso = contas.some((c) => c.categoriaId === id);
 
@@ -856,6 +847,98 @@ setCategoriaId("");
           </div>
         </div>
       </div>
+
+{contaParaExcluir && (
+  <div
+    onClick={() => setContaParaExcluir(null)}
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.6)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000,
+    }}
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        background: cores.card,
+        color: cores.texto,
+        padding: 24,
+        borderRadius: 16,
+        width: "90%",
+        maxWidth: 380,
+      }}
+    >
+      <h3 style={{ marginTop: 0 }}>Excluir conta?</h3>
+
+      <p style={{ color: cores.textoSuave }}>
+        Tem certeza que deseja excluir{" "}
+        <strong>{contaParaExcluir.descricao}</strong>?
+      </p>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: 12,
+          marginTop: 20,
+        }}
+      >
+        <button
+          onClick={() => setContaParaExcluir(null)}
+          style={{
+            background: "transparent",
+            border: "none",
+            color: cores.textoSuave,
+            cursor: "pointer",
+            fontWeight: 600,
+          }}
+        >
+          Cancelar
+        </button>
+
+        <button
+          onClick={async () => {
+            try {
+              await api.delete(`/contas/${contaParaExcluir.id}`);
+              setContas(
+                contas.filter((c) => c.id !== contaParaExcluir.id)
+              );
+              await carregarPeriodoAnterior();
+
+              setToast({
+                mensagem: "Conta excluída com sucesso",
+              });
+            } catch {
+              setToast({
+                mensagem: "Erro ao excluir conta",
+                tipo: "erro",
+              });
+            } finally {
+              setContaParaExcluir(null);
+            }
+          }}
+          style={{
+            background: "#dc2626",
+            color: "#fff",
+            border: "none",
+            borderRadius: 8,
+            padding: "10px 14px",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          Excluir
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
       {toast && (
   <Toast
     mensagem={toast.mensagem}

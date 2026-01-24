@@ -46,13 +46,29 @@ public IActionResult Register([FromBody] RegisterDto dto)
     if (existeEmail)
         return BadRequest("Email já cadastrado");
 
-    var usuario = new Usuario
-    {
-        Nome = dto.Nome,
-        Email = dto.Email,
-        SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha),
-        Role = existeUsuario ? "user" : "admin" // 👈 primeiro usuário vira admin
-    };
+    string roleFinal;
+
+// Se não existe nenhum usuário → primeiro admin
+if (!existeUsuario)
+{
+    roleFinal = "admin";
+}
+else
+{
+    // Já existem usuários → somente admin pode escolher a role
+    if (!User.IsInRole("admin"))
+        return Unauthorized("Apenas administradores podem criar usuários");
+
+    roleFinal = dto.Role == "admin" ? "admin" : "user";
+}
+
+var usuario = new Usuario
+{
+    Nome = dto.Nome,
+    Email = dto.Email,
+    SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha),
+    Role = roleFinal
+};
 
     _context.Usuarios.Add(usuario);
     _context.SaveChanges();

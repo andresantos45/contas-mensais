@@ -12,6 +12,7 @@ import GraficoMensal from "../components/Graficos/GraficoMensal";
 import GraficoCategoria from "../components/Graficos/GraficoCategoria";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import DashboardHeader from "../components/Dashboard/DashboardHeader";
 import DashboardCards from "../components/Dashboard/DashboardCards.tsx";
 import ListaContas from "../components/Dashboard/ListaContas.tsx";
@@ -21,27 +22,26 @@ import { calcularDashboard } from "../components/Dashboard/dashboardCalculations
 import { Conta } from "../types/Conta";
 import { ContaExcel } from "../types/ContaExcel";
 import { Categoria } from "../types/Categoria";
-import { jwtDecode } from "jwt-decode";
+
 
 export default function Dashboard() {
   const navigate = useNavigate();
+
+  
 
   function handleLogout() {
     localStorage.removeItem("token");
     navigate("/login", { replace: true });
   }
 
-  function usuarioEhAdmin() {
+  function usuarioEhAdmin(): boolean {
   const token = localStorage.getItem("token");
   if (!token) return false;
 
   try {
     const decoded: any = jwtDecode(token);
 
-    return (
-      decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ===
-      "admin"
-    );
+    return decoded.role === "admin";
   } catch {
     return false;
   }

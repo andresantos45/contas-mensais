@@ -439,33 +439,38 @@ if (dataObj > hoje) {
   return;
 }
 
-      if (contaEditando) {
-        // ✏️ EDITAR CONTA
-        await api.put(`/contas/${contaEditando.id}`, {
-  descricao,
-  valor: Number(valor),
-  data: dataObj.toISOString(),
-  categoriaId: Number(categoriaId),
-});
+      const mes = dataObj.getMonth() + 1;
+const ano = dataObj.getFullYear();
 
-        setToast({
-          mensagem: "Conta atualizada com sucesso",
-        });
+if (contaEditando) {
+  // ✏️ EDITAR CONTA
+  await api.put(`/contas/${contaEditando.id}`, {
+    descricao,
+    valor: Number(valor),
+    mes,
+    ano,
+    categoriaId: Number(categoriaId),
+  });
 
-        setContaEditando(null);
-      } else {
-        // ➕ CRIAR CONTA
-        await api.post("/contas", {
-  descricao,
-  valor: Number(valor),
-  data: dataObj.toISOString(),
-  categoriaId: Number(categoriaId),
-});
+  setToast({
+    mensagem: "Conta atualizada com sucesso",
+  });
 
-        setToast({
-          mensagem: "Conta criada com sucesso",
-        });
-      }
+  setContaEditando(null);
+} else {
+  // ➕ CRIAR CONTA
+  await api.post("/contas", {
+    descricao,
+    valor: Number(valor),
+    mes,
+    ano,
+    categoriaId: Number(categoriaId),
+  });
+
+  setToast({
+    mensagem: "Conta criada com sucesso",
+  });
+}
 
       // limpa formulário
       setDescricao("");
@@ -591,7 +596,8 @@ if (dataObj > hoje) {
       await api.post("/contas", {
   descricao: ultimaContaExcluida.descricao,
   valor: ultimaContaExcluida.valor,
-  data: ultimaContaExcluida.data, // 👈 DATA ORIGINAL
+  mes: ultimaContaExcluida.mes,
+  ano: ultimaContaExcluida.ano,
   categoriaId: ultimaContaExcluida.categoriaId!,
 });
 

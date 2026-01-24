@@ -22,6 +22,7 @@ import { calcularDashboard } from "../components/Dashboard/dashboardCalculations
 import { Conta } from "../types/Conta";
 import { ContaExcel } from "../types/ContaExcel";
 import { Categoria } from "../types/Categoria";
+import Toast from "../components/UI/Toast";
 
 
 export default function Dashboard() {
@@ -58,6 +59,10 @@ export default function Dashboard() {
   const [salvandoConta, setSalvandoConta] = useState(false);
   const [mostrarConfigModal, setMostrarConfigModal] = useState(false);
   const isMobile = window.innerWidth <= 768;
+  const [toast, setToast] = useState<{
+  mensagem: string;
+  tipo?: "sucesso" | "erro";
+} | null>(null);
 
   useEffect(() => {
     if (mostrarConfigModal) {
@@ -231,7 +236,11 @@ export default function Dashboard() {
   // =======================
   async function exportarExcel() {
     if (contasFiltradas.length === 0) {
-      alert("Nenhum dado para exportar");
+      setToast({
+  mensagem: "Nenhum dado para exportar",
+  tipo: "erro",
+});
+
       return;
     }
 
@@ -413,30 +422,38 @@ export default function Dashboard() {
       }
 
       if (contaEditando) {
-        // ✏️ EDITAR CONTA
-        await api.put(`/contas/${contaEditando.id}`, {
-          descricao,
-          valor: Number(valor),
-          data: dataObj,
-          categoriaId: Number(categoriaId),
-        });
+  // ✏️ EDITAR CONTA
+  await api.put(`/contas/${contaEditando.id}`, {
+    descricao,
+    valor: Number(valor),
+    data: dataObj,
+    categoriaId: Number(categoriaId),
+  });
 
-        setContaEditando(null);
-      } else {
-        // ➕ CRIAR CONTA
-        await api.post("/contas", {
-          descricao,
-          valor: Number(valor),
-          data: dataObj,
-          categoriaId: Number(categoriaId),
-        });
-      }
+  setToast({
+    mensagem: "Conta atualizada com sucesso",
+  });
 
-      // limpa formulário
-      setDescricao("");
-      setValor("");
-      setData("");
-      setCategoriaId("");
+  setContaEditando(null);
+} else {
+  // ➕ CRIAR CONTA
+  await api.post("/contas", {
+    descricao,
+    valor: Number(valor),
+    data: dataObj,
+    categoriaId: Number(categoriaId),
+  });
+
+  setToast({
+    mensagem: "Conta criada com sucesso",
+  });
+}
+
+// limpa formulário
+setDescricao("");
+setValor("");
+setData("");
+setCategoriaId("");
 
       // recarrega contas do período
       const response = await api.get(`/contas/${mesBusca}/${anoBusca}`);
@@ -445,7 +462,10 @@ export default function Dashboard() {
       await carregarPeriodoAnterior();
     } catch (error) {
       console.error(error);
-      alert("Erro ao salvar conta");
+      setToast({
+  mensagem: "Erro ao salvar conta",
+  tipo: "erro",
+});
     } finally {
       setSalvandoConta(false);
     }
@@ -468,7 +488,10 @@ export default function Dashboard() {
         (c) => c.nome.toLowerCase() === novaCategoria.toLowerCase()
       )
     ) {
-      alert("Categoria já existe");
+      setToast({
+  mensagem: "Categoria já existe",
+  tipo: "erro",
+});
       return;
     }
 
@@ -504,7 +527,10 @@ export default function Dashboard() {
       await carregarPeriodoAnterior();
     } catch (error) {
       console.error(error);
-      alert("Erro ao excluir conta");
+      setToast({
+  mensagem: "Erro ao excluir conta",
+  tipo: "erro",
+});
     }
   }
   async function excluirCategoria(id: number) {
@@ -830,6 +856,13 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      {toast && (
+  <Toast
+    mensagem={toast.mensagem}
+    tipo={toast.tipo}
+    onClose={() => setToast(null)}
+  />
+)}
     </div>
   );
 }

@@ -58,7 +58,7 @@ export default function Dashboard() {
   const [novaCategoria, setNovaCategoria] = useState("");
   const [contaEditando, setContaEditando] = useState<Conta | null>(null);
   const [salvandoConta, setSalvandoConta] = useState(false);
-  const [mostrarCategorias, setMostrarCategorias] = useState(false);
+  const [mostrarConfigModal, setMostrarConfigModal] = useState(false);  
 
   // =======================
   // FORMULÁRIO – NOVA CONTA
@@ -540,10 +540,66 @@ export default function Dashboard() {
   exportando={exportando}
   exportarExcel={exportarExcel}
   exportarPDF={exportarPDF}
-  setMostrarCategorias={setMostrarCategorias}
-  handleLogout={handleLogout}
-  isAdmin={usuarioEhAdmin()}
+  abrirConfiguracoes={() => setMostrarConfigModal(true)}
 />
+
+{mostrarConfigModal && (
+  <div
+    onClick={() => setMostrarConfigModal(false)}
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.6)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000,
+    }}
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        background: cores.card,
+        color: cores.texto,
+        padding: 24,
+        borderRadius: 16,
+        width: "90%",
+        maxWidth: 420,
+      }}
+    >
+      <h3 style={{ marginTop: 0 }}>⚙️ Configurações</h3>
+
+      <GestaoCategorias
+        modoEscuro={modoEscuro}
+        setModoEscuro={setModoEscuro}
+        cores={cores}
+        categorias={categorias}
+        excluirCategoria={excluirCategoria}
+        novaCategoria={novaCategoria}
+        setNovaCategoria={setNovaCategoria}
+        criarCategoria={criarCategoria}
+        handleLogout={handleLogout}
+        isAdmin={usuarioEhAdmin()}
+      />
+
+      <div style={{ textAlign: "right", marginTop: 20 }}>
+        <button
+          onClick={() => setMostrarConfigModal(false)}
+          style={{
+            background: "transparent",
+            border: "none",
+            color: cores.textoSuave,
+            cursor: "pointer",
+            fontWeight: 600,
+          }}
+        >
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
         {loading && (
   <div
     style={{
@@ -582,19 +638,7 @@ export default function Dashboard() {
           />
         </div>
 
-        <GestaoCategorias
-          mostrar={mostrarCategorias}
-          modoEscuro={modoEscuro}
-          setModoEscuro={setModoEscuro}
-          cores={cores}
-          categorias={categorias}
-          excluirCategoria={excluirCategoria}
-          novaCategoria={novaCategoria}
-          setNovaCategoria={setNovaCategoria}
-          criarCategoria={criarCategoria}
-          handleLogout={handleLogout}
-          isAdmin={usuarioEhAdmin()} 
-        />
+        
 
         <DashboardCards
           mesBusca={mesBusca}

@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 
 interface GestaoCategoriasProps {
   isAdmin: boolean;
-  mostrar: boolean;
   modoEscuro: boolean;
   setModoEscuro: (v: boolean) => void;
   cores: {
@@ -25,7 +24,6 @@ interface GestaoCategoriasProps {
 }
 
 export default function GestaoCategorias({
-  mostrar,
   modoEscuro,
   setModoEscuro,
   cores,
@@ -35,12 +33,12 @@ export default function GestaoCategorias({
   setNovaCategoria,
   criarCategoria,
   handleLogout,
-   isAdmin,
+  isAdmin,
 }: GestaoCategoriasProps) {
-  if (!mostrar) return null;
+  
 
   const navigate = useNavigate();
-  const role = localStorage.getItem("role");
+  
 
   return (
     <>
@@ -71,26 +69,10 @@ export default function GestaoCategorias({
   </button>
 
   {/* 👥 USUÁRIOS — SOMENTE ADMIN */}
-  {localStorage.getItem("role") === "admin" && (
-    <button
-      onClick={() => navigate("/admin/usuarios")}
-      style={{
-        background: "#6366f1",
-        color: "#fff",
-        border: "none",
-        padding: "8px 14px",
-        borderRadius: 8,
-        cursor: "pointer",
-        fontWeight: 600,
-      }}
-    >
-      👥 Usuários
-    </button>
-  )}
-
+  
 {isAdmin && (
   <button
-    onClick={() => window.location.href = "/admin/usuarios"}
+    onClick={() => navigate("/admin/usuarios")}
     style={{
       background: "#6366f1",
       color: "#fff",
@@ -101,7 +83,7 @@ export default function GestaoCategorias({
       fontWeight: 600,
     }}
   >
-    👥 Gerenciar usuários
+    👥 Usuários
   </button>
 )}
 

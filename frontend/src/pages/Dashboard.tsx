@@ -23,6 +23,7 @@ import { Conta } from "../types/Conta";
 import { ContaExcel } from "../types/ContaExcel";
 import { Categoria } from "../types/Categoria";
 
+
 export default function Dashboard() {
   const navigate = useNavigate();
 
@@ -56,6 +57,7 @@ export default function Dashboard() {
   const [contaEditando, setContaEditando] = useState<Conta | null>(null);
   const [salvandoConta, setSalvandoConta] = useState(false);
   const [mostrarConfigModal, setMostrarConfigModal] = useState(false);
+  const isMobile = window.innerWidth <= 768;
 
   useEffect(() => {
     if (mostrarConfigModal) {
@@ -752,17 +754,29 @@ export default function Dashboard() {
         />
 
         {/* GRÁFICOS — SEMPRE VISÍVEIS */}
-        <div style={gridGraficos}>
+        <div
+  style={{
+    ...gridGraficos,
+    gap: isMobile ? 20 : gridGraficos.gap,
+  }}
+>
           {/* PIZZA — POR MÊS */}
           <div
-            style={{
-              background: cores.card,
-              borderRadius: 16,
-              padding: 16,
-              border: `1px solid ${cores.borda}`,
-            }}
-          >
-            <h3 style={{ marginBottom: 12 }}>📅 Gastos por mês</h3>
+  style={{
+    background: cores.card,
+    borderRadius: 16,
+    padding: isMobile ? 12 : 16,
+    border: `1px solid ${cores.borda}`,
+  }}
+>
+  <h3
+    style={{
+      marginBottom: isMobile ? 8 : 12,
+      fontSize: isMobile ? 14 : 16,
+    }}
+  >
+    📅 Gastos por mês
+  </h3>
             <GraficoMensal dados={totalPorMes} />
           </div>
 
@@ -775,7 +789,14 @@ export default function Dashboard() {
               border: `1px solid ${cores.borda}`,
             }}
           >
-            <h3 style={{ marginBottom: 12 }}>🗂️ Gastos por categoria</h3>
+            <h3
+  style={{
+    marginBottom: isMobile ? 8 : 12,
+    fontSize: isMobile ? 14 : 16,
+  }}
+>
+  🗂️ Gastos por categoria
+</h3>
             <GraficoCategoria dados={totalPorCategoria} />
           </div>
         </div>

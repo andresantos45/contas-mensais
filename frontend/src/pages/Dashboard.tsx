@@ -422,10 +422,22 @@ export default function Dashboard() {
 
       const dataObj = new Date(data);
 
-      if (isNaN(dataObj.getTime())) {
-        alert("Data inválida");
-        return;
-      }
+if (isNaN(dataObj.getTime())) {
+  alert("Data inválida");
+  return;
+}
+
+// 🚫 BLOQUEIA DATA FUTURA
+const hoje = new Date();
+hoje.setHours(0, 0, 0, 0);
+
+if (dataObj > hoje) {
+  setToast({
+    mensagem: "Não é permitido usar data futura",
+    tipo: "erro",
+  });
+  return;
+}
 
       if (contaEditando) {
         // ✏️ EDITAR CONTA
@@ -576,16 +588,10 @@ export default function Dashboard() {
       const ano = ultimaContaExcluida.ano;
       const mes = ultimaContaExcluida.mes;
 
-      const dataObj = new Date(
-  ultimaContaExcluida.ano,
-  ultimaContaExcluida.mes - 1,
-  1
-);
-
-await api.post("/contas", {
+      await api.post("/contas", {
   descricao: ultimaContaExcluida.descricao,
   valor: ultimaContaExcluida.valor,
-  data: dataObj.toISOString(),
+  data: ultimaContaExcluida.data, // 👈 DATA ORIGINAL
   categoriaId: ultimaContaExcluida.categoriaId!,
 });
 

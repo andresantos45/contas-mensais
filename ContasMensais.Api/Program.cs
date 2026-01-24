@@ -97,21 +97,21 @@ builder.Services.AddSwaggerGen(options =>
 // CORS (FRONTEND LOCAL + PRODUÇÃO)
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("FrontendPolicy", policy =>
     {
         policy
-            .AllowAnyOrigin()
+            .WithOrigins("https://contas-mensais-frontend.onrender.com")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 var app = builder.Build();
 
 
 // Middlewares
+app.UseCors("FrontendPolicy");
 app.UseRouting();
-
-app.UseCors();
 
 // Swagger (OBRIGATÓRIO)
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())

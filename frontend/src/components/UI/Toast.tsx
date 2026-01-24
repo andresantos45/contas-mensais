@@ -4,16 +4,21 @@ interface ToastProps {
   mensagem: string;
   tipo?: "sucesso" | "erro";
   onClose: () => void;
+  acao?: {
+    texto: string;
+    onClick: () => void;
+  };
 }
 
 export default function Toast({
   mensagem,
   tipo = "sucesso",
   onClose,
+  acao,
 }: ToastProps) {
   useEffect(() => {
-    const timer = setTimeout(onClose, 3000);
-    return () => clearTimeout(timer);
+    const timer = window.setTimeout(onClose, 3000);
+return () => window.clearTimeout(timer);
   }, [onClose]);
 
   return (
@@ -32,7 +37,25 @@ export default function Toast({
         maxWidth: 320,
       }}
     >
-      {mensagem}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+  <span>{mensagem}</span>
+
+  {acao && (
+    <button
+      onClick={acao.onClick}
+      style={{
+        background: "transparent",
+        border: "none",
+        color: "#bbf7d0",
+        fontWeight: 700,
+        cursor: "pointer",
+        padding: 0,
+      }}
+    >
+      {acao.texto}
+    </button>
+  )}
+</div>
     </div>
   );
 }

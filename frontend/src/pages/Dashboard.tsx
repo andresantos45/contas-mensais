@@ -63,6 +63,12 @@ export default function Dashboard() {
     tipo?: "sucesso" | "erro";
   } | null>(null);
   const [contaParaExcluir, setContaParaExcluir] = useState<Conta | null>(null);
+  const [categoriaParaExcluir, setCategoriaParaExcluir] =
+    useState<Categoria | null>(null);
+  const [ultimaContaExcluida, setUltimaContaExcluida] = useState<Conta | null>(
+    null
+  );
+  const [timeoutUndo, setTimeoutUndo] = useState<number | null>(null);
 
   useEffect(() => {
     if (mostrarConfigModal) {
@@ -524,25 +530,79 @@ export default function Dashboard() {
     setContaParaExcluir(conta);
   }
   async function excluirCategoria(id: number) {
+    const categoria = categorias.find((c) => c.id === id);
+    if (!categoria) return;
+
     const emUso = contas.some((c) => c.categoriaId === id);
 
     if (emUso) {
-      alert(
-        "Esta categoria está vinculada a uma conta e não pode ser excluída."
-      );
+      setToast({
+        mensagem:
+          "Esta categoria está vinculada a uma conta e não pode ser excluída.",
+        tipo: "erro",
+      });
       return;
     }
 
-    if (!window.confirm("Deseja excluir esta categoria?")) return;
+    setCategoriaParaExcluir(categoria);
+  }
+
+  async function confirmarExclusaoCategoria() {
+    if (!categoriaParaExcluir) return;
 
     try {
-      await api.delete(`/categorias/${id}`);
-      setCategorias(categorias.filter((c) => c.id !== id));
+      await api.delete(`/categorias/${categoriaParaExcluir.id}`);
+
+      setCategorias(categorias.filter((c) => c.id !== categoriaParaExcluir.id));
+
+      setToast({
+        mensagem: "Categoria excluída com sucesso",
+      });
     } catch (error) {
       console.error(error);
-      alert("Erro ao excluir categoria");
+      setToast({
+        mensagem: "Erro ao excluir categoria",
+        tipo: "erro",
+      });
+    } finally {
+      setCategoriaParaExcluir(null);
     }
   }
+
+  async function desfazerExclusaoConta() {
+    if (!ultimaContaExcluida) return;
+
+    try {
+      await api.post("/contas", {
+        descricao: ultimaContaExcluida.descricao,
+        valor: ultimaContaExcluida.valor,
+        data: ultimaContaExcluida.data,
+        categoriaId: ultimaContaExcluida.categoriaId,
+      });
+
+      // recoloca no estado
+      setContas((prev) => [...prev, ultimaContaExcluida]);
+
+      setToast({
+        mensagem: "Exclusão desfeita",
+      });
+
+      if (timeoutUndo) {
+  window.clearTimeout(timeoutUndo);
+  setTimeoutUndo(null);
+}
+
+      setUltimaContaExcluida(null);
+      await carregarPeriodoAnterior();
+    } catch (error) {
+      console.error(error);
+      setToast({
+        mensagem: "Erro ao desfazer exclusão",
+        tipo: "erro",
+      });
+    }
+  }
+
   // =======================
   // INICIAR EDIÇÃO
   // =======================
@@ -902,15 +962,24 @@ export default function Dashboard() {
               <button
                 onClick={async () => {
                   try {
-                    await api.delete(`/contas/${contaParaExcluir.id}`);
-                    setContas(
-                      contas.filter((c) => c.id !== contaParaExcluir.id)
-                    );
-                    await carregarPeriodoAnterior();
+                    const conta = contaParaExcluir;
+
+                    await api.delete(`/contas/${conta.id}`);
+
+                    setContas(contas.filter((c) => c.id !== conta.id));
+                    setUltimaContaExcluida(conta);
 
                     setToast({
-                      mensagem: "Conta excluída com sucesso",
+                      mensagem: "Conta excluída",
                     });
+
+                    const timeout = setTimeout(() => {
+                      setUltimaContaExcluida(null);
+                    }, 5000);
+
+                    setTimeoutUndo(timeout);
+
+                    await carregarPeriodoAnterior();
                   } catch {
                     setToast({
                       mensagem: "Erro ao excluir conta",
@@ -937,13 +1006,90 @@ export default function Dashboard() {
         </div>
       )}
 
-      {toast && (
-        <Toast
-          mensagem={toast.mensagem}
-          tipo={toast.tipo}
-          onClose={() => setToast(null)}
-        />
+      {categoriaParaExcluir && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1100,
+          }}
+        >
+          <div
+            style={{
+              background: cores.card,
+              color: cores.texto,
+              padding: 24,
+              borderRadius: 16,
+              width: "90%",
+              maxWidth: 420,
+            }}
+          >
+            <h3 style={{ marginTop: 0 }}>🗑️ Excluir categoria</h3>
+
+            <p style={{ color: cores.textoSuave }}>
+              Tem certeza que deseja excluir a categoria{" "}
+              <strong>{categoriaParaExcluir.nome}</strong>?
+            </p>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 12,
+                marginTop: 20,
+              }}
+            >
+              <button
+                onClick={() => setCategoriaParaExcluir(null)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: cores.textoSuave,
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={confirmarExclusaoCategoria}
+                style={{
+                  background: "#dc2626",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "10px 14px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
       )}
+
+      {toast && (
+  <Toast
+    mensagem={toast.mensagem}
+    tipo={toast.tipo}
+    onClose={() => setToast(null)}
+    acao={
+      ultimaContaExcluida
+        ? {
+            texto: "Desfazer",
+            onClick: desfazerExclusaoConta,
+          }
+        : undefined
+    }
+  />
+)}
     </div>
   );
 }

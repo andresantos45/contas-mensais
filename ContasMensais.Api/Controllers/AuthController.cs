@@ -28,7 +28,7 @@ namespace ContasMensais.Api.Controllers
         // =========================
         // REGISTRO DE USUÁRIO
         // =========================
-       [AllowAnonymous]
+       [Authorize]
 [HttpPost("register")]
 public IActionResult Register([FromBody] RegisterDto dto)
 {

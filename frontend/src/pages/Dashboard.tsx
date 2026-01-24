@@ -517,14 +517,15 @@ export default function Dashboard() {
         }}
       >
         <DashboardHeader
-          textoPeriodo={textoPeriodo}
-          cores={cores}
-          exportando={exportando}
-          exportarExcel={exportarExcel}
-          exportarPDF={exportarPDF}
-          setMostrarCategorias={setMostrarCategorias}
-          handleLogout={handleLogout} // 👈 AQUI
-        />
+  textoPeriodo={textoPeriodo}
+  cores={cores}
+  exportando={exportando}
+  exportarExcel={exportarExcel}
+  exportarPDF={exportarPDF}
+  setMostrarCategorias={setMostrarCategorias}
+  handleLogout={handleLogout}
+  isAdmin={localStorage.getItem("role") === "admin"} // 👈 ADICIONE
+/>
         {loading && (
   <div
     style={{

@@ -7,7 +7,8 @@ export default function DashboardHeader({
   exportarExcel,
   exportarPDF,
   setMostrarCategorias,
-  handleLogout, // 👈 ADICIONE AQUI
+  handleLogout,
+  isAdmin, // 👈 ADICIONE
 }) {
   const [mostrarModalSair, setMostrarModalSair] = useState(false);
 
@@ -84,34 +85,52 @@ export default function DashboardHeader({
   }}
 >
     <button
-      onClick={() => setMostrarCategorias(prev => !prev)}
-      style={{
-        background: cores.botao,
-        color: "#fff",
-        padding: "10px 16px",
-        border: "none",
-        borderRadius: 10,
-        cursor: "pointer",
-        fontWeight: 700,
-      }}
-    >
-      ⚙️ Configurações
-    </button>
+  onClick={() => setMostrarCategorias(prev => !prev)}
+  style={{
+    background: cores.botao,
+    color: "#fff",
+    padding: "10px 16px",
+    border: "none",
+    borderRadius: 10,
+    cursor: "pointer",
+    fontWeight: 700,
+  }}
+>
+  ⚙️ Configurações
+</button>
 
-    <button
-        onClick={() => setMostrarModalSair(true)}
-        style={{
-        background: "#ef4444",
-        color: "#fff",
-        padding: "10px 16px",
-        border: "none",
-        borderRadius: 10,
-        cursor: "pointer",
-        fontWeight: 700,
-      }}
-    >
-      ⏻ Sair
-    </button>
+{/* 🔐 BOTÃO ADMIN — SOMENTE PARA ADMIN */}
+{isAdmin && (
+  <button
+    onClick={() => window.location.href = "/admin/usuarios"}
+    style={{
+      background: "#6366f1",
+      color: "#fff",
+      padding: "10px 16px",
+      border: "none",
+      borderRadius: 10,
+      cursor: "pointer",
+      fontWeight: 700,
+    }}
+  >
+    👥 Usuários
+  </button>
+)}
+
+<button
+  onClick={() => setMostrarModalSair(true)}
+  style={{
+    background: "#ef4444",
+    color: "#fff",
+    padding: "10px 16px",
+    border: "none",
+    borderRadius: 10,
+    cursor: "pointer",
+    fontWeight: 700,
+  }}
+>
+  ⏻ Sair
+</button>
   </div>
 
   {/* EXPORTAÇÕES */}

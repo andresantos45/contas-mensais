@@ -410,89 +410,83 @@ export default function Dashboard() {
   // CRIAR / EDITAR CONTA
   // =======================
   async function criarConta(e: React.FormEvent) {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!descricao || !valor || !data || !categoriaId) {
-      alert("Preencha todos os campos");
+  if (!descricao || !valor || !data || !categoriaId) {
+    alert("Preencha todos os campos");
+    return;
+  }
+
+  try {
+    setSalvandoConta(true);
+
+    const dataObj = new Date(data);
+
+    if (isNaN(dataObj.getTime())) {
+      alert("Data inválida");
       return;
     }
 
-    try {
-      setSalvandoConta(true);
+    // 🚫 BLOQUEIA DATA FUTURA
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
 
-      const dataObj = new Date(data);
-
-if (isNaN(dataObj.getTime())) {
-  alert("Data inválida");
-  return;
-}
-
-// 🚫 BLOQUEIA DATA FUTURA
-const hoje = new Date();
-hoje.setHours(0, 0, 0, 0);
-
-if (dataObj > hoje) {
-  setToast({
-    mensagem: "Não é permitido usar data futura",
-    tipo: "erro",
-  });
-  return;
-}
-
-      const mes = dataObj.getMonth() + 1;
-const ano = dataObj.getFullYear();
-
-if (contaEditando) {
-  // ✏️ EDITAR CONTA
-  await api.put(`/contas/${contaEditando.id}`, {
-    descricao,
-    valor: Number(valor),
-    mes,
-    ano,
-    categoriaId: Number(categoriaId),
-  });
-
-  setToast({
-    mensagem: "Conta atualizada com sucesso",
-  });
-
-  setContaEditando(null);
-} else {
-  // ➕ CRIAR CONTA
-  await api.post("/contas", {
-    descricao,
-    valor: Number(valor),
-    mes,
-    ano,
-    categoriaId: Number(categoriaId),
-  });
-
-  setToast({
-    mensagem: "Conta criada com sucesso",
-  });
-}
-
-      // limpa formulário
-      setDescricao("");
-      setValor("");
-      setData("");
-      setCategoriaId("");
-
-      // recarrega contas do período
-      const response = await api.get(`/contas/${mesBusca}/${anoBusca}`);
-      setContas(response.data);
-
-      await carregarPeriodoAnterior();
-    } catch (error) {
-      console.error(error);
+    if (dataObj > hoje) {
       setToast({
-        mensagem: "Erro ao salvar conta",
+        mensagem: "Não é permitido usar data futura",
         tipo: "erro",
       });
-    } finally {
-      setSalvandoConta(false);
+      return;
     }
+
+    if (contaEditando) {
+      // ✏️ EDITAR CONTA
+      await api.put(`/contas/${contaEditando.id}`, {
+        descricao,
+        valor: Number(valor),
+        data: dataObj.toISOString(),
+        categoriaId: Number(categoriaId),
+      });
+
+      setToast({
+        mensagem: "Conta atualizada com sucesso",
+      });
+
+      setContaEditando(null);
+    } else {
+      // ➕ CRIAR CONTA
+      await api.post("/contas", {
+        descricao,
+        valor: Number(valor),
+        data: dataObj.toISOString(),
+        categoriaId: Number(categoriaId),
+      });
+
+      setToast({
+        mensagem: "Conta criada com sucesso",
+      });
+    }
+
+    // limpa formulário
+    setDescricao("");
+    setValor("");
+    setData("");
+    setCategoriaId("");
+
+    // recarrega contas
+    await carregarContasPeriodo();
+    await carregarPeriodoAnterior();
+  } catch (error) {
+    console.error(error);
+    setToast({
+      mensagem: "Erro ao salvar conta",
+      tipo: "erro",
+    });
+  } finally {
+    setSalvandoConta(false);
   }
+}
+
 
   // =======================
   // CRIAR CATEGORIA
@@ -596,8 +590,7 @@ if (contaEditando) {
       await api.post("/contas", {
   descricao: ultimaContaExcluida.descricao,
   valor: ultimaContaExcluida.valor,
-  mes: ultimaContaExcluida.mes,
-  ano: ultimaContaExcluida.ano,
+  data: ultimaContaExcluida.data, // ✅
   categoriaId: ultimaContaExcluida.categoriaId!,
 });
 

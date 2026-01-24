@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://contas-mensais-api.onrender.com/api",
+  baseURL: "https://contas-mensais-backend.onrender.com"
 });
 
 // 🔐 injeta token automaticamente

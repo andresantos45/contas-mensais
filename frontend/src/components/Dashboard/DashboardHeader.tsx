@@ -5,6 +5,7 @@ interface DashboardHeaderProps {
   exportarExcel: () => void;
   exportarPDF: () => void;
   abrirConfiguracoes: () => void;
+  onLogout: () => void;
 }
 
 export default function DashboardHeader({
@@ -14,6 +15,7 @@ export default function DashboardHeader({
   exportarExcel,
   exportarPDF,
   abrirConfiguracoes,
+  onLogout,
 }: DashboardHeaderProps) {
   return (
     <>
@@ -67,20 +69,37 @@ export default function DashboardHeader({
             flexDirection: window.innerWidth < 640 ? "column" : "row",
           }}
         >
-          <button
-            onClick={abrirConfiguracoes}
-            style={{
-              background: cores.botao,
-              color: "#fff",
-              padding: "10px 16px",
-              border: "none",
-              borderRadius: 10,
-              cursor: "pointer",
-              fontWeight: 700,
-            }}
-          >
-            ⚙️ Configurações
-          </button>
+          <div style={{ display: "flex", gap: 12 }}>
+  <button
+    onClick={abrirConfiguracoes}
+    style={{
+      background: cores.botao,
+      color: "#fff",
+      border: "none",
+      padding: "10px 16px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: 700,
+    }}
+  >
+    ⚙️ Configurações
+  </button>
+
+  <button
+    onClick={onLogout}
+    style={{
+      background: "#dc2626",
+      color: "#fff",
+      border: "none",
+      padding: "10px 16px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: 700,
+    }}
+  >
+    🚪 Sair
+  </button>
+</div>
         </div>
 
         {/* EXPORTAÇÕES */}

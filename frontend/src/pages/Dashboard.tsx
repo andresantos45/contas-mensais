@@ -560,13 +560,14 @@ export default function Dashboard() {
         }}
       >
         <DashboardHeader
-          textoPeriodo={textoPeriodo}
-          cores={cores}
-          exportando={exportando}
-          exportarExcel={exportarExcel}
-          exportarPDF={exportarPDF}
-          abrirConfiguracoes={() => setMostrarConfigModal(true)}
-        />
+  textoPeriodo={textoPeriodo}
+  cores={cores}
+  exportando={exportando}
+  exportarExcel={exportarExcel}
+  exportarPDF={exportarPDF}
+  abrirConfiguracoes={() => setMostrarConfigModal(true)}
+  onLogout={handleLogout}
+/>
 
         {mostrarConfigModal && (
           <div

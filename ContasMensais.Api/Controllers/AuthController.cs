@@ -40,7 +40,7 @@ public IActionResult Register([FromBody] RegisterDto dto)
 
     // Se já existir usuário, só admin pode criar novos
     if (existeUsuario && !User.IsInRole("admin"))
-        return Unauthorized("Apenas administradores podem criar usuários");
+        return Forbid("Somente administradores podem criar usuários");
 
     var existeEmail = _context.Usuarios.Any(u => u.Email == dto.Email);
     if (existeEmail)
@@ -48,17 +48,18 @@ public IActionResult Register([FromBody] RegisterDto dto)
 
     string roleFinal;
 
-// Se não existe nenhum usuário → primeiro admin
+// PRIMEIRO USUÁRIO DO SISTEMA → ADMIN AUTOMÁTICO
 if (!existeUsuario)
 {
     roleFinal = "admin";
 }
 else
 {
-    // Já existem usuários → somente admin pode escolher a role
+    // SE JÁ EXISTE USUÁRIO, SOMENTE ADMIN PODE CRIAR
     if (!User.IsInRole("admin"))
-        return Unauthorized("Apenas administradores podem criar usuários");
+        return Forbid("Somente administradores podem criar usuários");
 
+    // 🔐 BACKEND DECIDE — FRONTEND NÃO TEM PODER
     roleFinal = dto.Role == "admin" ? "admin" : "user";
 }
 

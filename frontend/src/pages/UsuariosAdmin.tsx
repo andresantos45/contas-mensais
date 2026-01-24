@@ -66,7 +66,7 @@ export default function UsuariosAdmin() {
         nome,
         email,
         senha,
-        role,
+        role: role === "admin" ? "admin" : "user",
       });
 
       setNome("");

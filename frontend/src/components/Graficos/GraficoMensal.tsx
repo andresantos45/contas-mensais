@@ -4,6 +4,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function GraficoMensal({ dados }: any) {
+  // 1️⃣ EMPTY STATE
   if (!dados || Object.keys(dados).length === 0) {
     return (
       <div
@@ -20,9 +21,11 @@ export default function GraficoMensal({ dados }: any) {
     );
   }
 
+  // 2️⃣ DADOS
   const labels = Object.keys(dados);
   const valores = Object.values(dados);
 
+  // 3️⃣ DATA
   const data = {
     labels,
     datasets: [
@@ -41,9 +44,31 @@ export default function GraficoMensal({ dados }: any) {
     ],
   };
 
+  // 4️⃣ OPTIONS
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+        labels: {
+          boxWidth: 14,
+          padding: 16,
+        },
+      },
+    },
+  };
+
+  // 5️⃣ RENDER FINAL
   return (
-    <div style={{ height: 220 }}>
-      <Pie data={data} />
+    <div
+      style={{
+        height: 260,
+        width: "100%",
+        position: "relative",
+      }}
+    >
+      <Pie data={data} options={options} />
     </div>
   );
 }

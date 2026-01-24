@@ -23,11 +23,8 @@ import { Conta } from "../types/Conta";
 import { ContaExcel } from "../types/ContaExcel";
 import { Categoria } from "../types/Categoria";
 
-
 export default function Dashboard() {
   const navigate = useNavigate();
-
-  
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -35,17 +32,17 @@ export default function Dashboard() {
   }
 
   function usuarioEhAdmin(): boolean {
-  const token = localStorage.getItem("token");
-  if (!token) return false;
+    const token = localStorage.getItem("token");
+    if (!token) return false;
 
-  try {
-    const decoded: any = jwtDecode(token);
+    try {
+      const decoded: any = jwtDecode(token);
 
-    return decoded.role === "admin";
-  } catch {
-    return false;
+      return decoded.role === "admin";
+    } catch {
+      return false;
+    }
   }
-}
 
   const [modoEscuro, setModoEscuro] = useState(true);
   const [contas, setContas] = useState<Conta[]>([]);
@@ -58,7 +55,7 @@ export default function Dashboard() {
   const [novaCategoria, setNovaCategoria] = useState("");
   const [contaEditando, setContaEditando] = useState<Conta | null>(null);
   const [salvandoConta, setSalvandoConta] = useState(false);
-  const [mostrarConfigModal, setMostrarConfigModal] = useState(false);  
+  const [mostrarConfigModal, setMostrarConfigModal] = useState(false);
 
   // =======================
   // FORMULÁRIO – NOVA CONTA
@@ -504,22 +501,22 @@ export default function Dashboard() {
   // INICIAR EDIÇÃO
   // =======================
   function iniciarEdicao(conta: Conta) {
-  console.log("Conta em edição:", conta);
+    console.log("Conta em edição:", conta);
 
-  setContaEditando(conta);
+    setContaEditando(conta);
 
-  setDescricao(conta.descricao);
-  setValor(String(conta.valor));
+    setDescricao(conta.descricao);
+    setValor(String(conta.valor));
 
-  if (conta.data) {
-    setData(conta.data.slice(0, 10));
-  } else {
-    const mes = String(conta.mes).padStart(2, "0");
-    setData(`${conta.ano}-${mes}-01`);
+    if (conta.data) {
+      setData(conta.data.slice(0, 10));
+    } else {
+      const mes = String(conta.mes).padStart(2, "0");
+      setData(`${conta.ano}-${mes}-01`);
+    }
+
+    setCategoriaId(String(conta.categoriaId ?? ""));
   }
-
-  setCategoriaId(String(conta.categoriaId ?? ""));
-}
   return (
     <div
       style={{
@@ -535,83 +532,82 @@ export default function Dashboard() {
         }}
       >
         <DashboardHeader
-  textoPeriodo={textoPeriodo}
-  cores={cores}
-  exportando={exportando}
-  exportarExcel={exportarExcel}
-  exportarPDF={exportarPDF}
-  abrirConfiguracoes={() => setMostrarConfigModal(true)}
-/>
+          textoPeriodo={textoPeriodo}
+          cores={cores}
+          exportando={exportando}
+          exportarExcel={exportarExcel}
+          exportarPDF={exportarPDF}
+          abrirConfiguracoes={() => setMostrarConfigModal(true)}
+        />
 
-{mostrarConfigModal && (
-  <div
-    onClick={() => setMostrarConfigModal(false)}
-    style={{
-      position: "fixed",
-      inset: 0,
-      background: "rgba(0,0,0,0.6)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 1000,
-    }}
-  >
-    <div
-      onClick={(e) => e.stopPropagation()}
-      style={{
-        background: cores.card,
-        color: cores.texto,
-        padding: 24,
-        borderRadius: 16,
-        width: "90%",
-        maxWidth: 420,
-      }}
-    >
-      <h3 style={{ marginTop: 0 }}>⚙️ Configurações</h3>
+        {mostrarConfigModal && (
+          <div
+            onClick={() => setMostrarConfigModal(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.6)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 1000,
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: cores.card,
+                color: cores.texto,
+                padding: 24,
+                borderRadius: 16,
+                width: "90%",
+                maxWidth: 420,
+              }}
+            >
+              <h3 style={{ marginTop: 0 }}>⚙️ Configurações</h3>
 
-      <GestaoCategorias
-        modoEscuro={modoEscuro}
-        setModoEscuro={setModoEscuro}
-        cores={cores}
-        categorias={categorias}
-        excluirCategoria={excluirCategoria}
-        novaCategoria={novaCategoria}
-        setNovaCategoria={setNovaCategoria}
-        criarCategoria={criarCategoria}
-        handleLogout={handleLogout}
-        isAdmin={usuarioEhAdmin()}
-      />
+              <GestaoCategorias
+                modoEscuro={modoEscuro}
+                setModoEscuro={setModoEscuro}
+                cores={cores}
+                categorias={categorias}
+                excluirCategoria={excluirCategoria}
+                novaCategoria={novaCategoria}
+                setNovaCategoria={setNovaCategoria}
+                criarCategoria={criarCategoria}
+                isAdmin={usuarioEhAdmin()}
+              />
 
-      <div style={{ textAlign: "right", marginTop: 20 }}>
-        <button
-          onClick={() => setMostrarConfigModal(false)}
-          style={{
-            background: "transparent",
-            border: "none",
-            color: cores.textoSuave,
-            cursor: "pointer",
-            fontWeight: 600,
-          }}
-        >
-          Fechar
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+              <div style={{ textAlign: "right", marginTop: 20 }}>
+                <button
+                  onClick={() => setMostrarConfigModal(false)}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: cores.textoSuave,
+                    cursor: "pointer",
+                    fontWeight: 600,
+                  }}
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {loading && (
-  <div
-    style={{
-      padding: 16,
-      textAlign: "center",
-      color: cores.textoSuave,
-      fontStyle: "italic",
-    }}
-  >
-    Atualizando dados…
-  </div>
-)}
+          <div
+            style={{
+              padding: 16,
+              textAlign: "center",
+              color: cores.textoSuave,
+              fontStyle: "italic",
+            }}
+          >
+            Atualizando dados…
+          </div>
+        )}
 
         <div style={{ marginTop: 16 }}>
           <FormConta
@@ -637,8 +633,6 @@ export default function Dashboard() {
             }}
           />
         </div>
-
-        
 
         <DashboardCards
           mesBusca={mesBusca}

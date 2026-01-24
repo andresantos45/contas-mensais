@@ -1,4 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import AbaGeral from "./AbaGeral";
+import AbaUsuarios from "./AbaUsuarios";
 
 interface GestaoCategoriasProps {
   isAdmin: boolean;
@@ -20,7 +23,6 @@ interface GestaoCategoriasProps {
   novaCategoria: string;
   setNovaCategoria: (v: string) => void;
   criarCategoria: (e: React.FormEvent) => void;
-  handleLogout: () => void;
 }
 
 export default function GestaoCategorias({
@@ -32,160 +34,94 @@ export default function GestaoCategorias({
   novaCategoria,
   setNovaCategoria,
   criarCategoria,
-  handleLogout,
+
   isAdmin,
 }: GestaoCategoriasProps) {
-  
-
   const navigate = useNavigate();
-  
+  const [abaAtiva, setAbaAtiva] = useState<"geral" | "usuarios">("geral");
 
   return (
     <>
-      {/* AÇÕES */}
+      {/* ABAS */}
       <div
-  style={{
-    display: "flex",
-    gap: 12,
-    marginTop: 16,
-    marginBottom: 16,
-    flexWrap: "wrap",
-  }}
->
-  {/* 🌗 TEMA */}
-  <button
-    onClick={() => setModoEscuro(!modoEscuro)}
-    style={{
-      background: cores.card,
-      color: cores.texto,
-      border: `1px solid ${cores.borda}`,
-      padding: "8px 14px",
-      borderRadius: 8,
-      cursor: "pointer",
-      fontWeight: 600,
-    }}
-  >
-    🌓 Tema
-  </button>
-
-  {/* 👥 USUÁRIOS — SOMENTE ADMIN */}
-  
-{isAdmin && (
-  <button
-    onClick={() => navigate("/admin/usuarios")}
-    style={{
-      background: "#6366f1",
-      color: "#fff",
-      border: "none",
-      padding: "8px 14px",
-      borderRadius: 8,
-      cursor: "pointer",
-      fontWeight: 600,
-    }}
-  >
-    👥 Usuários
-  </button>
-)}
-
-  {/* 🚪 SAIR */}
-  <button
-    onClick={handleLogout}
-    style={{
-      background: "#dc2626",
-      color: "#fff",
-      border: "none",
-      padding: "8px 14px",
-      borderRadius: 8,
-      cursor: "pointer",
-      fontWeight: 600,
-    }}
-  >
-    🚪 Sair
-  </button>
-</div>
-
-      {/* FORMULÁRIO — CRIAR CATEGORIA */}
-      <form
-        onSubmit={criarCategoria}
         style={{
           display: "flex",
-          gap: 12,
-          marginTop: 12,
-          alignItems: "end",
+          gap: 8,
+          marginTop: 16,
+          marginBottom: 20,
         }}
       >
-        <div>
-          <label
+        <button
+          onClick={() => setAbaAtiva("geral")}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 8,
+            cursor: "pointer",
+            fontWeight: 700,
+            background: abaAtiva === "geral" ? cores.botao : "transparent",
+            boxShadow:
+              abaAtiva === "geral" ? "0 6px 20px rgba(0,0,0,0.25)" : "none",
+            color: abaAtiva === "geral" ? "#fff" : cores.texto,
+            border: `1px solid ${cores.borda}`,
+          }}
+        >
+          ⚙️ Geral
+        </button>
+
+        {isAdmin && (
+          <button
+            onClick={() => {
+              if (!isAdmin) return;
+              setAbaAtiva("usuarios");
+            }}
             style={{
-              color: cores.textoSuave,
-              fontSize: 13,
-              marginBottom: 4,
-              display: "block"
+              padding: "6px 14px",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontWeight: 700,
+              background: abaAtiva === "usuarios" ? "#6366f1" : cores.card,
+              color: abaAtiva === "usuarios" ? "#fff" : cores.texto,
+              border: `1px solid ${cores.borda}`,
             }}
           >
-            Nova categoria
-          </label>
-
-          <input
-            value={novaCategoria}
-            onChange={e => setNovaCategoria(e.target.value)}
-            placeholder="Ex: Alimentação"
-            required
-            style={{
-              background: cores.card,
-              color: cores.texto,
-              border: `1px solid ${cores.borda}`,
-              borderRadius: 8,
-              padding: "8px 10px"
-            }}
-          />
-        </div>
-
-        <button type="submit" style={{ height: 40 }}>
-          ➕ Criar categoria
-        </button>
-       </form>
-
-      {/* LISTA DE CATEGORIAS */}
-      <div style={{ marginTop: 20 }}>
-        {categorias.length === 0 ? (
-          <p style={{ color: cores.textoSuave }}>
-            Nenhuma categoria cadastrada.
-          </p>
-        ) : (
-          categorias.map(categoria => (
-            <div
-              key={categoria.id}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "8px 12px",
-                border: `1px solid ${cores.borda}`,
-                borderRadius: 8,
-                marginBottom: 8,
-              }}
-            >
-              <span>{categoria.nome}</span>
-
-              <button
-                onClick={() => excluirCategoria(categoria.id)}
-                style={{
-                  background: "#dc2626",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 6,
-                  padding: "6px 10px",
-                  cursor: "pointer",
-                  fontSize: 12,
-                }}
-              >
-                🗑️ Excluir
-              </button>
-            </div>
-          ))
+            👥 Usuários
+          </button>
         )}
       </div>
+
+      <div
+        key={abaAtiva}
+        style={{
+          animation: "fadeSlide 0.25s ease",
+        }}
+      >
+        {abaAtiva === "geral" && (
+          <AbaGeral
+            cores={cores}
+            categorias={categorias}
+            novaCategoria={novaCategoria}
+            setNovaCategoria={setNovaCategoria}
+            criarCategoria={criarCategoria}
+            excluirCategoria={excluirCategoria}
+          />
+        )}
+
+        {abaAtiva === "usuarios" && isAdmin && <AbaUsuarios cores={cores} />}
+      </div>
+      <style>
+        {`
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+`}
+      </style>
     </>
   );
 }

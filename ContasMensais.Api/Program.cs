@@ -103,7 +103,7 @@ builder.Services.AddCors(options =>
             .WithOrigins("https://contas-mensais-frontend.onrender.com")
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials();
+            
     });
 });
 var app = builder.Build();

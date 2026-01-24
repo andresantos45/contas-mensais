@@ -1,5 +1,12 @@
 interface AbaGeralProps {
-  cores: any;
+  cores: {
+  fundo: string;
+  card: string;
+  texto: string;
+  textoSuave: string;
+  borda: string;
+  botao: string;
+};
   categorias: { id: number; nome: string }[];
   novaCategoria: string;
   setNovaCategoria: (v: string) => void;

@@ -31,19 +31,19 @@ export default function Dashboard() {
     navigate("/login", { replace: true });
   }
 
-  function usuarioEhAdmin(): boolean {
+  function useIsAdmin(): boolean {
     const token = localStorage.getItem("token");
     if (!token) return false;
 
     try {
       const decoded: any = jwtDecode(token);
-
       return decoded.role === "admin";
     } catch {
       return false;
     }
   }
 
+  const isAdmin = useIsAdmin();
   const [modoEscuro, setModoEscuro] = useState(true);
   const [contas, setContas] = useState<Conta[]>([]);
   const [loading, setLoading] = useState(false);
@@ -56,6 +56,34 @@ export default function Dashboard() {
   const [contaEditando, setContaEditando] = useState<Conta | null>(null);
   const [salvandoConta, setSalvandoConta] = useState(false);
   const [mostrarConfigModal, setMostrarConfigModal] = useState(false);
+
+  useEffect(() => {
+    if (mostrarConfigModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [mostrarConfigModal]);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMostrarConfigModal(false);
+      }
+    }
+
+    if (mostrarConfigModal) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [mostrarConfigModal]);
 
   // =======================
   // FORMULÁRIO – NOVA CONTA
@@ -567,15 +595,13 @@ export default function Dashboard() {
               <h3 style={{ marginTop: 0 }}>⚙️ Configurações</h3>
 
               <GestaoCategorias
-                modoEscuro={modoEscuro}
-                setModoEscuro={setModoEscuro}
                 cores={cores}
                 categorias={categorias}
                 excluirCategoria={excluirCategoria}
                 novaCategoria={novaCategoria}
                 setNovaCategoria={setNovaCategoria}
                 criarCategoria={criarCategoria}
-                isAdmin={usuarioEhAdmin()}
+                isAdmin={isAdmin}
               />
 
               <div style={{ textAlign: "right", marginTop: 20 }}>

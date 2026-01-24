@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface AbaUsuariosProps {
@@ -5,7 +6,24 @@ interface AbaUsuariosProps {
 }
 
 export default function AbaUsuarios({ cores }: AbaUsuariosProps) {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    try {
+      const decoded: any = JSON.parse(atob(token.split(".")[1]));
+      if (decoded.role !== "admin") {
+        navigate("/", { replace: true });
+      }
+    } catch {
+      navigate("/login", { replace: true });
+    }
+  }, []);
 
   return (
     <div style={{ marginTop: 16 }}>

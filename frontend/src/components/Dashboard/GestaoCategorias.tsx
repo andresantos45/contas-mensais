@@ -1,12 +1,9 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import AbaGeral from "./AbaGeral";
 import AbaUsuarios from "./AbaUsuarios";
 
 interface GestaoCategoriasProps {
   isAdmin: boolean;
-  modoEscuro: boolean;
-  setModoEscuro: (v: boolean) => void;
   cores: {
     fundo: string;
     card: string;
@@ -26,8 +23,6 @@ interface GestaoCategoriasProps {
 }
 
 export default function GestaoCategorias({
-  modoEscuro,
-  setModoEscuro,
   cores,
   categorias,
   excluirCategoria,
@@ -37,8 +32,15 @@ export default function GestaoCategorias({
 
   isAdmin,
 }: GestaoCategoriasProps) {
-  const navigate = useNavigate();
   const [abaAtiva, setAbaAtiva] = useState<"geral" | "usuarios">("geral");
+
+  function trocarAba(aba: "geral" | "usuarios") {
+    setAbaAtiva(aba);
+  }
+
+  if (abaAtiva === "usuarios" && !isAdmin) {
+    setAbaAtiva("geral");
+  }
 
   return (
     <>
@@ -52,7 +54,7 @@ export default function GestaoCategorias({
         }}
       >
         <button
-          onClick={() => setAbaAtiva("geral")}
+          onClick={() => trocarAba("geral")}
           style={{
             padding: "6px 14px",
             borderRadius: 8,
@@ -70,16 +72,17 @@ export default function GestaoCategorias({
 
         {isAdmin && (
           <button
-            onClick={() => {
-              if (!isAdmin) return;
-              setAbaAtiva("usuarios");
-            }}
+            onClick={() => trocarAba("usuarios")}
             style={{
               padding: "6px 14px",
               borderRadius: 8,
               cursor: "pointer",
               fontWeight: 700,
-              background: abaAtiva === "usuarios" ? "#6366f1" : cores.card,
+              background: abaAtiva === "usuarios" ? "#6366f1" : "transparent",
+              boxShadow:
+                abaAtiva === "usuarios"
+                  ? "0 6px 20px rgba(0,0,0,0.25)"
+                  : "none",
               color: abaAtiva === "usuarios" ? "#fff" : cores.texto,
               border: `1px solid ${cores.borda}`,
             }}

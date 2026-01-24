@@ -4,6 +4,8 @@ export const dashboardContainer = {
   maxWidth: "1400px",
   margin: "0 auto",
   width: "100%",
+  boxSizing: "border-box" as const,
+  overflowX: "hidden" as const,
 };
 
 export const dashboardCard = {
@@ -12,6 +14,7 @@ export const dashboardCard = {
   padding: 32,
   display: "flex" as const,
   flexDirection: "column" as const,
+  boxSizing: "border-box" as const,
 };
 
 export const sectionTitle = {

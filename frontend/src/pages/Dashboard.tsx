@@ -24,7 +24,6 @@ import { ContaExcel } from "../types/ContaExcel";
 import { Categoria } from "../types/Categoria";
 import Toast from "../components/UI/Toast";
 
-
 export default function Dashboard() {
   const navigate = useNavigate();
 
@@ -60,9 +59,9 @@ export default function Dashboard() {
   const [mostrarConfigModal, setMostrarConfigModal] = useState(false);
   const isMobile = window.innerWidth <= 768;
   const [toast, setToast] = useState<{
-  mensagem: string;
-  tipo?: "sucesso" | "erro";
-} | null>(null);
+    mensagem: string;
+    tipo?: "sucesso" | "erro";
+  } | null>(null);
   const [contaParaExcluir, setContaParaExcluir] = useState<Conta | null>(null);
 
   useEffect(() => {
@@ -238,9 +237,9 @@ export default function Dashboard() {
   async function exportarExcel() {
     if (contasFiltradas.length === 0) {
       setToast({
-  mensagem: "Nenhum dado para exportar",
-  tipo: "erro",
-});
+        mensagem: "Nenhum dado para exportar",
+        tipo: "erro",
+      });
 
       return;
     }
@@ -423,38 +422,38 @@ export default function Dashboard() {
       }
 
       if (contaEditando) {
-  // ✏️ EDITAR CONTA
-  await api.put(`/contas/${contaEditando.id}`, {
-    descricao,
-    valor: Number(valor),
-    data: dataObj,
-    categoriaId: Number(categoriaId),
-  });
+        // ✏️ EDITAR CONTA
+        await api.put(`/contas/${contaEditando.id}`, {
+          descricao,
+          valor: Number(valor),
+          data: dataObj,
+          categoriaId: Number(categoriaId),
+        });
 
-  setToast({
-    mensagem: "Conta atualizada com sucesso",
-  });
+        setToast({
+          mensagem: "Conta atualizada com sucesso",
+        });
 
-  setContaEditando(null);
-} else {
-  // ➕ CRIAR CONTA
-  await api.post("/contas", {
-    descricao,
-    valor: Number(valor),
-    data: dataObj,
-    categoriaId: Number(categoriaId),
-  });
+        setContaEditando(null);
+      } else {
+        // ➕ CRIAR CONTA
+        await api.post("/contas", {
+          descricao,
+          valor: Number(valor),
+          data: dataObj,
+          categoriaId: Number(categoriaId),
+        });
 
-  setToast({
-    mensagem: "Conta criada com sucesso",
-  });
-}
+        setToast({
+          mensagem: "Conta criada com sucesso",
+        });
+      }
 
-// limpa formulário
-setDescricao("");
-setValor("");
-setData("");
-setCategoriaId("");
+      // limpa formulário
+      setDescricao("");
+      setValor("");
+      setData("");
+      setCategoriaId("");
 
       // recarrega contas do período
       const response = await api.get(`/contas/${mesBusca}/${anoBusca}`);
@@ -464,9 +463,9 @@ setCategoriaId("");
     } catch (error) {
       console.error(error);
       setToast({
-  mensagem: "Erro ao salvar conta",
-  tipo: "erro",
-});
+        mensagem: "Erro ao salvar conta",
+        tipo: "erro",
+      });
     } finally {
       setSalvandoConta(false);
     }
@@ -490,9 +489,9 @@ setCategoriaId("");
       )
     ) {
       setToast({
-  mensagem: "Categoria já existe",
-  tipo: "erro",
-});
+        mensagem: "Categoria já existe",
+        tipo: "erro",
+      });
       return;
     }
 
@@ -519,11 +518,11 @@ setCategoriaId("");
   // EXCLUIR CONTA
   // =======================
   async function excluirConta(id: number) {
-  const conta = contas.find((c) => c.id === id);
-  if (!conta) return;
+    const conta = contas.find((c) => c.id === id);
+    if (!conta) return;
 
-  setContaParaExcluir(conta);
-}
+    setContaParaExcluir(conta);
+  }
   async function excluirCategoria(id: number) {
     const emUso = contas.some((c) => c.categoriaId === id);
 
@@ -645,29 +644,29 @@ setCategoriaId("");
 
         {loading && (
           <>
-  <div
-    style={{
-      padding: 16,
-      display: "grid",
-      gap: 12,
-    }}
-  >
-    {[1, 2, 3].map((i) => (
-      <div
-        key={i}
-        style={{
-          height: 20,
-          borderRadius: 8,
-          background: modoEscuro
-            ? "linear-gradient(90deg,#020617,#020617,#020617)"
-            : "linear-gradient(90deg,#e5e7eb,#f3f4f6,#e5e7eb)",
-          opacity: 0.6,
-        }}
-      />
-    ))}
-  </div>
-  </>
-)}
+            <div
+              style={{
+                padding: 16,
+                display: "grid",
+                gap: 12,
+              }}
+            >
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  style={{
+                    height: 20,
+                    borderRadius: 8,
+                    background: modoEscuro
+                      ? "linear-gradient(90deg,#020617,#020617,#020617)"
+                      : "linear-gradient(90deg,#e5e7eb,#f3f4f6,#e5e7eb)",
+                    opacity: 0.6,
+                  }}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
         <div style={{ marginTop: 16 }}>
           <FormConta
@@ -777,175 +776,174 @@ setCategoriaId("");
         </div>
 
         {!loading && contasFiltradas.length === 0 ? (
-  <div
-    style={{
-      padding: 24,
-      borderRadius: 12,
-      border: `1px dashed ${cores.borda}`,
-      color: cores.textoSuave,
-      textAlign: "center",
-      marginBottom: 16,
-    }}
-  >
-    Nenhuma conta encontrada para este período.  
-    Comece adicionando uma nova acima ⬆️
-  </div>
-) : (
-  <ListaContas
-    contas={contasFiltradas}
-    cores={cores}
-    iniciarEdicao={iniciarEdicao}
-    excluirConta={excluirConta}
-  />
-)}
+          <div
+            style={{
+              padding: 24,
+              borderRadius: 12,
+              border: `1px dashed ${cores.borda}`,
+              color: cores.textoSuave,
+              textAlign: "center",
+              marginBottom: 16,
+            }}
+          >
+            Nenhuma conta encontrada para este período. Comece adicionando uma
+            nova acima ⬆️
+          </div>
+        ) : (
+          <ListaContas
+            contas={contasFiltradas}
+            cores={cores}
+            iniciarEdicao={iniciarEdicao}
+            excluirConta={excluirConta}
+          />
+        )}
 
         {/* GRÁFICOS — SEMPRE VISÍVEIS */}
         <div
-  style={{
-    ...gridGraficos,
-    gap: isMobile ? 20 : gridGraficos.gap,
-  }}
->
+          style={{
+            ...gridGraficos,
+            gap: isMobile ? 20 : gridGraficos.gap,
+          }}
+        >
           {/* PIZZA — POR MÊS */}
           <div
-  style={{
-    background: cores.card,
-    borderRadius: 16,
-    padding: isMobile ? 12 : 16,
-    border: `1px solid ${cores.borda}`,
-  }}
->
-  <h3
-    style={{
-      marginBottom: isMobile ? 8 : 12,
-      fontSize: isMobile ? 14 : 16,
-    }}
-  >
-    📅 Gastos por mês
-  </h3>
+            style={{
+              background: cores.card,
+              borderRadius: 16,
+              padding: isMobile ? 12 : 16,
+              border: `1px solid ${cores.borda}`,
+            }}
+          >
+            <h3
+              style={{
+                marginBottom: isMobile ? 8 : 12,
+                fontSize: isMobile ? 14 : 16,
+              }}
+            >
+              📅 Gastos por mês
+            </h3>
             <GraficoMensal dados={totalPorMes} />
           </div>
 
           {/* PIZZA — POR CATEGORIA */}
           <div
-  style={{
-    background: cores.card,
-    borderRadius: 16,
-    padding: isMobile ? 12 : 16,
-    border: `1px solid ${cores.borda}`,
-  }}
->
+            style={{
+              background: cores.card,
+              borderRadius: 16,
+              padding: isMobile ? 12 : 16,
+              border: `1px solid ${cores.borda}`,
+            }}
+          >
             <h3
-  style={{
-    marginBottom: isMobile ? 8 : 12,
-    fontSize: isMobile ? 14 : 16,
-  }}
->
-  🗂️ Gastos por categoria
-</h3>
+              style={{
+                marginBottom: isMobile ? 8 : 12,
+                fontSize: isMobile ? 14 : 16,
+              }}
+            >
+              🗂️ Gastos por categoria
+            </h3>
             <GraficoCategoria dados={totalPorCategoria} />
           </div>
         </div>
       </div>
 
-{contaParaExcluir && (
-  <div
-    onClick={() => setContaParaExcluir(null)}
-    style={{
-      position: "fixed",
-      inset: 0,
-      background: "rgba(0,0,0,0.6)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 1000,
-    }}
-  >
-    <div
-      onClick={(e) => e.stopPropagation()}
-      style={{
-        background: cores.card,
-        color: cores.texto,
-        padding: 24,
-        borderRadius: 16,
-        width: "90%",
-        maxWidth: 380,
-      }}
-    >
-      <h3 style={{ marginTop: 0 }}>Excluir conta?</h3>
-
-      <p style={{ color: cores.textoSuave }}>
-        Tem certeza que deseja excluir{" "}
-        <strong>{contaParaExcluir.descricao}</strong>?
-      </p>
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: 12,
-          marginTop: 20,
-        }}
-      >
-        <button
+      {contaParaExcluir && (
+        <div
           onClick={() => setContaParaExcluir(null)}
           style={{
-            background: "transparent",
-            border: "none",
-            color: cores.textoSuave,
-            cursor: "pointer",
-            fontWeight: 600,
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
           }}
         >
-          Cancelar
-        </button>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: cores.card,
+              color: cores.texto,
+              padding: 24,
+              borderRadius: 16,
+              width: "90%",
+              maxWidth: 380,
+            }}
+          >
+            <h3 style={{ marginTop: 0 }}>Excluir conta?</h3>
 
-        <button
-          onClick={async () => {
-            try {
-              await api.delete(`/contas/${contaParaExcluir.id}`);
-              setContas(
-                contas.filter((c) => c.id !== contaParaExcluir.id)
-              );
-              await carregarPeriodoAnterior();
+            <p style={{ color: cores.textoSuave }}>
+              Tem certeza que deseja excluir{" "}
+              <strong>{contaParaExcluir.descricao}</strong>?
+            </p>
 
-              setToast({
-                mensagem: "Conta excluída com sucesso",
-              });
-            } catch {
-              setToast({
-                mensagem: "Erro ao excluir conta",
-                tipo: "erro",
-              });
-            } finally {
-              setContaParaExcluir(null);
-            }
-          }}
-          style={{
-            background: "#dc2626",
-            color: "#fff",
-            border: "none",
-            borderRadius: 8,
-            padding: "10px 14px",
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
-          Excluir
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 12,
+                marginTop: 20,
+              }}
+            >
+              <button
+                onClick={() => setContaParaExcluir(null)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: cores.textoSuave,
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+              >
+                Cancelar
+              </button>
 
+              <button
+                onClick={async () => {
+                  try {
+                    await api.delete(`/contas/${contaParaExcluir.id}`);
+                    setContas(
+                      contas.filter((c) => c.id !== contaParaExcluir.id)
+                    );
+                    await carregarPeriodoAnterior();
+
+                    setToast({
+                      mensagem: "Conta excluída com sucesso",
+                    });
+                  } catch {
+                    setToast({
+                      mensagem: "Erro ao excluir conta",
+                      tipo: "erro",
+                    });
+                  } finally {
+                    setContaParaExcluir(null);
+                  }
+                }}
+                style={{
+                  background: "#dc2626",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "10px 14px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {toast && (
-  <Toast
-    mensagem={toast.mensagem}
-    tipo={toast.tipo}
-    onClose={() => setToast(null)}
-  />
-)}
+        <Toast
+          mensagem={toast.mensagem}
+          tipo={toast.tipo}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

@@ -102,7 +102,7 @@ export default function DashboardHeader({
                 fontWeight: 700,
               }}
             >
-              ↩️ Sair
+              ⏻ Sair
             </button>
           </div>
         </div>

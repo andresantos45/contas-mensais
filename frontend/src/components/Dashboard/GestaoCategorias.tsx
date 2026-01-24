@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 interface GestaoCategoriasProps {
   mostrar: boolean;
   modoEscuro: boolean;
@@ -35,47 +37,71 @@ export default function GestaoCategorias({
 }: GestaoCategoriasProps) {
   if (!mostrar) return null;
 
+  const navigate = useNavigate();
+  const role = localStorage.getItem("role");
+
   return (
     <>
       {/* AÇÕES */}
       <div
-        style={{
-          display: "flex",
-          gap: 12,
-          marginTop: 16,
-          marginBottom: 16,
-        }}
-      >
-        <button
-          onClick={() => setModoEscuro(!modoEscuro)}
-          style={{
-            background: cores.card,
-            color: cores.texto,
-            border: `1px solid ${cores.borda}`,
-            padding: "8px 14px",
-            borderRadius: 8,
-            cursor: "pointer",
-            fontWeight: 600,
-          }}
-        >
-          🌓 Tema
-        </button>
+  style={{
+    display: "flex",
+    gap: 12,
+    marginTop: 16,
+    marginBottom: 16,
+    flexWrap: "wrap",
+  }}
+>
+  {/* 🌗 TEMA */}
+  <button
+    onClick={() => setModoEscuro(!modoEscuro)}
+    style={{
+      background: cores.card,
+      color: cores.texto,
+      border: `1px solid ${cores.borda}`,
+      padding: "8px 14px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: 600,
+    }}
+  >
+    🌓 Tema
+  </button>
 
-        <button
-          onClick={handleLogout}
-          style={{
-            background: "#dc2626",
-            color: "#fff",
-            border: "none",
-            padding: "8px 14px",
-            borderRadius: 8,
-            cursor: "pointer",
-            fontWeight: 600,
-          }}
-        >
-          🚪 Sair
-        </button>
-      </div>
+  {/* 👥 USUÁRIOS — SOMENTE ADMIN */}
+  {localStorage.getItem("role") === "admin" && (
+    <button
+      onClick={() => navigate("/admin/usuarios")}
+      style={{
+        background: "#6366f1",
+        color: "#fff",
+        border: "none",
+        padding: "8px 14px",
+        borderRadius: 8,
+        cursor: "pointer",
+        fontWeight: 600,
+      }}
+    >
+      👥 Usuários
+    </button>
+  )}
+
+  {/* 🚪 SAIR */}
+  <button
+    onClick={handleLogout}
+    style={{
+      background: "#dc2626",
+      color: "#fff",
+      border: "none",
+      padding: "8px 14px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: 600,
+    }}
+  >
+    🚪 Sair
+  </button>
+</div>
 
       {/* FORMULÁRIO — CRIAR CATEGORIA */}
       <form

@@ -8,13 +8,13 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
-  if (token) {
+  // 🚫 NÃO envia token no login
+  if (token && !config.url?.includes("/auth/login")) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
   return config;
 });
-
 // 🚨 trata token inválido / expirado
 api.interceptors.response.use(
   (response) => response,

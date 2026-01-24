@@ -427,17 +427,23 @@ export default function Dashboard() {
       return;
     }
 
-    // 🚫 BLOQUEIA DATA FUTURA
     const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
+hoje.setHours(0, 0, 0, 0);
 
-    if (dataObj > hoje) {
-      setToast({
-        mensagem: "Não é permitido usar data futura",
-        tipo: "erro",
-      });
-      return;
-    }
+// permite até 1 ano à frente
+const limite = new Date(
+  hoje.getFullYear() + 1,
+  hoje.getMonth(),
+  hoje.getDate()
+);
+
+if (dataObj > limite) {
+  setToast({
+    mensagem: "A data não pode ultrapassar 1 ano à frente",
+    tipo: "erro",
+  });
+  return;
+}
 
     if (contaEditando) {
       // ✏️ EDITAR CONTA

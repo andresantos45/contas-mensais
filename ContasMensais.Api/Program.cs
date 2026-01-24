@@ -102,16 +102,16 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins("https://contas-mensais-frontend.onrender.com")
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            
+            .AllowAnyMethod();
     });
 });
 var app = builder.Build();
 
 
 // Middlewares
-app.UseCors("FrontendPolicy");
 app.UseRouting();
+
+app.UseCors("FrontendPolicy");
 
 // Swagger (OBRIGATÓRIO)
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())

@@ -627,17 +627,30 @@ export default function Dashboard() {
         )}
 
         {loading && (
-          <div
-            style={{
-              padding: 16,
-              textAlign: "center",
-              color: cores.textoSuave,
-              fontStyle: "italic",
-            }}
-          >
-            Atualizando dados…
-          </div>
-        )}
+          <>
+  <div
+    style={{
+      padding: 16,
+      display: "grid",
+      gap: 12,
+    }}
+  >
+    {[1, 2, 3].map((i) => (
+      <div
+        key={i}
+        style={{
+          height: 20,
+          borderRadius: 8,
+          background: modoEscuro
+            ? "linear-gradient(90deg,#020617,#020617,#020617)"
+            : "linear-gradient(90deg,#e5e7eb,#f3f4f6,#e5e7eb)",
+          opacity: 0.6,
+        }}
+      />
+    ))}
+  </div>
+  </>
+)}
 
         <div style={{ marginTop: 16 }}>
           <FormConta
@@ -746,12 +759,28 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <ListaContas
-          contas={contasFiltradas}
-          cores={cores}
-          iniciarEdicao={iniciarEdicao}
-          excluirConta={excluirConta}
-        />
+        {!loading && contasFiltradas.length === 0 ? (
+  <div
+    style={{
+      padding: 24,
+      borderRadius: 12,
+      border: `1px dashed ${cores.borda}`,
+      color: cores.textoSuave,
+      textAlign: "center",
+      marginBottom: 16,
+    }}
+  >
+    Nenhuma conta encontrada para este período.  
+    Comece adicionando uma nova acima ⬆️
+  </div>
+) : (
+  <ListaContas
+    contas={contasFiltradas}
+    cores={cores}
+    iniciarEdicao={iniciarEdicao}
+    excluirConta={excluirConta}
+  />
+)}
 
         {/* GRÁFICOS — SEMPRE VISÍVEIS */}
         <div
@@ -782,13 +811,13 @@ export default function Dashboard() {
 
           {/* PIZZA — POR CATEGORIA */}
           <div
-            style={{
-              background: cores.card,
-              borderRadius: 16,
-              padding: 16,
-              border: `1px solid ${cores.borda}`,
-            }}
-          >
+  style={{
+    background: cores.card,
+    borderRadius: 16,
+    padding: isMobile ? 12 : 16,
+    border: `1px solid ${cores.borda}`,
+  }}
+>
             <h3
   style={{
     marginBottom: isMobile ? 8 : 12,

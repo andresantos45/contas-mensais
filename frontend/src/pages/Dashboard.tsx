@@ -576,19 +576,13 @@ export default function Dashboard() {
       const ano = ultimaContaExcluida.ano;
       const mes = ultimaContaExcluida.mes;
 
-      const dataObj = new Date(
-        ultimaContaExcluida.ano,
-        ultimaContaExcluida.mes - 1,
-        1
-      );
+      const dataString = `${ano}-${String(mes).padStart(2, "0")}-01`;
 
       await api.post("/contas", {
         descricao: ultimaContaExcluida.descricao,
         valor: ultimaContaExcluida.valor,
-        data: dataObj, // ✅ Date, não string
+        data: dataString,
         categoriaId: ultimaContaExcluida.categoriaId!,
-        mes: ultimaContaExcluida.mes,
-        ano: ultimaContaExcluida.ano,
       });
 
       setToast({

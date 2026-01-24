@@ -570,38 +570,40 @@ export default function Dashboard() {
   }
 
   async function desfazerExclusaoConta() {
-    if (!ultimaContaExcluida) return;
+  if (!ultimaContaExcluida) return;
 
-    try {
-      await api.post("/contas", {
-        descricao: ultimaContaExcluida.descricao,
-        valor: ultimaContaExcluida.valor,
-        data: ultimaContaExcluida.data,
-        categoriaId: ultimaContaExcluida.categoriaId,
-      });
+  try {
+    const dataValida = ultimaContaExcluida.data
+  ? new Date(ultimaContaExcluida.data)
+  : new Date();
 
-      // recoloca no estado
-      setContas((prev) => [...prev, ultimaContaExcluida]);
+await api.post("/contas", {
+  descricao: ultimaContaExcluida.descricao,
+  valor: ultimaContaExcluida.valor,
+  data: dataValida,
+  categoriaId: ultimaContaExcluida.categoriaId,
+});
 
-      setToast({
-        mensagem: "Exclusão desfeita",
-      });
+    setToast({
+      mensagem: "Exclusão desfeita",
+    });
 
-      if (timeoutUndo) {
-  window.clearTimeout(timeoutUndo);
-  setTimeoutUndo(null);
-}
-
-      setUltimaContaExcluida(null);
-      await carregarPeriodoAnterior();
-    } catch (error) {
-      console.error(error);
-      setToast({
-        mensagem: "Erro ao desfazer exclusão",
-        tipo: "erro",
-      });
+    if (timeoutUndo) {
+      clearTimeout(timeoutUndo);
+      setTimeoutUndo(null);
     }
+
+    setUltimaContaExcluida(null);
+    await carregarContasPeriodo();
+    await carregarPeriodoAnterior();
+  } catch (error) {
+    console.error(error);
+    setToast({
+      mensagem: "Erro ao desfazer exclusão",
+      tipo: "erro",
+    });
   }
+}
 
   // =======================
   // INICIAR EDIÇÃO

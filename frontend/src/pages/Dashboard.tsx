@@ -21,6 +21,7 @@ import { calcularDashboard } from "../components/Dashboard/dashboardCalculations
 import { Conta } from "../types/Conta";
 import { ContaExcel } from "../types/ContaExcel";
 import { Categoria } from "../types/Categoria";
+import { jwtDecode } from "jwt-decode";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -29,6 +30,23 @@ export default function Dashboard() {
     localStorage.removeItem("token");
     navigate("/login", { replace: true });
   }
+
+  function usuarioEhAdmin() {
+  const token = localStorage.getItem("token");
+  if (!token) return false;
+
+  try {
+    const decoded: any = jwtDecode(token);
+
+    return (
+      decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ===
+      "admin"
+    );
+  } catch {
+    return false;
+  }
+}
+
   const [modoEscuro, setModoEscuro] = useState(true);
   const [contas, setContas] = useState<Conta[]>([]);
   const [loading, setLoading] = useState(false);
@@ -524,7 +542,7 @@ export default function Dashboard() {
   exportarPDF={exportarPDF}
   setMostrarCategorias={setMostrarCategorias}
   handleLogout={handleLogout}
-  isAdmin={localStorage.getItem("role") === "admin"} // 👈 ADICIONE
+  isAdmin={usuarioEhAdmin()}
 />
         {loading && (
   <div

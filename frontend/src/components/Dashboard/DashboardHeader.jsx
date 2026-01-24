@@ -99,6 +99,22 @@ export default function DashboardHeader({
   ⚙️ Configurações
 </button>
 
+{isAdmin && (
+  <button
+    onClick={() => window.location.href = "/admin/usuarios"}
+    style={{
+      background: "#6366f1",
+      color: "#fff",
+      padding: "10px 16px",
+      border: "none",
+      borderRadius: 10,
+      cursor: "pointer",
+      fontWeight: 700,
+    }}
+  >
+    👥 Usuários
+  </button>
+)}
 
 <button
   onClick={() => setMostrarModalSair(true)}

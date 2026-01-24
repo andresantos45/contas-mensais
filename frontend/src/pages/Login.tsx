@@ -18,7 +18,7 @@ export default function Login() {
       const data = await login(email, senha);
 
 localStorage.setItem("token", data.token);
-localStorage.setItem("role", data.usuario.role);
+
 
 navigate("/dashboard", { replace: true });
     } catch (err) {

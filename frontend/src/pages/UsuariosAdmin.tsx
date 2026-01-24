@@ -97,8 +97,7 @@ export default function UsuariosAdmin() {
 
   function sair() {
     localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    navigate("/login");
+        navigate("/login");
   }
 
   useEffect(() => {

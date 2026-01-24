@@ -570,40 +570,43 @@ export default function Dashboard() {
   }
 
   async function desfazerExclusaoConta() {
-  if (!ultimaContaExcluida) return;
+    if (!ultimaContaExcluida) return;
 
-  try {
-    const dataValida = ultimaContaExcluida.data
-  ? new Date(ultimaContaExcluida.data)
-  : new Date();
+    try {
+      const dataString =
+        ultimaContaExcluida.data ??
+        `${ultimaContaExcluida.ano}-${String(ultimaContaExcluida.mes).padStart(
+          2,
+          "0"
+        )}-01`;
 
-await api.post("/contas", {
-  descricao: ultimaContaExcluida.descricao,
-  valor: ultimaContaExcluida.valor,
-  data: dataValida,
-  categoriaId: ultimaContaExcluida.categoriaId,
-});
+      await api.post("/contas", {
+        descricao: ultimaContaExcluida.descricao,
+        valor: ultimaContaExcluida.valor,
+        data: dataString,
+        categoriaId: ultimaContaExcluida.categoriaId,
+      });
 
-    setToast({
-      mensagem: "Exclusão desfeita",
-    });
+      setToast({
+        mensagem: "Exclusão desfeita",
+      });
 
-    if (timeoutUndo) {
-      clearTimeout(timeoutUndo);
-      setTimeoutUndo(null);
+      if (timeoutUndo) {
+        clearTimeout(timeoutUndo);
+        setTimeoutUndo(null);
+      }
+
+      setUltimaContaExcluida(null);
+      await carregarContasPeriodo();
+      await carregarPeriodoAnterior();
+    } catch (error) {
+      console.error(error);
+      setToast({
+        mensagem: "Erro ao desfazer exclusão",
+        tipo: "erro",
+      });
     }
-
-    setUltimaContaExcluida(null);
-    await carregarContasPeriodo();
-    await carregarPeriodoAnterior();
-  } catch (error) {
-    console.error(error);
-    setToast({
-      mensagem: "Erro ao desfazer exclusão",
-      tipo: "erro",
-    });
   }
-}
 
   // =======================
   // INICIAR EDIÇÃO
@@ -1078,20 +1081,20 @@ await api.post("/contas", {
       )}
 
       {toast && (
-  <Toast
-    mensagem={toast.mensagem}
-    tipo={toast.tipo}
-    onClose={() => setToast(null)}
-    acao={
-      ultimaContaExcluida
-        ? {
-            texto: "Desfazer",
-            onClick: desfazerExclusaoConta,
+        <Toast
+          mensagem={toast.mensagem}
+          tipo={toast.tipo}
+          onClose={() => setToast(null)}
+          acao={
+            ultimaContaExcluida
+              ? {
+                  texto: "Desfazer",
+                  onClick: desfazerExclusaoConta,
+                }
+              : undefined
           }
-        : undefined
-    }
-  />
-)}
+        />
+      )}
     </div>
   );
 }

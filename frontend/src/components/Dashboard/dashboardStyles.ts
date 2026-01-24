@@ -1,13 +1,17 @@
 export const dashboardContainer = {
   minHeight: "100vh",
   padding: "32px 20px",
+  maxWidth: "1400px",
+  margin: "0 auto",
+  width: "100%",
 };
 
 export const dashboardCard = {
-  maxWidth: "1200px",
-  margin: "0 auto",
+  width: "100%",
   borderRadius: 20,
   padding: 32,
+  display: "flex" as const,
+  flexDirection: "column" as const,
 };
 
 export const sectionTitle = {
@@ -21,6 +25,7 @@ export const gridCards = {
   gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
   gap: 20,
   marginTop: 32,
+  width: "100%",
 };
 
 export const gridGraficos = {
@@ -28,4 +33,5 @@ export const gridGraficos = {
   gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
   gap: 32,
   marginTop: 40,
+  width: "100%",
 };

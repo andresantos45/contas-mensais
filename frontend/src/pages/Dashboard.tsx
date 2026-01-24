@@ -593,6 +593,7 @@ export default function Dashboard() {
           setNovaCategoria={setNovaCategoria}
           criarCategoria={criarCategoria}
           handleLogout={handleLogout}
+          isAdmin={usuarioEhAdmin()} 
         />
 
         <DashboardCards

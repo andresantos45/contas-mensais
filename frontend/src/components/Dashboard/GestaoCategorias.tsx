@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
 interface GestaoCategoriasProps {
+  isAdmin: boolean;
   mostrar: boolean;
   modoEscuro: boolean;
   setModoEscuro: (v: boolean) => void;
@@ -34,6 +35,7 @@ export default function GestaoCategorias({
   setNovaCategoria,
   criarCategoria,
   handleLogout,
+   isAdmin,
 }: GestaoCategoriasProps) {
   if (!mostrar) return null;
 
@@ -85,6 +87,23 @@ export default function GestaoCategorias({
       👥 Usuários
     </button>
   )}
+
+{isAdmin && (
+  <button
+    onClick={() => window.location.href = "/admin/usuarios"}
+    style={{
+      background: "#6366f1",
+      color: "#fff",
+      border: "none",
+      padding: "8px 14px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: 600,
+    }}
+  >
+    👥 Gerenciar usuários
+  </button>
+)}
 
   {/* 🚪 SAIR */}
   <button

@@ -574,16 +574,18 @@ export default function Dashboard() {
 
     try {
       const ano = ultimaContaExcluida.ano;
-const mes = ultimaContaExcluida.mes;
+      const mes = ultimaContaExcluida.mes;
 
-const dataString = `${ano}-${String(mes).padStart(2, "0")}-01`;
+      const dataString = `${ano}-${String(mes).padStart(2, "0")}-01`;
 
-await api.post("/contas", {
-  descricao: ultimaContaExcluida.descricao,
-  valor: ultimaContaExcluida.valor,
-  data: dataString,
-  categoriaId: ultimaContaExcluida.categoriaId!,
-});
+      await api.post("/contas", {
+        descricao: ultimaContaExcluida.descricao,
+        valor: ultimaContaExcluida.valor,
+        data: dataString,
+        categoriaId: ultimaContaExcluida.categoriaId!,
+        mes: ultimaContaExcluida.mes,
+        ano: ultimaContaExcluida.ano,
+      });
 
       setToast({
         mensagem: "Exclusão desfeita",

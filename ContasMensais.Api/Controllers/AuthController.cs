@@ -28,24 +28,31 @@ namespace ContasMensais.Api.Controllers
         // =========================
         // REGISTRO DE USUÁRIO
         // =========================
-        [Authorize(Roles = "admin")]
+       [AllowAnonymous]
 [HttpPost("register")]
 public IActionResult Register([FromBody] RegisterDto dto)
 {
     if (!ModelState.IsValid)
         return BadRequest(ModelState);
 
-    var existe = _context.Usuarios.Any(u => u.Email == dto.Email);
-    if (existe)
+    // 🔒 Verifica se já existe algum usuário
+    var existeUsuario = _context.Usuarios.Any();
+
+    // Se já existir usuário, só admin pode criar novos
+    if (existeUsuario && !User.IsInRole("admin"))
+        return Unauthorized("Apenas administradores podem criar usuários");
+
+    var existeEmail = _context.Usuarios.Any(u => u.Email == dto.Email);
+    if (existeEmail)
         return BadRequest("Email já cadastrado");
 
     var usuario = new Usuario
-{
-    Nome = dto.Nome,
-    Email = dto.Email,
-    SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha),
-    Role = dto.Role == "admin" ? "admin" : "user"
-};
+    {
+        Nome = dto.Nome,
+        Email = dto.Email,
+        SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha),
+        Role = existeUsuario ? "user" : "admin" // 👈 primeiro usuário vira admin
+    };
 
     _context.Usuarios.Add(usuario);
     _context.SaveChanges();

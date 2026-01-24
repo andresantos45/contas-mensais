@@ -23,13 +23,14 @@ export default function DashboardCards({
 }: DashboardCardsProps) {
   return (
     <div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", // 👈 menor no mobile
-    gap: 16,
-    marginTop: 24,
-  }}
->
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+        gap: 12,
+        marginTop: 24,
+        width: "100%",
+      }}
+    >
       <DashboardCard
         titulo="Total do período"
         valorPrincipal={totalPeriodo.toLocaleString("pt-BR", {
@@ -52,54 +53,46 @@ export default function DashboardCards({
       />
 
       <DashboardCard
-  titulo="Comparação com período anterior"
-  valorPrincipal={
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 6,
-        fontSize: "1em",
-        fontWeight: 700,
-        color:
+        titulo="Comparação com período anterior"
+        valorPrincipal={
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: "0.95em",
+              fontWeight: 700,
+              color:
+                tipo === "alta"
+                  ? "#16a34a"
+                  : tipo === "queda"
+                    ? "#dc2626"
+                    : "#2563eb",
+            }}
+          >
+            <span>
+              {Math.abs(diferenca).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              })}
+            </span>
+          </span>
+        }
+        subtitulo={
+          percentual !== null ? `${Math.abs(percentual).toFixed(1)}%` : "—"
+        }
+        tooltip="Comparação feita com base no total do período anterior"
+        variacao={
           tipo === "alta"
-            ? "#16a34a"
+            ? "positivo"
             : tipo === "queda"
-            ? "#dc2626"
-            : "#2563eb",
-      }}
-    >
-      
-      <span>
-        {Math.abs(diferenca).toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        })}
-      </span>
-    </span>
-  }
-  subtitulo={
-    percentual !== null
-      ? `${Math.abs(percentual).toFixed(1)}%`
-      : "—"
-  }
-  tooltip="Comparação feita com base no total do período anterior"
-  variacao={
-    tipo === "alta"
-      ? "positivo"
-      : tipo === "queda"
-      ? "negativo"
-      : "neutro"
-  }
-  corBorda={
-    tipo === "alta"
-      ? "#16a34a"
-      : tipo === "queda"
-      ? "#dc2626"
-      : "#2563eb"
-  }
-/>
-
+              ? "negativo"
+              : "neutro"
+        }
+        corBorda={
+          tipo === "alta" ? "#16a34a" : tipo === "queda" ? "#dc2626" : "#2563eb"
+        }
+      />
 
       <DashboardCard
         titulo="Categoria com maior gasto"

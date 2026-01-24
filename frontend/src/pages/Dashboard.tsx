@@ -576,12 +576,16 @@ export default function Dashboard() {
       const ano = ultimaContaExcluida.ano;
       const mes = ultimaContaExcluida.mes;
 
-      const dataString = `${ano}-${String(mes).padStart(2, "0")}-01`;
+      const dataObj = new Date(
+        ultimaContaExcluida.ano,
+        ultimaContaExcluida.mes - 1,
+        1
+      );
 
       await api.post("/contas", {
         descricao: ultimaContaExcluida.descricao,
         valor: ultimaContaExcluida.valor,
-        data: dataString,
+        data: dataObj, // ✅ Date, não string
         categoriaId: ultimaContaExcluida.categoriaId!,
         mes: ultimaContaExcluida.mes,
         ano: ultimaContaExcluida.ano,

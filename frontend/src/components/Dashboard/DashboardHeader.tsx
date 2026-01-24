@@ -17,6 +17,19 @@ export default function DashboardHeader({
   abrirConfiguracoes,
   onLogout,
 }: DashboardHeaderProps) {
+
+ const botaoHeaderBase: React.CSSProperties = {
+    padding: "10px 16px",
+    borderRadius: 10,
+    border: "none",
+    cursor: "pointer",
+    fontWeight: 700,
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    transition: "transform .15s ease, box-shadow .15s ease, filter .15s ease",
+  };
+
   return (
     <>
       {/* CABEÇALHO */}
@@ -73,37 +86,37 @@ export default function DashboardHeader({
             <button
               onClick={abrirConfiguracoes}
               style={{
+                ...botaoHeaderBase,
                 background: cores.botao,
                 color: "#fff",
-                border: "none",
-                padding: "10px 16px",
-                borderRadius: 8,
-                cursor: "pointer",
-                fontWeight: 700,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.05)";
+                e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,.35)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.boxShadow = "none";
               }}
             >
               ⚙️ Configurações
             </button>
 
             <button
-              onClick={() => {
-                const confirmar = window.confirm("Deseja realmente sair?");
-                if (confirmar) {
-                  onLogout();
-                }
-              }}
-              style={{
-                background: "#dc2626",
-                color: "#fff",
-                border: "none",
-                padding: "10px 16px",
-                borderRadius: 8,
-                cursor: "pointer",
-                fontWeight: 700,
-              }}
-            >
-              ⏻ Sair
-            </button>
+  onClick={() => {
+    const confirmar = window.confirm("Deseja realmente sair?");
+    if (confirmar) {
+      onLogout();
+    }
+  }}
+  style={{
+    ...botaoHeaderBase,
+    background: "#dc2626",
+    color: "#fff",
+  }}
+>
+  ⏻ Sair
+</button>
           </div>
         </div>
 

@@ -390,12 +390,12 @@ export default function Dashboard() {
     const contasMensaisPDF: Conta[] = contasFiltradas;
 
     // Planejamento futuro — fonte independente do dashboard
-const contasFuturasPDF: Conta[] = contas
-  .filter((c) => isContaFutura(c.data ?? ""))
-  .sort((a, b) => {
-    if (a.ano !== b.ano) return a.ano - b.ano;
-    return a.mes - b.mes;
-  });
+    const contasFuturasPDF: Conta[] = contas
+      .filter((c) => isContaFutura(c.data ?? ""))
+      .sort((a, b) => {
+        if (a.ano !== b.ano) return a.ano - b.ano;
+        return a.mes - b.mes;
+      });
 
     const nomesMeses = [
       "Janeiro",
@@ -484,30 +484,71 @@ const contasFuturasPDF: Conta[] = contas
     // PLANEJAMENTO FUTURO — PDF
     // ============================
     if (contasFuturasPDF.length > 0) {
+  doc.addPage();
+
+  doc.setFontSize(16);
+  doc.text("Planejamento Futuro", 14, 20);
+
+  let yFuturo = 30;
+
+  // agrupa por ano-mês
+  const futurasPorMes: Record<string, Conta[]> = {};
+
+  contasFuturasPDF.forEach((c) => {
+    const chave = `${c.ano}-${String(c.mes).padStart(2, "0")}`;
+    if (!futurasPorMes[chave]) futurasPorMes[chave] = [];
+    futurasPorMes[chave].push(c);
+  });
+
+  Object.entries(futurasPorMes).forEach(([chave, contasDoMes]) => {
+    const [ano, mes] = chave.split("-");
+    const nomeMes = nomesMeses[Number(mes) - 1];
+
+    // título do mês
+    doc.setFontSize(13);
+    doc.text(`${nomeMes} / ${ano}`, 14, yFuturo);
+    yFuturo += 6;
+
+    const linhas = contasDoMes.map((c) => [
+      c.descricao,
+      c.categoriaNome,
+      c.valor.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }),
+    ]);
+
+    autoTable(doc, {
+      startY: yFuturo,
+      head: [["Descrição", "Categoria", "Valor"]],
+      body: linhas,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [96, 165, 250] },
+    });
+
+    const totalMes = contasDoMes.reduce((s, c) => s + c.valor, 0);
+
+    yFuturo = (doc as any).lastAutoTable.finalY + 6;
+
+    // total do mês
+    doc.setFontSize(11);
+    doc.text(
+      `Total do mês: ${totalMes.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      })}`,
+      14,
+      yFuturo
+    );
+
+    yFuturo += 12;
+
+    if (yFuturo > 260) {
       doc.addPage();
-
-      doc.setFontSize(16);
-      doc.text("Planejamento Futuro", 14, 20);
-
-      const linhasFuturas = contasFuturasPDF.map((c: Conta) => [
-        c.descricao,
-        c.categoriaNome,
-        c.valor.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }),
-        `${String(c.mes).padStart(2, "0")}/${c.ano}`
-      ]);
-
-      autoTable(doc, {
-        startY: 30,
-        head: [["Descrição", "Categoria", "Valor", "Período"]],
-        body: linhasFuturas,
-        styles: { fontSize: 10 },
-        headStyles: { fillColor: [96, 165, 250] },
-      });
+      yFuturo = 20;
     }
-
+  });
+}
     // 🔒 SALVAR SOMENTE NO FINAL
     doc.save(
       mesBusca === 0

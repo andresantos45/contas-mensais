@@ -217,22 +217,24 @@ export default function Dashboard() {
   // =======================
 
   const contasFiltradas = [...contas]
-    .filter((c) => !isContaFutura(c.data ?? ""))
-    .sort((a, b) =>
-      a.descricao.localeCompare(b.descricao, "pt-BR", {
-        sensitivity: "base",
-      })
-    );
+  .filter((c) => !isContaFutura(c.data ?? ""))
+  .sort((a, b) =>
+    a.descricao.localeCompare(b.descricao, "pt-BR", {
+      sensitivity: "base",
+    })
+  );
 
-  const contasExibidas = mostrarFuturas
-    ? [...contas].sort((a, b) =>
-        a.descricao.localeCompare(b.descricao, "pt-BR", {
-          sensitivity: "base",
-        })
-      )
-    : contasFiltradas;
+const contasFuturas = contas
+  .filter((c) => isContaFutura(c.data ?? ""))
+  .sort((a, b) =>
+    a.descricao.localeCompare(b.descricao, "pt-BR", {
+      sensitivity: "base",
+    })
+  );
 
-  const contasFuturas = contas.filter((c) => isContaFutura(c.data ?? ""));
+const contasExibidas = mostrarFuturas
+  ? contasFuturas
+  : contasFiltradas;
 
   const {
     totalPeriodo,

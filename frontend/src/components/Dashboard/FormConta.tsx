@@ -1,5 +1,8 @@
 import { useEffect } from "react";
 import { CSSProperties } from "react";
+import { isContaFutura } from "../../utils/isContaFutura";
+import { useIsMobile } from "../../hooks/useIsMobile";
+
 
 import { formGrid, label, inputBase, buttonPrimary } from "./formContaStyles";
 
@@ -46,13 +49,16 @@ export default function FormConta({
   cores,
   cancelarEdicao,
 }: FormContaProps) {
-  const isMobile = window.innerWidth <= 768;
+ const isMobile = useIsMobile();
 
   useEffect(() => {
     if (contaEditando && categorias.length > 0) {
       setCategoriaId(String(contaEditando.categoriaId));
     }
   }, [contaEditando, categorias, setCategoriaId]);
+
+  const contaFutura = isContaFutura(data);
+
 
   return (
     <form
@@ -105,6 +111,32 @@ export default function FormConta({
           style={inputBase}
         />
       </div>
+
+
+      {/* DATA */}
+<div>
+  <label style={{ ...label, color: cores.textoSuave }}>Data</label>
+  <input
+    type="date"
+    value={data}
+    onChange={(e) => setData(e.target.value)}
+    required
+    style={inputBase}
+  />
+
+  {contaFutura && (
+    <div
+      style={{
+        marginTop: 6,
+        fontSize: 12,
+        color: "#60a5fa",
+        fontWeight: 500,
+      }}
+    >
+      📅 Esta é uma conta futura (planejamento)
+    </div>
+  )}
+</div>
 
       {/* CATEGORIA */}
       <div>

@@ -222,6 +222,9 @@ export default function Dashboard() {
         sensitivity: "base",
       })
     );
+
+  const contasFuturas = contas.filter((c) => isContaFutura(c.data ?? ""));
+
   const {
     totalPeriodo,
     mediaMensal,
@@ -239,6 +242,16 @@ export default function Dashboard() {
     anoBusca,
     totalPeriodoAnterior
   );
+
+  const totalFuturoPorMes: Record<number, number> = {};
+
+  contasFuturas.forEach((c) => {
+    if (!totalFuturoPorMes[c.mes]) {
+      totalFuturoPorMes[c.mes] = 0;
+    }
+
+    totalFuturoPorMes[c.mes] += c.valor;
+  });
 
   // =======================
   // EXPORTAÇÃO PARA EXCEL
@@ -425,22 +438,22 @@ export default function Dashboard() {
 
       const dataObj = new Date(data);
 
-if (isNaN(dataObj.getTime())) {
-  alert("Data inválida");
-  return;
-}
+      if (isNaN(dataObj.getTime())) {
+        alert("Data inválida");
+        return;
+      }
 
-const hoje = new Date();
-hoje.setHours(0, 0, 0, 0);
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
 
-const dataFutura = dataObj > hoje;
+      const dataFutura = dataObj > hoje;
 
-// permite até 1 ano à frente
-const limite = new Date(
-  hoje.getFullYear() + 1,
-  hoje.getMonth(),
-  hoje.getDate()
-);
+      // permite até 1 ano à frente
+      const limite = new Date(
+        hoje.getFullYear() + 1,
+        hoje.getMonth(),
+        hoje.getDate()
+      );
 
       if (dataObj > limite) {
         setToast({
@@ -920,6 +933,34 @@ const limite = new Date(
             </h3>
             <GraficoMensal dados={totalPorMes} />
           </div>
+
+          <div>
+            <h3>📅 Gastos por mês</h3>
+            <GraficoMensal dados={totalPorMes} />
+          </div>
+
+          {Object.keys(totalFuturoPorMes).length > 0 && (
+            <div
+              style={{
+                background: cores.card,
+                borderRadius: 16,
+                padding: isMobile ? 12 : 16,
+                border: `1px dashed ${cores.borda}`,
+              }}
+            >
+              <h3
+                style={{
+                  marginBottom: isMobile ? 8 : 12,
+                  fontSize: isMobile ? 14 : 16,
+                  color: "#60a5fa",
+                }}
+              >
+                🗓️ Planejamento futuro
+              </h3>
+
+              <GraficoMensal dados={totalFuturoPorMes} />
+            </div>
+          )}
 
           {/* PIZZA — POR CATEGORIA */}
           <div

@@ -167,12 +167,14 @@ export default function Dashboard() {
       }
     }
 
-    carregarTudo();
+      setMostrarFuturas(false); // 🔒 sempre começa fechado
 
-    return () => {
-      ativo = false;
-    };
-  }, [mesBusca, anoBusca]);
+  carregarTudo();
+
+  return () => {
+    ativo = false;
+  };
+}, [mesBusca, anoBusca]);
 
   async function carregarPeriodoAnterior() {
     let total = 0;
@@ -452,7 +454,35 @@ const dadosGraficoMensal =
 
       doc.save(`contas_${nomesMeses[mesBusca - 1]}_${anoBusca}.pdf`);
     }
-  }
+
+    // ============================
+    // PLANEJAMENTO FUTURO — PDF
+    // ============================
+    if (contasFuturas.length > 0) {
+      doc.addPage();
+
+      doc.setFontSize(16);
+      doc.text("Planejamento Futuro", 14, 20);
+
+      const linhasFuturas = contasFuturas.map((c) => [
+        c.descricao,
+        c.categoriaNome,
+        c.valor.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }),
+        `${c.mes}/${c.ano}`,
+      ]);
+
+      autoTable(doc, {
+        startY: 30,
+        head: [["Descrição", "Categoria", "Valor", "Período"]],
+        body: linhasFuturas,
+        styles: { fontSize: 10 },
+        headStyles: { fillColor: [96, 165, 250] }, // azul = planejamento
+      });
+    }
+}
 
   // =======================
   // CRIAR CONTA

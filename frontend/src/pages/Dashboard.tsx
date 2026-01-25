@@ -254,6 +254,30 @@ const contasExibidas = mostrarFuturas
     totalPeriodoAnterior
   );
 
+  const totalAnualNormalizado: Record<number, number> = {
+  1: 0,
+  2: 0,
+  3: 0,
+  4: 0,
+  5: 0,
+  6: 0,
+  7: 0,
+  8: 0,
+  9: 0,
+  10: 0,
+  11: 0,
+  12: 0,
+};
+
+if (mesBusca === 0) {
+  contasFiltradas.forEach((c) => {
+    totalAnualNormalizado[c.mes] += c.valor;
+  });
+}
+
+const dadosGraficoMensal =
+  mesBusca === 0 ? totalAnualNormalizado : totalPorMes;
+
   const totalFuturoPorMes: Record<number, number> = {};
 
   contasFuturas.forEach((c) => {
@@ -977,7 +1001,7 @@ const contasExibidas = mostrarFuturas
             >
               📅 Gastos por mês
             </h3>
-            <GraficoMensal dados={totalPorMes} />
+            <GraficoMensal dados={dadosGraficoMensal} />
           </div>
 
           {Object.keys(totalFuturoPorMes).length > 0 && (

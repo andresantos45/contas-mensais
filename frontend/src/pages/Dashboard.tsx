@@ -368,6 +368,20 @@ export default function Dashboard() {
 
     const doc = new jsPDF();
 
+    let contasAnoInteiro: Conta[] = [];
+
+    if (mesBusca === 0) {
+      try {
+        const response = await api.get<Conta[]>(`/contas/0/${anoBusca}`);
+        contasAnoInteiro = response.data.filter(
+          (c) => !isContaFutura(c.data ?? "")
+        );
+      } catch {
+        alert("Erro ao buscar contas do ano para exportação");
+        return;
+      }
+    }
+
     // ============================
     // DADOS PARA EXPORTAÇÃO (SEM API)
     // ============================
@@ -402,7 +416,7 @@ export default function Dashboard() {
     // 🔹 ANO INTEIRO → UM BLOCO POR MÊS
     if (mesBusca === 0) {
       for (let mes = 1; mes <= 12; mes++) {
-        const contasDoMes = contasFiltradas.filter((c) => c.mes === mes);
+        const contasDoMes = contasAnoInteiro.filter((c) => c.mes === mes);
         if (contasDoMes.length === 0) continue;
 
         doc.setFontSize(14);

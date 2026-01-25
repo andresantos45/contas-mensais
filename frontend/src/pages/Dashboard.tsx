@@ -167,14 +167,14 @@ export default function Dashboard() {
       }
     }
 
-      setMostrarFuturas(false); // 🔒 sempre começa fechado
+    setMostrarFuturas(false); // 🔒 sempre começa fechado
 
-  carregarTudo();
+    carregarTudo();
 
-  return () => {
-    ativo = false;
-  };
-}, [mesBusca, anoBusca]);
+    return () => {
+      ativo = false;
+    };
+  }, [mesBusca, anoBusca]);
 
   async function carregarPeriodoAnterior() {
     let total = 0;
@@ -219,24 +219,22 @@ export default function Dashboard() {
   // =======================
 
   const contasFiltradas = [...contas]
-  .filter((c) => !isContaFutura(c.data ?? ""))
-  .sort((a, b) =>
-    a.descricao.localeCompare(b.descricao, "pt-BR", {
-      sensitivity: "base",
-    })
-  );
+    .filter((c) => !isContaFutura(c.data ?? ""))
+    .sort((a, b) =>
+      a.descricao.localeCompare(b.descricao, "pt-BR", {
+        sensitivity: "base",
+      })
+    );
 
-const contasFuturas = contas
-  .filter((c) => isContaFutura(c.data ?? ""))
-  .sort((a, b) =>
-    a.descricao.localeCompare(b.descricao, "pt-BR", {
-      sensitivity: "base",
-    })
-  );
+  const contasFuturas = contas
+    .filter((c) => isContaFutura(c.data ?? ""))
+    .sort((a, b) =>
+      a.descricao.localeCompare(b.descricao, "pt-BR", {
+        sensitivity: "base",
+      })
+    );
 
-const contasExibidas = mostrarFuturas
-  ? contasFuturas
-  : contasFiltradas;
+  const contasExibidas = mostrarFuturas ? contasFuturas : contasFiltradas;
 
   const {
     totalPeriodo,
@@ -257,28 +255,28 @@ const contasExibidas = mostrarFuturas
   );
 
   const totalAnualNormalizado: Record<number, number> = {
-  1: 0,
-  2: 0,
-  3: 0,
-  4: 0,
-  5: 0,
-  6: 0,
-  7: 0,
-  8: 0,
-  9: 0,
-  10: 0,
-  11: 0,
-  12: 0,
-};
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
+    8: 0,
+    9: 0,
+    10: 0,
+    11: 0,
+    12: 0,
+  };
 
-if (mesBusca === 0) {
-  contasFiltradas.forEach((c) => {
-    totalAnualNormalizado[c.mes] += c.valor;
-  });
-}
+  if (mesBusca === 0) {
+    contasFiltradas.forEach((c) => {
+      totalAnualNormalizado[c.mes] += c.valor;
+    });
+  }
 
-const dadosGraficoMensal =
-  mesBusca === 0 ? totalAnualNormalizado : totalPorMes;
+  const dadosGraficoMensal =
+    mesBusca === 0 ? totalAnualNormalizado : totalPorMes;
 
   const totalFuturoPorMes: Record<number, number> = {};
 
@@ -451,8 +449,6 @@ const dadosGraficoMensal =
         styles: { fontSize: 10 },
         headStyles: { fillColor: [99, 102, 241] },
       });
-
-      doc.save(`contas_${nomesMeses[mesBusca - 1]}_${anoBusca}.pdf`);
     }
 
     // ============================
@@ -479,10 +475,17 @@ const dadosGraficoMensal =
         head: [["Descrição", "Categoria", "Valor", "Período"]],
         body: linhasFuturas,
         styles: { fontSize: 10 },
-        headStyles: { fillColor: [96, 165, 250] }, // azul = planejamento
+        headStyles: { fillColor: [96, 165, 250] },
       });
     }
-}
+
+    // 🔒 SALVAR SOMENTE NO FINAL
+    doc.save(
+      mesBusca === 0
+        ? `contas_${anoBusca}.pdf`
+        : `contas_${nomesMeses[mesBusca - 1]}_${anoBusca}.pdf`
+    );
+  }
 
   // =======================
   // CRIAR CONTA

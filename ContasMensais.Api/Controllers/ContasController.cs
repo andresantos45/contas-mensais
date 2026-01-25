@@ -55,14 +55,16 @@ var query = _context.Contas
 
             var contas = await query
     .Select(c => new
-    {
-        c.Id,
-        c.Descricao,
-        c.Valor,
-        Mes = c.Data.Month,
-        Ano = c.Data.Year,
-        CategoriaNome = c.Categoria != null ? c.Categoria.Nome : null
-    })
+{
+    c.Id,
+    c.Descricao,
+    c.Valor,
+    Data = c.Data,          // ✅ NECESSÁRIO
+    Mes = c.Data.Month,
+    Ano = c.Data.Year,
+    CategoriaId = c.CategoriaId, // ✅ NECESSÁRIO
+    CategoriaNome = c.Categoria != null ? c.Categoria.Nome : null
+})
     .ToListAsync();
 
             return Ok(contas);

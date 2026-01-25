@@ -593,10 +593,18 @@ if (dataObj > limite) {
       const ano = ultimaContaExcluida.ano;
       const mes = ultimaContaExcluida.mes;
 
-      await api.post("/contas", {
+      const dataValida = ultimaContaExcluida.data
+  ? ultimaContaExcluida.data
+  : new Date(
+      ultimaContaExcluida.ano,
+      ultimaContaExcluida.mes - 1,
+      1
+    ).toISOString();
+
+await api.post("/contas", {
   descricao: ultimaContaExcluida.descricao,
   valor: ultimaContaExcluida.valor,
-  data: ultimaContaExcluida.data, // ✅
+  data: dataValida, // ✅ nunca undefined
   categoriaId: ultimaContaExcluida.categoriaId!,
 });
 

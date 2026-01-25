@@ -368,38 +368,15 @@ export default function Dashboard() {
 
     const doc = new jsPDF();
 
-    // ✅ BUSCA COMPLETA PARA EXPORTAÇÃO
-    let todasContas: Conta[] = [];
-
-    try {
-      const response = await api.get<Conta[]>("/contas");
-      todasContas = response.data;
-    } catch {
-      alert("Erro ao buscar contas para exportação");
-      return;
-    }
-
     // ============================
-    // SEPARAÇÃO PARA PDF
+    // DADOS PARA EXPORTAÇÃO (SEM API)
     // ============================
 
-    // Contas do período (mensal / anual) — PDF
-    const contasMensaisPDF: Conta[] =
-      mesBusca === 0
-        ? todasContas.filter(
-            (c) => c.ano === anoBusca && !isContaFutura(c.data ?? "")
-          )
-        : todasContas.filter(
-            (c) =>
-              c.mes === mesBusca &&
-              c.ano === anoBusca &&
-              !isContaFutura(c.data ?? "")
-          );
+    // Contas do período (mensal / anual)
+    const contasMensaisPDF: Conta[] = contasFiltradas;
 
-    // Planejamento futuro — PDF
-    const contasFuturasPDF: Conta[] = todasContas.filter((c) =>
-      isContaFutura(c.data ?? "")
-    );
+    // Planejamento futuro
+    const contasFuturasPDF: Conta[] = contasFuturas;
 
     const nomesMeses = [
       "Janeiro",
@@ -466,7 +443,7 @@ export default function Dashboard() {
       doc.text(`${nomesMeses[mesBusca - 1]} / ${anoBusca}`, 14, y);
       y += 6;
 
-      const linhas = contasMensaisPDF.map((c: any) => [
+      const linhas = contasMensaisPDF.map((c: Conta) => [
         c.descricao,
         c.categoriaNome,
         c.valor.toLocaleString("pt-BR", {

@@ -389,11 +389,13 @@ export default function Dashboard() {
     // Contas do período (mensal / anual)
     const contasMensaisPDF: Conta[] = contasFiltradas;
 
-    // Planejamento futuro (ordenado por ano e mês)
-const contasFuturasPDF: Conta[] = [...contasFuturas].sort((a, b) => {
-  if (a.ano !== b.ano) return a.ano - b.ano;
-  return a.mes - b.mes;
-});
+    // Planejamento futuro — fonte independente do dashboard
+const contasFuturasPDF: Conta[] = contas
+  .filter((c) => isContaFutura(c.data ?? ""))
+  .sort((a, b) => {
+    if (a.ano !== b.ano) return a.ano - b.ano;
+    return a.mes - b.mes;
+  });
 
     const nomesMeses = [
       "Janeiro",
@@ -494,7 +496,7 @@ const contasFuturasPDF: Conta[] = [...contasFuturas].sort((a, b) => {
           style: "currency",
           currency: "BRL",
         }),
-        `${c.mes}/${c.ano}`,
+        `${String(c.mes).padStart(2, "0")}/${c.ano}`
       ]);
 
       autoTable(doc, {

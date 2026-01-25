@@ -234,7 +234,22 @@ export default function Dashboard() {
       })
     );
 
-  const contasExibidas = mostrarFuturas ? contasFuturas : contasFiltradas;
+  const mesSelecionadoEhFuturo = (() => {
+  if (mesBusca === 0) return false;
+
+  const hoje = new Date();
+  const inicioMesSelecionado = new Date(anoBusca, mesBusca - 1, 1);
+
+  return inicioMesSelecionado > hoje;
+})();
+
+const contasExibidas = mesSelecionadoEhFuturo
+  ? contasFuturas.filter(
+      (c) => c.mes === mesBusca && c.ano === anoBusca
+    )
+  : mostrarFuturas
+  ? contasFuturas
+  : contasFiltradas;
 
   const futurasAgrupadasPorMes: Record<string, Conta[]> = {};
 

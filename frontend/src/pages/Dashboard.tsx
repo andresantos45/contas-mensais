@@ -236,6 +236,18 @@ export default function Dashboard() {
 
   const contasExibidas = mostrarFuturas ? contasFuturas : contasFiltradas;
 
+  const futurasAgrupadasPorMes: Record<string, Conta[]> = {};
+
+  if (mostrarFuturas) {
+    contasFuturas.forEach((c) => {
+      const chave = `${c.ano}-${String(c.mes).padStart(2, "0")}`;
+      if (!futurasAgrupadasPorMes[chave]) {
+        futurasAgrupadasPorMes[chave] = [];
+      }
+      futurasAgrupadasPorMes[chave].push(c);
+    });
+  }
+
   const {
     totalPeriodo,
     mediaMensal,
@@ -484,71 +496,71 @@ export default function Dashboard() {
     // PLANEJAMENTO FUTURO — PDF
     // ============================
     if (contasFuturasPDF.length > 0) {
-  doc.addPage();
-
-  doc.setFontSize(16);
-  doc.text("Planejamento Futuro", 14, 20);
-
-  let yFuturo = 30;
-
-  // agrupa por ano-mês
-  const futurasPorMes: Record<string, Conta[]> = {};
-
-  contasFuturasPDF.forEach((c) => {
-    const chave = `${c.ano}-${String(c.mes).padStart(2, "0")}`;
-    if (!futurasPorMes[chave]) futurasPorMes[chave] = [];
-    futurasPorMes[chave].push(c);
-  });
-
-  Object.entries(futurasPorMes).forEach(([chave, contasDoMes]) => {
-    const [ano, mes] = chave.split("-");
-    const nomeMes = nomesMeses[Number(mes) - 1];
-
-    // título do mês
-    doc.setFontSize(13);
-    doc.text(`${nomeMes} / ${ano}`, 14, yFuturo);
-    yFuturo += 6;
-
-    const linhas = contasDoMes.map((c) => [
-      c.descricao,
-      c.categoriaNome,
-      c.valor.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }),
-    ]);
-
-    autoTable(doc, {
-      startY: yFuturo,
-      head: [["Descrição", "Categoria", "Valor"]],
-      body: linhas,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [96, 165, 250] },
-    });
-
-    const totalMes = contasDoMes.reduce((s, c) => s + c.valor, 0);
-
-    yFuturo = (doc as any).lastAutoTable.finalY + 6;
-
-    // total do mês
-    doc.setFontSize(11);
-    doc.text(
-      `Total do mês: ${totalMes.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      })}`,
-      14,
-      yFuturo
-    );
-
-    yFuturo += 12;
-
-    if (yFuturo > 260) {
       doc.addPage();
-      yFuturo = 20;
+
+      doc.setFontSize(16);
+      doc.text("Planejamento Futuro", 14, 20);
+
+      let yFuturo = 30;
+
+      // agrupa por ano-mês
+      const futurasPorMes: Record<string, Conta[]> = {};
+
+      contasFuturasPDF.forEach((c) => {
+        const chave = `${c.ano}-${String(c.mes).padStart(2, "0")}`;
+        if (!futurasPorMes[chave]) futurasPorMes[chave] = [];
+        futurasPorMes[chave].push(c);
+      });
+
+      Object.entries(futurasPorMes).forEach(([chave, contasDoMes]) => {
+        const [ano, mes] = chave.split("-");
+        const nomeMes = nomesMeses[Number(mes) - 1];
+
+        // título do mês
+        doc.setFontSize(13);
+        doc.text(`${nomeMes} / ${ano}`, 14, yFuturo);
+        yFuturo += 6;
+
+        const linhas = contasDoMes.map((c) => [
+          c.descricao,
+          c.categoriaNome,
+          c.valor.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+        ]);
+
+        autoTable(doc, {
+          startY: yFuturo,
+          head: [["Descrição", "Categoria", "Valor"]],
+          body: linhas,
+          styles: { fontSize: 10 },
+          headStyles: { fillColor: [96, 165, 250] },
+        });
+
+        const totalMes = contasDoMes.reduce((s, c) => s + c.valor, 0);
+
+        yFuturo = (doc as any).lastAutoTable.finalY + 6;
+
+        // total do mês
+        doc.setFontSize(11);
+        doc.text(
+          `Total do mês: ${totalMes.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          })}`,
+          14,
+          yFuturo
+        );
+
+        yFuturo += 12;
+
+        if (yFuturo > 260) {
+          doc.addPage();
+          yFuturo = 20;
+        }
+      });
     }
-  });
-}
     // 🔒 SALVAR SOMENTE NO FINAL
     doc.save(
       mesBusca === 0
@@ -1070,9 +1082,64 @@ export default function Dashboard() {
             Nenhuma conta encontrada para este período. Comece adicionando uma
             nova acima ⬆️
           </div>
+        ) : mostrarFuturas ? (
+          Object.entries(futurasAgrupadasPorMes).map(
+            ([chave, contasMes]: [string, Conta[]]) => {
+              const [ano, mes] = chave.split("-");
+              const nomeMes = [
+                "Janeiro",
+                "Fevereiro",
+                "Março",
+                "Abril",
+                "Maio",
+                "Junho",
+                "Julho",
+                "Agosto",
+                "Setembro",
+                "Outubro",
+                "Novembro",
+                "Dezembro",
+              ][Number(mes) - 1];
+
+              const totalMes = contasMes.reduce(
+                (soma: number, c: Conta) => soma + c.valor,
+                0
+              );
+
+              return (
+                <div key={chave} style={{ marginBottom: 24 }}>
+                  <h4 style={{ marginBottom: 8 }}>
+                    {nomeMes} / {ano}
+                  </h4>
+
+                  <ListaContas
+                    contas={contasMes}
+                    cores={cores}
+                    iniciarEdicao={iniciarEdicao}
+                    excluirConta={excluirConta}
+                  />
+
+                  <div
+                    style={{
+                      marginTop: 8,
+                      textAlign: "right",
+                      fontWeight: 600,
+                      color: cores.textoSuave,
+                    }}
+                  >
+                    Total do mês:{" "}
+                    {totalMes.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                  </div>
+                </div>
+              );
+            }
+          )
         ) : (
           <ListaContas
-            contas={contasExibidas}
+            contas={contasFiltradas}
             cores={cores}
             iniciarEdicao={iniciarEdicao}
             excluirConta={excluirConta}

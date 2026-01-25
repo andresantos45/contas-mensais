@@ -267,6 +267,14 @@ const contasExibidas = mesSelecionadoEhFuturo
   ? contasFuturas
   : contasFiltradas;
 
+  const totalPlanejadoMesSelecionado = mesSelecionadoEhFuturo
+  ? contasExibidas.reduce(
+      (soma: number, c: Conta) => soma + c.valor,
+      0
+    )
+  : 0;
+
+
   const futurasAgrupadasPorMes: Record<string, Conta[]> = {};
 
   if (mostrarFuturas) {
@@ -1077,6 +1085,32 @@ const contasExibidas = mesSelecionadoEhFuturo
             />
           </div>
         </div>
+
+        {mesSelecionadoEhFuturo && (
+  <div
+    style={{
+      marginTop: 12,
+      padding: "12px 16px",
+      borderRadius: 10,
+      background: "rgba(96,165,250,0.15)",
+      border: "1px solid #60a5fa",
+      color: "#bfdbfe",
+      fontSize: 14,
+    }}
+  >
+    📆 <strong>Mês futuro (planejamento)</strong>
+    <div style={{ marginTop: 6 }}>
+      Total planejado neste mês:{" "}
+      <strong>
+        {totalPlanejadoMesSelecionado.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        })}
+      </strong>
+    </div>
+  </div>
+)}
+
 
         {contasFuturas.length > 0 && (
           <div style={{ marginBottom: 12 }}>

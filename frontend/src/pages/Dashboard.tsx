@@ -24,6 +24,7 @@ import { ContaExcel } from "../types/ContaExcel";
 import { Categoria } from "../types/Categoria";
 import Toast from "../components/UI/Toast";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { isContaFutura } from "../utils/isContaFutura";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -214,12 +215,13 @@ export default function Dashboard() {
   // DASHBOARD — CÁLCULOS CENTRALIZADOS
   // =======================
 
-  const contasFiltradas = [...contas].sort((a, b) =>
+  const contasFiltradas = [...contas]
+  .filter((c) => !isContaFutura(c.data ?? ""))
+  .sort((a, b) =>
     a.descricao.localeCompare(b.descricao, "pt-BR", {
       sensitivity: "base",
     })
   );
-
   const {
     totalPeriodo,
     mediaMensal,

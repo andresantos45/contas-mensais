@@ -1153,13 +1153,13 @@ const contasExibidas = mesSelecionadoEhFuturo
             }
           )
         ) : (
-          <ListaContas
-            contas={contasFiltradas}
-            cores={cores}
-            iniciarEdicao={iniciarEdicao}
-            excluirConta={excluirConta}
-          />
-        )}
+  <ListaContas
+    contas={contasExibidas}
+    cores={cores}
+    iniciarEdicao={iniciarEdicao}
+    excluirConta={excluirConta}
+  />
+  )}
 
         {/* GRÁFICOS — SEMPRE VISÍVEIS */}
         <div

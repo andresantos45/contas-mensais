@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AbaGeral from "./AbaGeral";
 import AbaUsuarios from "./AbaUsuarios";
+import { Categoria } from "../../types/Categoria";
 
 interface GestaoCategoriasProps {
   isAdmin: boolean;
@@ -21,6 +22,8 @@ interface GestaoCategoriasProps {
   setNovaCategoria: (v: string) => void;
   criarCategoria: (e: React.FormEvent) => void;
 }
+
+
 
 export default function GestaoCategorias({
   cores,

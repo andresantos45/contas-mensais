@@ -110,19 +110,35 @@ export default function Dashboard() {
   const [categoriaId, setCategoriaId] = useState("");
 
   async function carregarContasPeriodo() {
-    try {
-      const response = await api.get<Conta[]>(
-        `/contas/${mesBusca}/${anoBusca}`
+  try {
+    // 1️⃣ busca normal do período
+    const response = await api.get<Conta[]>(
+      `/contas/${mesBusca}/${anoBusca}`
+    );
+
+    let todasContas = response.data;
+
+    // 2️⃣ se o mês selecionado for futuro, busca também o ano inteiro
+    const hoje = new Date();
+    const inicioMesSelecionado = new Date(anoBusca, mesBusca - 1, 1);
+
+    if (mesBusca !== 0 && inicioMesSelecionado > hoje) {
+      const responseAno = await api.get<Conta[]>(
+        `/contas/0/${anoBusca}`
       );
-      setContas(response.data);
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        setContas([]); // ✅ nenhuma conta ainda
-      } else {
-        console.error("Erro ao carregar contas", error);
-      }
+
+      todasContas = responseAno.data;
+    }
+
+    setContas(todasContas);
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      setContas([]);
+    } else {
+      console.error("Erro ao carregar contas", error);
     }
   }
+}
 
   async function carregarCategorias() {
     try {

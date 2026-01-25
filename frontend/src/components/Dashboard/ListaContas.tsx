@@ -1,5 +1,6 @@
 import { Conta } from "../../types/Conta";
 import ItemConta from "./ItemConta";
+import { isContaFutura } from "../../utils/isContaFutura";
 
 interface ListaContasProps {
   contas: Conta[];
@@ -36,14 +37,16 @@ export default function ListaContas({
       </div>
     ) : (
       contas.map(conta => (
-        <ItemConta
-          key={conta.id}
-          conta={conta}
-          cores={cores}
-          iniciarEdicao={iniciarEdicao}
-          excluirConta={excluirConta}
-        />
-      ))
+  <ItemConta
+    key={conta.id}
+    conta={conta}
+    cores={cores}
+    iniciarEdicao={iniciarEdicao}
+    excluirConta={excluirConta}
+    contaFutura={isContaFutura(conta.data ?? "")}
+
+  />
+))
     )}
   </>
 );

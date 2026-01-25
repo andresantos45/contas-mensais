@@ -4,6 +4,7 @@ import { Conta } from "../../types/Conta";
 
 interface ItemContaProps {
   conta: Conta;
+  contaFutura: boolean; // ✅ NOVO
   cores: {
     fundo: string;
     card: string;
@@ -18,6 +19,7 @@ interface ItemContaProps {
 
 export default function ItemConta({
   conta,
+  contaFutura, // ✅ NOVO
   cores,
   iniciarEdicao,
   excluirConta,
@@ -32,9 +34,24 @@ export default function ItemConta({
     fontSize: 14,
   }}
 >
-      <div style={{ fontWeight: 500 }}>
-        {conta.descricao}
-      </div>
+      <div style={{ fontWeight: 500, display: "flex", gap: 8, alignItems: "center" }}>
+  {conta.descricao}
+
+  {contaFutura && (
+    <span
+      style={{
+        fontSize: 11,
+        padding: "2px 6px",
+        borderRadius: 6,
+        background: "#1e40af",
+        color: "#fff",
+        fontWeight: 600,
+      }}
+    >
+      🕒 FUTURA
+    </span>
+  )}
+</div>
 
       <div style={{ color: cores.textoSuave }}>
         {conta.categoriaNome}

@@ -4,6 +4,7 @@ import { isContaFutura } from "../../utils/isContaFutura";
 import { useIsMobile } from "../../hooks/useIsMobile";
 
 
+
 import { formGrid, label, inputBase, buttonPrimary } from "./formContaStyles";
 
 import { Categoria } from "../../types/Categoria";
@@ -157,6 +158,21 @@ export default function FormConta({
           ))}
         </select>
       </div>
+
+          {data && isContaFutura(data) && (
+  <div
+    style={{
+      gridColumn: "1 / -1",
+      padding: "8px 12px",
+      borderRadius: 8,
+      background: "#1e293b",
+      color: "#93c5fd",
+      fontSize: 13,
+    }}
+  >
+    🗓️ Esta conta será registrada como <strong>planejamento futuro</strong>.
+  </div>
+)}
 
       {/* BOTÃO SALVAR */}
       <button

@@ -71,6 +71,7 @@ export default function Dashboard() {
     null
   );
   const [timeoutUndo, setTimeoutUndo] = useState<number | null>(null);
+  const [mostrarFuturas, setMostrarFuturas] = useState(false);
 
   useEffect(() => {
     if (mostrarConfigModal) {
@@ -222,6 +223,14 @@ export default function Dashboard() {
         sensitivity: "base",
       })
     );
+
+  const contasExibidas = mostrarFuturas
+    ? [...contas].sort((a, b) =>
+        a.descricao.localeCompare(b.descricao, "pt-BR", {
+          sensitivity: "base",
+        })
+      )
+    : contasFiltradas;
 
   const contasFuturas = contas.filter((c) => isContaFutura(c.data ?? ""));
 
@@ -824,6 +833,20 @@ export default function Dashboard() {
             Contas do Período
           </h3>
 
+          {contasFuturas.length > 0 && (
+            <p
+              style={{
+                marginTop: 6,
+                marginBottom: 12,
+                fontSize: 13,
+                color: cores.textoSuave,
+              }}
+            >
+              ℹ️ Contas futuras aparecem como <strong>planejamento</strong> e
+              não entram nos totais atuais.
+            </p>
+          )}
+
           {/* PESQUISA — MÊS / ANO */}
           <div
             style={{
@@ -884,6 +907,27 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {contasFuturas.length > 0 && (
+          <div style={{ marginBottom: 12 }}>
+            <button
+              onClick={() => setMostrarFuturas(!mostrarFuturas)}
+              style={{
+                background: "transparent",
+                border: `1px solid ${cores.borda}`,
+                color: cores.texto,
+                padding: "8px 12px",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontSize: 13,
+              }}
+            >
+              {mostrarFuturas
+                ? "Ocultar planejamento futuro"
+                : "Mostrar planejamento futuro"}
+            </button>
+          </div>
+        )}
+
         {!loading && contasFiltradas.length === 0 ? (
           <div
             style={{
@@ -900,7 +944,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <ListaContas
-            contas={contasFiltradas}
+            contas={contasExibidas}
             cores={cores}
             iniciarEdicao={iniciarEdicao}
             excluirConta={excluirConta}
@@ -934,7 +978,6 @@ export default function Dashboard() {
             <GraficoMensal dados={totalPorMes} />
           </div>
 
-         
           {Object.keys(totalFuturoPorMes).length > 0 && (
             <div
               style={{

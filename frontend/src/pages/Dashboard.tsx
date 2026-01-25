@@ -216,12 +216,12 @@ export default function Dashboard() {
   // =======================
 
   const contasFiltradas = [...contas]
-  .filter((c) => !isContaFutura(c.data ?? ""))
-  .sort((a, b) =>
-    a.descricao.localeCompare(b.descricao, "pt-BR", {
-      sensitivity: "base",
-    })
-  );
+    .filter((c) => !isContaFutura(c.data ?? ""))
+    .sort((a, b) =>
+      a.descricao.localeCompare(b.descricao, "pt-BR", {
+        sensitivity: "base",
+      })
+    );
   const {
     totalPeriodo,
     mediaMensal,
@@ -413,25 +413,27 @@ export default function Dashboard() {
   // CRIAR / EDITAR CONTA
   // =======================
   async function criarConta(e: React.FormEvent) {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!descricao || !valor || !data || !categoriaId) {
-    alert("Preencha todos os campos");
-    return;
-  }
-
-  try {
-    setSalvandoConta(true);
-
-    const dataObj = new Date(data);
-
-    if (isNaN(dataObj.getTime())) {
-      alert("Data inválida");
+    if (!descricao || !valor || !data || !categoriaId) {
+      alert("Preencha todos os campos");
       return;
     }
 
-    const hoje = new Date();
+    try {
+      setSalvandoConta(true);
+
+      const dataObj = new Date(data);
+
+if (isNaN(dataObj.getTime())) {
+  alert("Data inválida");
+  return;
+}
+
+const hoje = new Date();
 hoje.setHours(0, 0, 0, 0);
+
+const dataFutura = dataObj > hoje;
 
 // permite até 1 ano à frente
 const limite = new Date(
@@ -440,62 +442,67 @@ const limite = new Date(
   hoje.getDate()
 );
 
-if (dataObj > limite) {
-  setToast({
-    mensagem: "A data não pode ultrapassar 1 ano à frente",
-    tipo: "erro",
-  });
-  return;
-}
+      if (dataObj > limite) {
+        setToast({
+          mensagem: "A data não pode ultrapassar 1 ano à frente",
+          tipo: "erro",
+        });
+        return;
+      }
 
-    if (contaEditando) {
-      // ✏️ EDITAR CONTA
-      await api.put(`/contas/${contaEditando.id}`, {
-        descricao,
-        valor: Number(valor),
-        data: dataObj.toISOString(),
-        categoriaId: Number(categoriaId),
-      });
+      if (contaEditando) {
+        // ✏️ EDITAR CONTA
+        await api.put(`/contas/${contaEditando.id}`, {
+          descricao,
+          valor: Number(valor),
+          data: dataObj.toISOString(),
+          categoriaId: Number(categoriaId),
+        });
 
+        setToast({
+          mensagem: "Conta atualizada com sucesso",
+        });
+
+        setContaEditando(null);
+      } else {
+        // ➕ CRIAR CONTA
+        await api.post("/contas", {
+          descricao,
+          valor: Number(valor),
+          data: dataObj.toISOString(),
+          categoriaId: Number(categoriaId),
+        });
+
+        setToast({
+          mensagem: "Conta criada com sucesso",
+        });
+      }
+
+      /* ✅ PASSO F — AUTO-MUDANÇA DE PERÍODO */
+      if (dataFutura) {
+        setMesBusca(dataObj.getMonth() + 1);
+        setAnoBusca(dataObj.getFullYear());
+      }
+
+      // limpa formulário
+      setDescricao("");
+      setValor("");
+      setData("");
+      setCategoriaId("");
+
+      // recarrega contas
+      await carregarContasPeriodo();
+      await carregarPeriodoAnterior();
+    } catch (error) {
+      console.error(error);
       setToast({
-        mensagem: "Conta atualizada com sucesso",
+        mensagem: "Erro ao salvar conta",
+        tipo: "erro",
       });
-
-      setContaEditando(null);
-    } else {
-      // ➕ CRIAR CONTA
-      await api.post("/contas", {
-        descricao,
-        valor: Number(valor),
-        data: dataObj.toISOString(),
-        categoriaId: Number(categoriaId),
-      });
-
-      setToast({
-        mensagem: "Conta criada com sucesso",
-      });
+    } finally {
+      setSalvandoConta(false);
     }
-
-    // limpa formulário
-    setDescricao("");
-    setValor("");
-    setData("");
-    setCategoriaId("");
-
-    // recarrega contas
-    await carregarContasPeriodo();
-    await carregarPeriodoAnterior();
-  } catch (error) {
-    console.error(error);
-    setToast({
-      mensagem: "Erro ao salvar conta",
-      tipo: "erro",
-    });
-  } finally {
-    setSalvandoConta(false);
   }
-}
-
 
   // =======================
   // CRIAR CATEGORIA
@@ -597,19 +604,19 @@ if (dataObj > limite) {
       const mes = ultimaContaExcluida.mes;
 
       const dataValida = ultimaContaExcluida.data
-  ? ultimaContaExcluida.data
-  : new Date(
-      ultimaContaExcluida.ano,
-      ultimaContaExcluida.mes - 1,
-      1
-    ).toISOString();
+        ? ultimaContaExcluida.data
+        : new Date(
+            ultimaContaExcluida.ano,
+            ultimaContaExcluida.mes - 1,
+            1
+          ).toISOString();
 
-await api.post("/contas", {
-  descricao: ultimaContaExcluida.descricao,
-  valor: ultimaContaExcluida.valor,
-  data: dataValida, // ✅ nunca undefined
-  categoriaId: ultimaContaExcluida.categoriaId!,
-});
+      await api.post("/contas", {
+        descricao: ultimaContaExcluida.descricao,
+        valor: ultimaContaExcluida.valor,
+        data: dataValida, // ✅ nunca undefined
+        categoriaId: ultimaContaExcluida.categoriaId!,
+      });
 
       setToast({
         mensagem: "Exclusão desfeita",

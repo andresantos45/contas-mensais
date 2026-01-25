@@ -389,8 +389,11 @@ export default function Dashboard() {
     // Contas do período (mensal / anual)
     const contasMensaisPDF: Conta[] = contasFiltradas;
 
-    // Planejamento futuro
-    const contasFuturasPDF: Conta[] = contasFuturas;
+    // Planejamento futuro (ordenado por ano e mês)
+const contasFuturasPDF: Conta[] = [...contasFuturas].sort((a, b) => {
+  if (a.ano !== b.ano) return a.ano - b.ano;
+  return a.mes - b.mes;
+});
 
     const nomesMeses = [
       "Janeiro",

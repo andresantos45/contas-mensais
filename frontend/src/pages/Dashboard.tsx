@@ -23,6 +23,7 @@ import { Conta } from "../types/Conta";
 import { ContaExcel } from "../types/ContaExcel";
 import { Categoria } from "../types/Categoria";
 import Toast from "../components/UI/Toast";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ export default function Dashboard() {
   const [contaEditando, setContaEditando] = useState<Conta | null>(null);
   const [salvandoConta, setSalvandoConta] = useState(false);
   const [mostrarConfigModal, setMostrarConfigModal] = useState(false);
-  const isMobile = window.innerWidth <= 768;
+  const isMobile = useIsMobile();
   const [toast, setToast] = useState<{
     mensagem: string;
     tipo?: "sucesso" | "erro";

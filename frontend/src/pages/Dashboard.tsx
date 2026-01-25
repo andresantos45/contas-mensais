@@ -934,11 +934,7 @@ export default function Dashboard() {
             <GraficoMensal dados={totalPorMes} />
           </div>
 
-          <div>
-            <h3>📅 Gastos por mês</h3>
-            <GraficoMensal dados={totalPorMes} />
-          </div>
-
+         
           {Object.keys(totalFuturoPorMes).length > 0 && (
             <div
               style={{

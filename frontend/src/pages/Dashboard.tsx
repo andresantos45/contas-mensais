@@ -894,38 +894,38 @@ export default function Dashboard() {
           exportarPDF={exportarPDF}
           abrirConfiguracoes={() => setMostrarConfigModal(true)}
           onLogout={handleLogout}
-        />
+        >
+          {/* 🔀 CONTAS / ENTRADAS — LADO ESQUERDO */}
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => setModoTela("contas")}
+              style={{
+                padding: "8px 14px",
+                borderRadius: 8,
+                border: "1px solid " + cores.borda,
+                cursor: "pointer",
+                background: modoTela === "contas" ? cores.botao : "transparent",
+                color: modoTela === "contas" ? "#fff" : cores.texto,
+              }}
+            >
+              📄 Contas
+            </button>
 
-        {/* 🔀 SELETOR DE TELA */}
-        <div style={{ display: "flex", gap: 8, margin: "16px 0" }}>
-          <button
-            onClick={() => setModoTela("contas")}
-            style={{
-              padding: "8px 14px",
-              borderRadius: 8,
-              border: "none",
-              cursor: "pointer",
-              background: modoTela === "contas" ? cores.botao : "transparent",
-              color: modoTela === "contas" ? "#fff" : cores.texto,
-            }}
-          >
-            📄 Contas
-          </button>
-
-          <button
-            onClick={() => setModoTela("entradas")}
-            style={{
-              padding: "8px 14px",
-              borderRadius: 8,
-              border: "none",
-              cursor: "pointer",
-              background: modoTela === "entradas" ? "#22c55e" : "transparent",
-              color: modoTela === "entradas" ? "#fff" : cores.texto,
-            }}
-          >
-            💰 Entradas
-          </button>
-        </div>
+            <button
+              onClick={() => setModoTela("entradas")}
+              style={{
+                padding: "8px 14px",
+                borderRadius: 8,
+                border: "1px solid " + cores.borda,
+                cursor: "pointer",
+                background: modoTela === "entradas" ? "#22c55e" : "transparent",
+                color: modoTela === "entradas" ? "#fff" : cores.texto,
+              }}
+            >
+              💰 Entradas
+            </button>
+          </div>
+        </DashboardHeader>
 
         {mostrarConfigModal && (
           <div

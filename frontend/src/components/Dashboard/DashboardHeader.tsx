@@ -6,6 +6,7 @@ interface DashboardHeaderProps {
   exportarPDF: () => void;
   abrirConfiguracoes: () => void;
   onLogout: () => void;
+  children?: React.ReactNode; // 🔥 SLOT ESQUERDO
 }
 
 export default function DashboardHeader({
@@ -16,9 +17,9 @@ export default function DashboardHeader({
   exportarPDF,
   abrirConfiguracoes,
   onLogout,
+  children,
 }: DashboardHeaderProps) {
-
- const botaoHeaderBase: React.CSSProperties = {
+  const botaoHeaderBase: React.CSSProperties = {
     padding: "10px 16px",
     borderRadius: 10,
     border: "none",
@@ -64,103 +65,119 @@ export default function DashboardHeader({
         </p>
       </div>
 
-      {/* AÇÕES — LADO DIREITO */}
+      {/* BARRA SUPERIOR — ESQUERDA / DIREITA */}
       <div
         style={{
           display: "flex",
-          flexDirection: "column",
-          alignItems: window.innerWidth < 640 ? "stretch" : "flex-end",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
           gap: 12,
           marginBottom: 24,
         }}
       >
-        {/* CONFIGURAÇÕES + SAIR */}
+        {/* ESQUERDA — SLOT */}
+        <div>{children}</div>
+
+        {/* DIREITA — AÇÕES */}
         <div
           style={{
             display: "flex",
+            flexDirection: "column",
+            alignItems: window.innerWidth < 640 ? "stretch" : "flex-end",
             gap: 12,
-            flexDirection: window.innerWidth < 640 ? "column" : "row",
           }}
         >
-          <div style={{ display: "flex", gap: 12 }}>
+          {/* CONFIGURAÇÕES + SAIR */}
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              flexDirection: window.innerWidth < 640 ? "column" : "row",
+            }}
+          >
+            <div style={{ display: "flex", gap: 12 }}>
+              <button
+                onClick={abrirConfiguracoes}
+                style={{
+                  ...botaoHeaderBase,
+                  background: cores.botao,
+                  color: "#fff",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "scale(1.05)";
+                  e.currentTarget.style.boxShadow =
+                    "0 8px 24px rgba(0,0,0,.35)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "scale(1)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              >
+                ⚙️ Configurações
+              </button>
+
+              <button
+                onClick={() => {
+                  const confirmar = window.confirm("Deseja realmente sair?");
+                  if (confirmar) {
+                    onLogout();
+                  }
+                }}
+                style={{
+                  ...botaoHeaderBase,
+                  background: "#dc2626",
+                  color: "#fff",
+                }}
+              >
+                ⏻ Sair
+              </button>
+            </div>
+          </div>
+
+          {/* EXPORTAÇÕES */}
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              flexDirection: window.innerWidth < 640 ? "column" : "row",
+            }}
+          >
             <button
-              onClick={abrirConfiguracoes}
+              onClick={exportarExcel}
+              disabled={exportando === "excel"}
               style={{
-                ...botaoHeaderBase,
-                background: cores.botao,
+                background: exportando === "excel" ? "#64748b" : "#16a34a",
                 color: "#fff",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "scale(1.05)";
-                e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,.35)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-                e.currentTarget.style.boxShadow = "none";
+                padding: "10px 16px",
+                width: window.innerWidth < 640 ? "100%" : "auto",
+                border: "none",
+                borderRadius: 8,
+                cursor: exportando === "excel" ? "not-allowed" : "pointer",
+                fontWeight: 600,
               }}
             >
-              ⚙️ Configurações
+              {exportando === "excel"
+                ? "⏳ Exportando..."
+                : "⬇️ Exportar Excel"}
             </button>
 
             <button
-  onClick={() => {
-    const confirmar = window.confirm("Deseja realmente sair?");
-    if (confirmar) {
-      onLogout();
-    }
-  }}
-  style={{
-    ...botaoHeaderBase,
-    background: "#dc2626",
-    color: "#fff",
-  }}
->
-  ⏻ Sair
-</button>
+              onClick={exportarPDF}
+              disabled={exportando !== null}
+              style={{
+                background: "#dc2626",
+                color: "#fff",
+                padding: "10px 16px",
+                border: "none",
+                borderRadius: 8,
+                cursor: exportando ? "not-allowed" : "pointer",
+                fontWeight: 600,
+                opacity: exportando ? 0.6 : 1,
+              }}
+            >
+              📄 Exportar PDF
+            </button>
           </div>
-        </div>
-
-        {/* EXPORTAÇÕES */}
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            flexDirection: window.innerWidth < 640 ? "column" : "row",
-          }}
-        >
-          <button
-            onClick={exportarExcel}
-            disabled={exportando === "excel"}
-            style={{
-              background: exportando === "excel" ? "#64748b" : "#16a34a",
-              color: "#fff",
-              padding: "10px 16px",
-              width: window.innerWidth < 640 ? "100%" : "auto",
-              border: "none",
-              borderRadius: 8,
-              cursor: exportando === "excel" ? "not-allowed" : "pointer",
-              fontWeight: 600,
-            }}
-          >
-            {exportando === "excel" ? "⏳ Exportando..." : "⬇️ Exportar Excel"}
-          </button>
-
-          <button
-            onClick={exportarPDF}
-            disabled={exportando !== null}
-            style={{
-              background: "#dc2626",
-              color: "#fff",
-              padding: "10px 16px",
-              border: "none",
-              borderRadius: 8,
-              cursor: exportando ? "not-allowed" : "pointer",
-              fontWeight: 600,
-              opacity: exportando ? 0.6 : 1,
-            }}
-          >
-            📄 Exportar PDF
-          </button>
         </div>
       </div>
     </>

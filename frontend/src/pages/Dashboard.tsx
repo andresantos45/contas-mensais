@@ -172,6 +172,23 @@ export default function Dashboard() {
     }
   }
 
+
+// =======================
+// 🔥 CARREGAR ENTRADAS DO PERÍODO
+// =======================
+async function carregarEntradasPeriodo() {
+  try {
+    const response = await api.get(`/entradas/${mesBusca}/${anoBusca}`);
+    setEntradas(response.data);
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      setEntradas([]);
+    } else {
+      console.error("Erro ao carregar entradas", error);
+    }
+  }
+}
+  
   useEffect(() => {
     let ativo = true;
 
@@ -180,10 +197,11 @@ export default function Dashboard() {
         setLoading(true);
 
         await Promise.all([
-          carregarContasPeriodo(),
-          carregarCategorias(),
-          carregarPeriodoAnterior(),
-        ]);
+  carregarContasPeriodo(),
+  carregarCategorias(),
+  carregarPeriodoAnterior(),
+  carregarEntradasPeriodo(), // 🔥 ENTRADAS
+]);
       } catch (erro: any) {
         if (erro.code === "ERR_NETWORK") {
           alert(
@@ -312,6 +330,17 @@ export default function Dashboard() {
     anoBusca,
     totalPeriodoAnterior
   );
+
+// =======================
+// 🔥 TOTAIS DE ENTRADAS E SALDO
+// =======================
+const totalEntradasPeriodo = entradas.reduce(
+  (soma: number, e: any) => soma + e.valor,
+  0
+);
+
+// SALDO = ENTRADAS - SAÍDAS
+const saldoFinal = totalEntradasPeriodo - totalPeriodo;
 
   const totalAnualNormalizado: Record<number, number> = {
     1: 0,
@@ -1061,15 +1090,17 @@ export default function Dashboard() {
         </div>
 
         <DashboardCards
-          mesBusca={mesBusca}
-          totalPeriodo={totalPeriodo}
-          mediaMensal={mediaMensal}
-          diferenca={diferenca}
-          percentual={percentual}
-          tipo={tipoDashboard}
-          nomeCategoriaMaior={nomeCategoriaMaior}
-          valorCategoriaMaior={valorCategoriaMaior}
-        />
+  mesBusca={mesBusca}
+  totalPeriodo={totalPeriodo}
+  totalEntradas={totalEntradasPeriodo} // 🔥 NOVO
+  saldoFinal={saldoFinal} // 🔥 NOVO
+  mediaMensal={mediaMensal}
+  diferenca={diferenca}
+  percentual={percentual}
+  tipo={tipoDashboard}
+  nomeCategoriaMaior={nomeCategoriaMaior}
+  valorCategoriaMaior={valorCategoriaMaior}
+/>
 
         {/* CONTAS DO PERÍODO */}
         <div style={{ margin: "24px 0 12px" }}>

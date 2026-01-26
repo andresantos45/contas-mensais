@@ -3,10 +3,12 @@ import DashboardCard from "./DashboardCard";
 interface DashboardCardsProps {
   mesBusca: number;
   totalPeriodo: number;
+  totalEntradas: number;
+  saldoFinal: number;
   mediaMensal: number;
   diferenca: number;
-  percentual: number | null;
-  tipo: "alta" | "queda" | "neutro";
+  percentual: number | null; // ✅ aceita null
+  tipo: "alta" | "queda" | "neutro"; // ✅ já tipa certinho
   nomeCategoriaMaior: string;
   valorCategoriaMaior: number;
 }
@@ -14,6 +16,8 @@ interface DashboardCardsProps {
 export default function DashboardCards({
   mesBusca,
   totalPeriodo,
+  totalEntradas, // 🔥
+  saldoFinal, // 🔥
   mediaMensal,
   diferenca,
   percentual,
@@ -38,6 +42,25 @@ export default function DashboardCards({
           currency: "BRL",
         })}
       />
+
+        
+<DashboardCard
+  titulo="💰 Total de Entradas"
+  valorPrincipal={totalEntradas.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  })}
+  corBorda="#22c55e"
+/>
+
+<DashboardCard
+  titulo="🧮 Saldo Final"
+  valorPrincipal={saldoFinal.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  })}
+  corBorda={saldoFinal >= 0 ? "#16a34a" : "#dc2626"}
+/>
 
       <DashboardCard
         titulo={mesBusca === 0 ? "Média mensal do ano" : "Valor do mês"}

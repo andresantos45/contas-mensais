@@ -9,6 +9,7 @@
   <ItemGroup>
     <!-- HASH DE SENHA -->
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="Dapper" Version="2.1.66" />
 
     <!-- EF CORE -->
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4" />
@@ -18,6 +19,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Npgsql" Version="10.0.1" />
 
     <!-- POSTGRESQL -->
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />

@@ -24,9 +24,6 @@ interface FormContaProps {
   salvandoConta: boolean;
   criarConta: (e: React.FormEvent) => void;
 
-  tipo: "entrada" | "saida";
-  setTipo: (v: "entrada" | "saida") => void;
-
   cores: {
     fundo: string;
     card: string;
@@ -52,10 +49,7 @@ export default function FormConta({
   salvandoConta,
   criarConta,
 
-  tipo,
-  setTipo,
-
-  cores,
+   cores,
   cancelarEdicao,
 }: FormContaProps) {
 
@@ -111,17 +105,7 @@ export default function FormConta({
         />
       </div>
 
-      {/* DATA */}
-      <div>
-        <label style={{ ...label, color: cores.textoSuave }}>Data</label>
-        <input
-          type="date"
-          value={data}
-          onChange={(e) => setData(e.target.value)}
-          required
-          style={inputBase}
-        />
-      </div>
+      
 
 
       {/* DATA */}
@@ -149,19 +133,7 @@ export default function FormConta({
   )}
 </div>
 
-{/* TIPO */}
-<div>
-  <label style={{ ...label, color: cores.textoSuave }}>Tipo</label>
-  <select
-    value={tipo}
-    onChange={(e) => setTipo(e.target.value as "entrada" | "saida")}
-    required
-    style={inputBase}
-  >
-    <option value="saida">Saída (Gasto)</option>
-    <option value="entrada">Entrada (Receita)</option>
-  </select>
-</div>
+
 
       {/* CATEGORIA */}
       <div>

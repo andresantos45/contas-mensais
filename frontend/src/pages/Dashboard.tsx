@@ -1039,30 +1039,27 @@ const saldoFinal = totalEntradasPeriodo - totalPeriodo;
         <div style={{ marginTop: 16 }}>
           {modoTela === "contas" ? (
             <FormConta
-              descricao={descricao}
-              setDescricao={setDescricao}
-              valor={valor}
-              setValor={setValor}
-              data={data}
-              setData={setData}
-              categoriaId={categoriaId}
-              setCategoriaId={setCategoriaId}
-              categorias={categorias}
-              contaEditando={contaEditando}
-              salvandoConta={salvandoConta}
-              criarConta={criarConta}
-              cores={cores}
-              cancelarEdicao={() => {
-                setContaEditando(null);
-                setDescricao("");
-                setValor("");
-                setData("");
-                setCategoriaId("");
-                setTipo("saida");
-              }}
-              tipo={tipo}
-              setTipo={setTipo}
-            />
+  descricao={descricao}
+  setDescricao={setDescricao}
+  valor={valor}
+  setValor={setValor}
+  data={data}
+  setData={setData}
+  categoriaId={categoriaId}
+  setCategoriaId={setCategoriaId}
+  categorias={categorias}
+  contaEditando={contaEditando}
+  salvandoConta={salvandoConta}
+  criarConta={criarConta}
+  cores={cores}
+  cancelarEdicao={() => {
+    setContaEditando(null);
+    setDescricao("");
+    setValor("");
+    setData("");
+    setCategoriaId("");
+  }}
+/>
           ) : (
             <FormEntrada
               descricao={descricaoEntrada}
@@ -1090,10 +1087,11 @@ const saldoFinal = totalEntradasPeriodo - totalPeriodo;
         </div>
 
         <DashboardCards
+  modoTela={modoTela} // 🔥 NOVO
   mesBusca={mesBusca}
   totalPeriodo={totalPeriodo}
-  totalEntradas={totalEntradasPeriodo} // 🔥 NOVO
-  saldoFinal={saldoFinal} // 🔥 NOVO
+  totalEntradas={totalEntradasPeriodo}
+  saldoFinal={saldoFinal}
   mediaMensal={mediaMensal}
   diferenca={diferenca}
   percentual={percentual}
@@ -1101,6 +1099,7 @@ const saldoFinal = totalEntradasPeriodo - totalPeriodo;
   nomeCategoriaMaior={nomeCategoriaMaior}
   valorCategoriaMaior={valorCategoriaMaior}
 />
+
 
         {/* CONTAS DO PERÍODO */}
         <div style={{ margin: "24px 0 12px" }}>

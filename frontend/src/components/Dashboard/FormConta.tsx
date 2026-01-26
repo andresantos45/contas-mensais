@@ -23,6 +23,10 @@ interface FormContaProps {
   contaEditando: Conta | null;
   salvandoConta: boolean;
   criarConta: (e: React.FormEvent) => void;
+
+  tipo: "entrada" | "saida";
+  setTipo: (v: "entrada" | "saida") => void;
+
   cores: {
     fundo: string;
     card: string;
@@ -47,10 +51,16 @@ export default function FormConta({
   contaEditando,
   salvandoConta,
   criarConta,
+
+  tipo,
+  setTipo,
+
   cores,
   cancelarEdicao,
 }: FormContaProps) {
+
  const isMobile = useIsMobile();
+ 
 
   useEffect(() => {
     if (contaEditando && categorias.length > 0) {
@@ -137,6 +147,20 @@ export default function FormConta({
       📅 Esta é uma conta futura (planejamento)
     </div>
   )}
+</div>
+
+{/* TIPO */}
+<div>
+  <label style={{ ...label, color: cores.textoSuave }}>Tipo</label>
+  <select
+    value={tipo}
+    onChange={(e) => setTipo(e.target.value as "entrada" | "saida")}
+    required
+    style={inputBase}
+  >
+    <option value="saida">Saída (Gasto)</option>
+    <option value="entrada">Entrada (Receita)</option>
+  </select>
 </div>
 
       {/* CATEGORIA */}

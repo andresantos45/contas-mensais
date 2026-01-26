@@ -1,3 +1,5 @@
+export type TipoConta = "entrada" | "saida";
+
 export type Conta = {
   id: number;
   descricao: string;
@@ -9,4 +11,6 @@ export type Conta = {
 
   categoriaId: number;
   categoriaNome: string;
+
+  tipo: TipoConta;
 };

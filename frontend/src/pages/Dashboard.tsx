@@ -108,37 +108,36 @@ export default function Dashboard() {
   const [valor, setValor] = useState("");
   const [data, setData] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
+  const [tipo, setTipo] = useState<"entrada" | "saida">("saida");
 
   async function carregarContasPeriodo() {
-  try {
-    // 1️⃣ busca normal do período
-    const response = await api.get<Conta[]>(
-      `/contas/${mesBusca}/${anoBusca}`
-    );
-
-    let todasContas = response.data;
-
-    // 2️⃣ se o mês selecionado for futuro, busca também o ano inteiro
-    const hoje = new Date();
-    const inicioMesSelecionado = new Date(anoBusca, mesBusca - 1, 1);
-
-    if (mesBusca !== 0 && inicioMesSelecionado > hoje) {
-      const responseAno = await api.get<Conta[]>(
-        `/contas/0/${anoBusca}`
+    try {
+      // 1️⃣ busca normal do período
+      const response = await api.get<Conta[]>(
+        `/contas/${mesBusca}/${anoBusca}`
       );
 
-      todasContas = responseAno.data;
-    }
+      let todasContas = response.data;
 
-    setContas(todasContas);
-  } catch (error: any) {
-    if (error.response?.status === 404) {
-      setContas([]);
-    } else {
-      console.error("Erro ao carregar contas", error);
+      // 2️⃣ se o mês selecionado for futuro, busca também o ano inteiro
+      const hoje = new Date();
+      const inicioMesSelecionado = new Date(anoBusca, mesBusca - 1, 1);
+
+      if (mesBusca !== 0 && inicioMesSelecionado > hoje) {
+        const responseAno = await api.get<Conta[]>(`/contas/0/${anoBusca}`);
+
+        todasContas = responseAno.data;
+      }
+
+      setContas(todasContas);
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        setContas([]);
+      } else {
+        console.error("Erro ao carregar contas", error);
+      }
     }
   }
-}
 
   async function carregarCategorias() {
     try {
@@ -251,29 +250,23 @@ export default function Dashboard() {
     );
 
   const mesSelecionadoEhFuturo = (() => {
-  if (mesBusca === 0) return false;
+    if (mesBusca === 0) return false;
 
-  const hoje = new Date();
-  const inicioMesSelecionado = new Date(anoBusca, mesBusca - 1, 1);
+    const hoje = new Date();
+    const inicioMesSelecionado = new Date(anoBusca, mesBusca - 1, 1);
 
-  return inicioMesSelecionado > hoje;
-})();
+    return inicioMesSelecionado > hoje;
+  })();
 
-const contasExibidas = mesSelecionadoEhFuturo
-  ? contasFuturas.filter(
-      (c) => c.mes === mesBusca && c.ano === anoBusca
-    )
-  : mostrarFuturas
-  ? contasFuturas
-  : contasFiltradas;
+  const contasExibidas = mesSelecionadoEhFuturo
+    ? contasFuturas.filter((c) => c.mes === mesBusca && c.ano === anoBusca)
+    : mostrarFuturas
+      ? contasFuturas
+      : contasFiltradas;
 
   const totalPlanejadoMesSelecionado = mesSelecionadoEhFuturo
-  ? contasExibidas.reduce(
-      (soma: number, c: Conta) => soma + c.valor,
-      0
-    )
-  : 0;
-
+    ? contasExibidas.reduce((soma: number, c: Conta) => soma + c.valor, 0)
+    : 0;
 
   const futurasAgrupadasPorMes: Record<string, Conta[]> = {};
 
@@ -292,7 +285,7 @@ const contasExibidas = mesSelecionadoEhFuturo
     mediaMensal,
     diferenca,
     percentual,
-    tipo,
+    tipo: tipoDashboard,
     tendencia,
     totalPorMes,
     totalPorCategoria,
@@ -658,6 +651,7 @@ const contasExibidas = mesSelecionadoEhFuturo
           valor: Number(valor),
           data: dataObj.toISOString(),
           categoriaId: Number(categoriaId),
+          tipo,
         });
 
         setToast({
@@ -672,6 +666,7 @@ const contasExibidas = mesSelecionadoEhFuturo
           valor: Number(valor),
           data: dataObj.toISOString(),
           categoriaId: Number(categoriaId),
+          tipo,
         });
 
         setToast({
@@ -859,6 +854,7 @@ const contasExibidas = mesSelecionadoEhFuturo
     }
 
     setCategoriaId(String(conta.categoriaId ?? ""));
+    setTipo(conta.tipo);
   }
   return (
     <div
@@ -986,7 +982,10 @@ const contasExibidas = mesSelecionadoEhFuturo
               setValor("");
               setData("");
               setCategoriaId("");
+              setTipo("saida");
             }}
+            tipo={tipo}
+            setTipo={setTipo}
           />
         </div>
 
@@ -996,7 +995,7 @@ const contasExibidas = mesSelecionadoEhFuturo
           mediaMensal={mediaMensal}
           diferenca={diferenca}
           percentual={percentual}
-          tipo={tipo}
+          tipo={tipoDashboard}
           nomeCategoriaMaior={nomeCategoriaMaior}
           valorCategoriaMaior={valorCategoriaMaior}
         />
@@ -1087,30 +1086,29 @@ const contasExibidas = mesSelecionadoEhFuturo
         </div>
 
         {mesSelecionadoEhFuturo && (
-  <div
-    style={{
-      marginTop: 12,
-      padding: "12px 16px",
-      borderRadius: 10,
-      background: "rgba(96,165,250,0.15)",
-      border: "1px solid #60a5fa",
-      color: "#bfdbfe",
-      fontSize: 14,
-    }}
-  >
-    📆 <strong>Mês futuro (planejamento)</strong>
-    <div style={{ marginTop: 6 }}>
-      Total planejado neste mês:{" "}
-      <strong>
-        {totalPlanejadoMesSelecionado.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        })}
-      </strong>
-    </div>
-  </div>
-)}
-
+          <div
+            style={{
+              marginTop: 12,
+              padding: "12px 16px",
+              borderRadius: 10,
+              background: "rgba(96,165,250,0.15)",
+              border: "1px solid #60a5fa",
+              color: "#bfdbfe",
+              fontSize: 14,
+            }}
+          >
+            📆 <strong>Mês futuro (planejamento)</strong>
+            <div style={{ marginTop: 6 }}>
+              Total planejado neste mês:{" "}
+              <strong>
+                {totalPlanejadoMesSelecionado.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+              </strong>
+            </div>
+          </div>
+        )}
 
         {contasFuturas.length > 0 && (
           <div style={{ marginBottom: 12 }}>
@@ -1203,13 +1201,13 @@ const contasExibidas = mesSelecionadoEhFuturo
             }
           )
         ) : (
-  <ListaContas
-    contas={contasExibidas}
-    cores={cores}
-    iniciarEdicao={iniciarEdicao}
-    excluirConta={excluirConta}
-  />
-  )}
+          <ListaContas
+            contas={contasExibidas}
+            cores={cores}
+            iniciarEdicao={iniciarEdicao}
+            excluirConta={excluirConta}
+          />
+        )}
 
         {/* GRÁFICOS — SEMPRE VISÍVEIS */}
         <div

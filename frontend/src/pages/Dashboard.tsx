@@ -17,6 +17,8 @@ import DashboardHeader from "../components/Dashboard/DashboardHeader";
 import DashboardCards from "../components/Dashboard/DashboardCards.tsx";
 import ListaContas from "../components/Dashboard/ListaContas.tsx";
 import FormConta from "../components/Dashboard/FormConta.tsx";
+import FormEntrada from "../components/Entradas/FormEntrada";
+import ListaEntradas from "../components/Entradas/ListaEntradas";
 import GestaoCategorias from "../components/Dashboard/GestaoCategorias.tsx";
 import { calcularDashboard } from "../components/Dashboard/dashboardCalculations";
 import { Conta } from "../types/Conta";
@@ -72,6 +74,19 @@ export default function Dashboard() {
   );
   const [timeoutUndo, setTimeoutUndo] = useState<number | null>(null);
   const [mostrarFuturas, setMostrarFuturas] = useState(false);
+
+  // 🔀 MODO DE TELA
+  const [modoTela, setModoTela] = useState<"contas" | "entradas">("contas");
+
+  // 🔥 ENTRADAS — STATES
+  const [entradas, setEntradas] = useState<any[]>([]);
+  const [entradaEditando, setEntradaEditando] = useState<any | null>(null);
+  const [salvandoEntrada, setSalvandoEntrada] = useState(false);
+
+  const [descricaoEntrada, setDescricaoEntrada] = useState("");
+  const [valorEntrada, setValorEntrada] = useState("");
+  const [dataEntrada, setDataEntrada] = useState("");
+  const [categoriaEntradaId, setCategoriaEntradaId] = useState("");
 
   useEffect(() => {
     if (mostrarConfigModal) {
@@ -881,6 +896,37 @@ export default function Dashboard() {
           onLogout={handleLogout}
         />
 
+        {/* 🔀 SELETOR DE TELA */}
+        <div style={{ display: "flex", gap: 8, margin: "16px 0" }}>
+          <button
+            onClick={() => setModoTela("contas")}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 8,
+              border: "none",
+              cursor: "pointer",
+              background: modoTela === "contas" ? cores.botao : "transparent",
+              color: modoTela === "contas" ? "#fff" : cores.texto,
+            }}
+          >
+            📄 Contas
+          </button>
+
+          <button
+            onClick={() => setModoTela("entradas")}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 8,
+              border: "none",
+              cursor: "pointer",
+              background: modoTela === "entradas" ? "#22c55e" : "transparent",
+              color: modoTela === "entradas" ? "#fff" : cores.texto,
+            }}
+          >
+            💰 Entradas
+          </button>
+        </div>
+
         {mostrarConfigModal && (
           <div
             onClick={() => setMostrarConfigModal(false)}
@@ -962,31 +1008,56 @@ export default function Dashboard() {
         )}
 
         <div style={{ marginTop: 16 }}>
-          <FormConta
-            descricao={descricao}
-            setDescricao={setDescricao}
-            valor={valor}
-            setValor={setValor}
-            data={data}
-            setData={setData}
-            categoriaId={categoriaId}
-            setCategoriaId={setCategoriaId}
-            categorias={categorias}
-            contaEditando={contaEditando}
-            salvandoConta={salvandoConta}
-            criarConta={criarConta}
-            cores={cores}
-            cancelarEdicao={() => {
-              setContaEditando(null);
-              setDescricao("");
-              setValor("");
-              setData("");
-              setCategoriaId("");
-              setTipo("saida");
-            }}
-            tipo={tipo}
-            setTipo={setTipo}
-          />
+          {modoTela === "contas" ? (
+            <FormConta
+              descricao={descricao}
+              setDescricao={setDescricao}
+              valor={valor}
+              setValor={setValor}
+              data={data}
+              setData={setData}
+              categoriaId={categoriaId}
+              setCategoriaId={setCategoriaId}
+              categorias={categorias}
+              contaEditando={contaEditando}
+              salvandoConta={salvandoConta}
+              criarConta={criarConta}
+              cores={cores}
+              cancelarEdicao={() => {
+                setContaEditando(null);
+                setDescricao("");
+                setValor("");
+                setData("");
+                setCategoriaId("");
+                setTipo("saida");
+              }}
+              tipo={tipo}
+              setTipo={setTipo}
+            />
+          ) : (
+            <FormEntrada
+              descricao={descricaoEntrada}
+              setDescricao={setDescricaoEntrada}
+              valor={valorEntrada}
+              setValor={setValorEntrada}
+              data={dataEntrada}
+              setData={setDataEntrada}
+              categoriaId={categoriaEntradaId}
+              setCategoriaId={setCategoriaEntradaId}
+              categorias={categorias}
+              entradaEditando={entradaEditando}
+              salvandoEntrada={salvandoEntrada}
+              criarEntrada={() => {}}
+              cores={cores}
+              cancelarEdicao={() => {
+                setEntradaEditando(null);
+                setDescricaoEntrada("");
+                setValorEntrada("");
+                setDataEntrada("");
+                setCategoriaEntradaId("");
+              }}
+            />
+          )}
         </div>
 
         <DashboardCards
@@ -1200,12 +1271,19 @@ export default function Dashboard() {
               );
             }
           )
-        ) : (
+        ) : modoTela === "contas" ? (
           <ListaContas
             contas={contasExibidas}
             cores={cores}
             iniciarEdicao={iniciarEdicao}
             excluirConta={excluirConta}
+          />
+        ) : (
+          <ListaEntradas
+            entradas={entradas}
+            cores={cores}
+            iniciarEdicao={setEntradaEditando}
+            excluirEntrada={(id) => {}}
           />
         )}
 

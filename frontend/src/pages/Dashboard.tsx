@@ -129,9 +129,8 @@ export default function Dashboard() {
     try {
       // 1️⃣ busca normal do período
       const response = await api.get<Conta[]>(
-        `/contas/${mesBusca}/${anoBusca}`
+        `/api/contas/${mesBusca}/${anoBusca}`
       );
-
       let todasContas = response.data;
 
       // 2️⃣ se o mês selecionado for futuro, busca também o ano inteiro
@@ -139,7 +138,7 @@ export default function Dashboard() {
       const inicioMesSelecionado = new Date(anoBusca, mesBusca - 1, 1);
 
       if (mesBusca !== 0 && inicioMesSelecionado > hoje) {
-        const responseAno = await api.get<Conta[]>(`/contas/0/${anoBusca}`);
+        const responseAno = await api.get<Conta[]>(`/api/contas/0/${anoBusca}`);
 
         todasContas = responseAno.data;
       }
@@ -156,7 +155,7 @@ export default function Dashboard() {
 
   async function carregarCategorias() {
     try {
-      const response = await api.get<Categoria[]>("/categorias");
+      const response = await api.get<Categoria[]>("/api/categorias");
 
       setCategorias(
         response.data.sort((a, b) =>
@@ -172,24 +171,23 @@ export default function Dashboard() {
     }
   }
 
+  // =======================
+  // 🔥 CARREGAR ENTRADAS DO PERÍODO
+  // =======================
+  async function carregarEntradasPeriodo() {
+    try {
+      const response = await api.get(`/api/contas/${mesBusca}/${anoBusca}`);
 
-// =======================
-// 🔥 CARREGAR ENTRADAS DO PERÍODO
-// =======================
-async function carregarEntradasPeriodo() {
-  try {
-    const response = await api.get(`/contas/${mesBusca}/${anoBusca}`);
+      const somenteEntradas = response.data.filter(
+        (c: any) => c.tipo === "entrada"
+      );
 
-    const somenteEntradas = response.data.filter(
-      (c: any) => c.tipo === "entrada"
-    );
-
-    setEntradas(somenteEntradas);
-  } catch (error: any) {
-    setEntradas([]);
+      setEntradas(somenteEntradas);
+    } catch (error: any) {
+      setEntradas([]);
+    }
   }
-}
-  
+
   useEffect(() => {
     let ativo = true;
 
@@ -198,11 +196,11 @@ async function carregarEntradasPeriodo() {
         setLoading(true);
 
         await Promise.all([
-  carregarContasPeriodo(),
-  carregarCategorias(),
-  carregarPeriodoAnterior(),
-  carregarEntradasPeriodo(), // 🔥 ENTRADAS
-]);
+          carregarContasPeriodo(),
+          carregarCategorias(),
+          carregarPeriodoAnterior(),
+          carregarEntradasPeriodo(), // 🔥 ENTRADAS
+        ]);
       } catch (erro: any) {
         if (erro.code === "ERR_NETWORK") {
           alert(
@@ -230,7 +228,7 @@ async function carregarEntradasPeriodo() {
 
     try {
       if (mesBusca === 0) {
-        const response = await api.get(`/contas/0/${anoBusca - 1}`);
+        const response = await api.get(`/api/contas/0/${anoBusca - 1}`);
         const dados = response.data;
 
         total = dados.reduce((soma: number, c: Conta) => soma + c.valor, 0);
@@ -240,7 +238,9 @@ async function carregarEntradasPeriodo() {
         const anoAnterior = mesAnterior === 0 ? anoBusca - 1 : anoBusca;
         const mesFinal = mesAnterior === 0 ? 12 : mesAnterior;
 
-        const response = await api.get(`/contas/${mesFinal}/${anoAnterior}`);
+        const response = await api.get(
+          `/api/contas/${mesFinal}/${anoAnterior}`
+        );
         const dados = response.data;
 
         total = dados.reduce((soma: number, c: Conta) => soma + c.valor, 0);
@@ -332,16 +332,16 @@ async function carregarEntradasPeriodo() {
     totalPeriodoAnterior
   );
 
-// =======================
-// 🔥 TOTAIS DE ENTRADAS E SALDO
-// =======================
-const totalEntradasPeriodo = entradas.reduce(
-  (soma: number, e: any) => soma + e.valor,
-  0
-);
+  // =======================
+  // 🔥 TOTAIS DE ENTRADAS E SALDO
+  // =======================
+  const totalEntradasPeriodo = entradas.reduce(
+    (soma: number, e: any) => soma + e.valor,
+    0
+  );
 
-// SALDO = ENTRADAS - SAÍDAS
-const saldoFinal = totalEntradasPeriodo - totalPeriodo;
+  // SALDO = ENTRADAS - SAÍDAS
+  const saldoFinal = totalEntradasPeriodo - totalPeriodo;
 
   const totalAnualNormalizado: Record<number, number> = {
     1: 0,
@@ -1040,27 +1040,27 @@ const saldoFinal = totalEntradasPeriodo - totalPeriodo;
         <div style={{ marginTop: 16 }}>
           {modoTela === "contas" ? (
             <FormConta
-  descricao={descricao}
-  setDescricao={setDescricao}
-  valor={valor}
-  setValor={setValor}
-  data={data}
-  setData={setData}
-  categoriaId={categoriaId}
-  setCategoriaId={setCategoriaId}
-  categorias={categorias}
-  contaEditando={contaEditando}
-  salvandoConta={salvandoConta}
-  criarConta={criarConta}
-  cores={cores}
-  cancelarEdicao={() => {
-    setContaEditando(null);
-    setDescricao("");
-    setValor("");
-    setData("");
-    setCategoriaId("");
-  }}
-/>
+              descricao={descricao}
+              setDescricao={setDescricao}
+              valor={valor}
+              setValor={setValor}
+              data={data}
+              setData={setData}
+              categoriaId={categoriaId}
+              setCategoriaId={setCategoriaId}
+              categorias={categorias}
+              contaEditando={contaEditando}
+              salvandoConta={salvandoConta}
+              criarConta={criarConta}
+              cores={cores}
+              cancelarEdicao={() => {
+                setContaEditando(null);
+                setDescricao("");
+                setValor("");
+                setData("");
+                setCategoriaId("");
+              }}
+            />
           ) : (
             <FormEntrada
               descricao={descricaoEntrada}
@@ -1088,19 +1088,18 @@ const saldoFinal = totalEntradasPeriodo - totalPeriodo;
         </div>
 
         <DashboardCards
-  modoTela={modoTela} // 🔥 NOVO
-  mesBusca={mesBusca}
-  totalPeriodo={totalPeriodo}
-  totalEntradas={totalEntradasPeriodo}
-  saldoFinal={saldoFinal}
-  mediaMensal={mediaMensal}
-  diferenca={diferenca}
-  percentual={percentual}
-  tipo={tipoDashboard}
-  nomeCategoriaMaior={nomeCategoriaMaior}
-  valorCategoriaMaior={valorCategoriaMaior}
-/>
-
+          modoTela={modoTela} // 🔥 NOVO
+          mesBusca={mesBusca}
+          totalPeriodo={totalPeriodo}
+          totalEntradas={totalEntradasPeriodo}
+          saldoFinal={saldoFinal}
+          mediaMensal={mediaMensal}
+          diferenca={diferenca}
+          percentual={percentual}
+          tipo={tipoDashboard}
+          nomeCategoriaMaior={nomeCategoriaMaior}
+          valorCategoriaMaior={valorCategoriaMaior}
+        />
 
         {/* CONTAS DO PERÍODO */}
         <div style={{ margin: "24px 0 12px" }}>

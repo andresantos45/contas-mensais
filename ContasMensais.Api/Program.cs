@@ -6,7 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using ContasMensais.Api.Services;
 using System.Security.Claims;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ReloadOnChange = false
+});
 // 🔐 CHAVE JWT CENTRALIZADA (ÚNICO PONTO DA CHAVE)
 var jwtKey = builder.Configuration["JWT_KEY"]
              ?? "CHAVE_SUPER_SECRETA_MIN_32_CARACTERES_123!";

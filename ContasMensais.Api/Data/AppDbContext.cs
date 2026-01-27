@@ -19,6 +19,40 @@ namespace ContasMensais.Api.Data
             base.OnModelCreating(modelBuilder);
 
             // ======================
+// USUARIO (MAPEAMENTO POSTGRES REAL)
+// ======================
+modelBuilder.Entity<Usuario>(entity =>
+{
+    entity.ToTable("usuarios");
+
+    entity.HasKey(e => e.Id);
+
+    entity.Property(e => e.Id)
+          .HasColumnName("id");
+
+    entity.Property(e => e.Nome)
+          .HasColumnName("nome");
+
+    entity.Property(e => e.Email)
+          .HasColumnName("email");
+
+    entity.Property(e => e.SenhaHash)
+          .HasColumnName("senha_hash");
+
+    entity.Property(e => e.Role)
+          .HasColumnName("role");
+
+    entity.Property(e => e.CriadoEm)
+          .HasColumnName("criado_em");
+});
+
+// ======================
+// FIXA NOMES DAS TABELAS RESTANTES
+// ======================
+modelBuilder.Entity<Conta>().ToTable("contas");
+modelBuilder.Entity<Categoria>().ToTable("categorias");
+
+            // ======================
             // CONTA
             // ======================
             modelBuilder.Entity<Conta>(entity =>

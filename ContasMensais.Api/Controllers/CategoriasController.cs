@@ -6,6 +6,7 @@ using ContasMensais.Api.Models;
 using System.Security.Claims;
 using ContasMensais.Api.DTOs;
 
+
 namespace ContasMensais.Api.Controllers
 {
     [ApiController]
@@ -24,14 +25,14 @@ namespace ContasMensais.Api.Controllers
         // 🔐 USUÁRIO LOGADO
         // =========================
         private int ObterUsuarioId()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrWhiteSpace(userId))
-                throw new UnauthorizedAccessException("Usuário não autenticado");
+    if (string.IsNullOrWhiteSpace(userId))
+        throw new UnauthorizedAccessException("Usuário não autenticado");
 
-            return int.Parse(userId);
-        }
+    return int.Parse(userId);
+}
 
         // =========================
         // 📥 LISTAR CATEGORIAS

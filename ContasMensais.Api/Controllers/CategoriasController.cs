@@ -5,7 +5,6 @@ using ContasMensais.Api.Data;
 using ContasMensais.Api.Models;
 using System.Security.Claims;
 
-
 namespace ContasMensais.Api.Controllers
 {
     [ApiController]
@@ -20,33 +19,52 @@ namespace ContasMensais.Api.Controllers
             _context = context;
         }
 
-        
+        // =========================
+        // 🔐 USUÁRIO LOGADO
+        // =========================
+        private int ObterUsuarioId()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if (string.IsNullOrEmpty(userId))
+                throw new UnauthorizedAccessException("Usuário não autenticado");
 
-        // 📥 LISTAR
+            return int.Parse(userId);
+        }
+
+        // =========================
+        // 📥 LISTAR CATEGORIAS
+        // =========================
         [HttpGet]
         public async Task<IActionResult> Get()
         {
+            var usuarioId = ObterUsuarioId();
+
             var categorias = await _context.Categorias
-    .Select(c => new
-    {
-        c.Id,
-        c.Nome
-    })
-    .ToListAsync();
+                .Where(c => c.UsuarioId == usuarioId)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Nome
+                })
+                .ToListAsync();
 
             return Ok(categorias);
         }
 
-        // ➕ CRIAR
+        // =========================
+        // ➕ CRIAR CATEGORIA
+        // =========================
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Categoria categoria)
         {
             if (string.IsNullOrWhiteSpace(categoria.Nome))
                 return BadRequest("Nome inválido");
 
+            categoria.UsuarioId = ObterUsuarioId();
+
             _context.Categorias.Add(categoria);
-await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return Ok(new
             {
@@ -55,19 +73,22 @@ await _context.SaveChangesAsync();
             });
         }
 
-        // ❌ EXCLUIR  ← ESTE BLOCO PRECISA EXISTIR
+        // =========================
+        // ❌ EXCLUIR CATEGORIA
+        // =========================
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
+            var usuarioId = ObterUsuarioId();
+
             var categoria = await _context.Categorias
-    .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId);
 
             if (categoria == null)
                 return NotFound();
 
-            // 🔒 impede exclusão se estiver em uso
             var emUso = await _context.Contas
-    .AnyAsync(c => c.CategoriaId == id);
+                .AnyAsync(c => c.CategoriaId == id && c.UsuarioId == usuarioId);
 
             if (emUso)
                 return BadRequest("Categoria está vinculada a contas");

@@ -35,16 +35,13 @@ private int ObterUsuarioId()
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var usuarioId = ObterUsuarioId();
-
             var categorias = await _context.Categorias
-                .Where(c => c.UsuarioId == usuarioId)
-                .Select(c => new
-                {
-                    c.Id,
-                    c.Nome
-                })
-                .ToListAsync();
+    .Select(c => new
+    {
+        c.Id,
+        c.Nome
+    })
+    .ToListAsync();
 
             return Ok(categorias);
         }

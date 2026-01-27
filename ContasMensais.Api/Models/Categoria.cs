@@ -1,17 +1,19 @@
-using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContasMensais.Api.Models
 {
+    [Table("categorias")]
     public class Categoria
     {
+        [Key]
+        [Column("id")] // exatamente como no banco
         public int Id { get; set; }
 
+        [Column("nome")]
         public string Nome { get; set; } = string.Empty;
 
-        // 🔐 Dono da categoria
-        public int UsuarioId { get; set; }
-
-        [JsonIgnore]
-        public Usuario? Usuario { get; set; }
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
     }
 }

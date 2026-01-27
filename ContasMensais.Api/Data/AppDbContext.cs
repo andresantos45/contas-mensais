@@ -87,14 +87,20 @@ modelBuilder.Entity<Categoria>().ToTable("categorias");
             // CATEGORIA
             // ======================
             modelBuilder.Entity<Categoria>(entity =>
-            {
-                entity.HasKey(c => c.Id);
+{
+    entity.ToTable("categorias", "public");
 
-                entity.Property(c => c.Nome)
-                      .IsRequired()
-                      .HasMaxLength(100);
+    entity.HasKey(e => e.Id);
 
-                          });
+    entity.Property(e => e.Id)
+          .HasColumnName("id");
+
+    entity.Property(e => e.Nome)
+          .HasColumnName("nome");
+
+    entity.Property(e => e.CreatedAt)
+          .HasColumnName("created_at");
+});
         }
     }
 }

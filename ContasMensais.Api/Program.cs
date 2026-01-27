@@ -100,7 +100,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("FrontendPolicy", policy =>
     {
         policy
-            .AllowAnyOrigin()
+            .WithOrigins(
+                "https://contas-mensais-frontend.onrender.com",
+                "http://localhost:5173"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod();
     });

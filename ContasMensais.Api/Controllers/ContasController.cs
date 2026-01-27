@@ -87,7 +87,8 @@ if (conta.Data == default)
 
     // 🔒 garante que a categoria pertence ao usuário
     var categoriaExiste = await _context.Categorias.AnyAsync(c =>
-    c.Id == conta.CategoriaId
+    c.Id == conta.CategoriaId &&
+    c.UsuarioId == usuarioId
 );
 
 if (!categoriaExiste)
@@ -98,15 +99,21 @@ if (!categoriaExiste)
     _context.Contas.Add(conta);
     await _context.SaveChangesAsync();
 
-    return Ok(new
-    {
-        conta.Id,
-        conta.Descricao,
-        conta.Valor,
-        Mes = conta.Data.Month,
-        Ano = conta.Data.Year,
-        conta.CategoriaId
-    });
+    var hoje = DateTime.UtcNow.Date;
+var dataConta = conta.Data.Date;
+
+var ehFutura = dataConta > hoje;
+
+return Ok(new
+{
+    conta.Id,
+    conta.Descricao,
+    conta.Valor,
+    Mes = conta.Data.Month,
+    Ano = conta.Data.Year,
+    conta.CategoriaId,
+    EhFutura = ehFutura
+});
 }
 
         // ✏️ ATUALIZAR CONTA

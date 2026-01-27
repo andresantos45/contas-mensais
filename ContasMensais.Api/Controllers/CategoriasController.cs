@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ContasMensais.Api.Data;
 using ContasMensais.Api.Models;
 using System.Security.Claims;
+using ContasMensais.Api.DTOs;
 
 namespace ContasMensais.Api.Controllers
 {
@@ -56,22 +57,27 @@ namespace ContasMensais.Api.Controllers
         // ➕ CRIAR CATEGORIA
         // =========================
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Categoria categoria)
-        {
-            if (string.IsNullOrWhiteSpace(categoria.Nome))
-                return BadRequest("Nome inválido");
+public async Task<IActionResult> Post([FromBody] CriarCategoriaDto dto)
+{
+    if (string.IsNullOrWhiteSpace(dto.Nome))
+        return BadRequest("Nome inválido");
 
-            categoria.UsuarioId = ObterUsuarioId();
+    var categoria = new Categoria
+    {
+        Nome = dto.Nome,
+        UsuarioId = ObterUsuarioId(),
+        CreatedAt = DateTime.UtcNow
+    };
 
-            _context.Categorias.Add(categoria);
-            await _context.SaveChangesAsync();
+    _context.Categorias.Add(categoria);
+    await _context.SaveChangesAsync();
 
-            return Ok(new
-            {
-                categoria.Id,
-                categoria.Nome
-            });
-        }
+    return Ok(new
+    {
+        categoria.Id,
+        categoria.Nome
+    });
+}
 
         // =========================
         // ❌ EXCLUIR CATEGORIA

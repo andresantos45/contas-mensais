@@ -24,5 +24,8 @@ namespace ContasMensais.Api.Models
 
         [Column("criado_em")]
         public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
+         public ICollection<Categoria> Categorias { get; set; } = new List<Categoria>();
     }
+    
+    
 }

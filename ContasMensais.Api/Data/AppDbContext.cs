@@ -100,6 +100,14 @@ modelBuilder.Entity<Categoria>().ToTable("categorias");
 
     entity.Property(e => e.CreatedAt)
           .HasColumnName("created_at");
+
+    entity.Property(e => e.UsuarioId)
+          .HasColumnName("Usuarioid");
+
+    entity.HasOne(e => e.Usuario)
+          .WithMany(u => u.Categorias)
+          .HasForeignKey(e => e.UsuarioId)
+          .OnDelete(DeleteBehavior.Cascade);
 });
         }
     }

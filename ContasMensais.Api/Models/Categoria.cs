@@ -18,7 +18,10 @@ namespace ContasMensais.Api.Models
         public DateTime CreatedAt { get; set; }
 
         // 🔐 DONO DA CATEGORIA
-        [Column("usuarioid")]
-        public int UsuarioId { get; set; }
+        [Column("Usuarioid")]
+public int UsuarioId { get; set; }
+
+[ForeignKey(nameof(UsuarioId))]
+public Usuario Usuario { get; set; } = null!;
     }
 }

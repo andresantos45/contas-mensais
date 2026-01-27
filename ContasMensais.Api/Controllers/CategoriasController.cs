@@ -21,13 +21,13 @@ namespace ContasMensais.Api.Controllers
         }
 
         // =========================
-        // 🔐 USUÁRIO LOGADO
-        // =========================
-        private int ObterUsuarioId()
+// 🔐 USUÁRIO LOGADO
+// =========================
+private int ObterUsuarioId()
 {
-    var userId = User.FindFirst("nameid")?.Value;
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    if (string.IsNullOrEmpty(userId))
+    if (string.IsNullOrWhiteSpace(userId))
         throw new UnauthorizedAccessException("Usuário não autenticado");
 
     return int.Parse(userId);

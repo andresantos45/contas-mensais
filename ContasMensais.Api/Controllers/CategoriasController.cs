@@ -24,14 +24,14 @@ namespace ContasMensais.Api.Controllers
         // 🔐 USUÁRIO LOGADO
         // =========================
         private int ObterUsuarioId()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+{
+    var userId = User.FindFirst("nameid")?.Value;
 
-            if (string.IsNullOrEmpty(userId))
-                throw new UnauthorizedAccessException("Usuário não autenticado");
+    if (string.IsNullOrEmpty(userId))
+        throw new UnauthorizedAccessException("Usuário não autenticado");
 
-            return int.Parse(userId);
-        }
+    return int.Parse(userId);
+}
 
         // =========================
         // 📥 LISTAR CATEGORIAS

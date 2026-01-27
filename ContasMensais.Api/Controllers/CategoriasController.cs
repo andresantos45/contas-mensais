@@ -21,17 +21,17 @@ namespace ContasMensais.Api.Controllers
         }
 
         // =========================
-// 🔐 USUÁRIO LOGADO
-// =========================
-private int ObterUsuarioId()
-{
-    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        // 🔐 USUÁRIO LOGADO
+        // =========================
+        private int ObterUsuarioId()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    if (string.IsNullOrWhiteSpace(userId))
-        throw new UnauthorizedAccessException("Usuário não autenticado");
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new UnauthorizedAccessException("Usuário não autenticado");
 
-    return int.Parse(userId);
-}
+            return int.Parse(userId);
+        }
 
         // =========================
         // 📥 LISTAR CATEGORIAS
@@ -57,27 +57,27 @@ private int ObterUsuarioId()
         // ➕ CRIAR CATEGORIA
         // =========================
         [HttpPost]
-public async Task<IActionResult> Post([FromBody] CriarCategoriaDto dto)
-{
-    if (string.IsNullOrWhiteSpace(dto.Nome))
-        return BadRequest("Nome inválido");
+        public async Task<IActionResult> Post([FromBody] CriarCategoriaDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+                return BadRequest("Nome inválido");
 
-    var categoria = new Categoria
-    {
-        Nome = dto.Nome,
-        UsuarioId = ObterUsuarioId(),
-        CreatedAt = DateTime.UtcNow
-    };
+            var categoria = new Categoria
+            {
+                Nome = dto.Nome,
+                UsuarioId = ObterUsuarioId(),
+                CreatedAt = DateTime.UtcNow
+            };
 
-    _context.Categorias.Add(categoria);
-    await _context.SaveChangesAsync();
+            _context.Categorias.Add(categoria);
+            await _context.SaveChangesAsync();
 
-    return Ok(new
-    {
-        categoria.Id,
-        categoria.Nome
-    });
-}
+            return Ok(new
+            {
+                categoria.Id,
+                categoria.Nome
+            });
+        }
 
         // =========================
         // ❌ EXCLUIR CATEGORIA

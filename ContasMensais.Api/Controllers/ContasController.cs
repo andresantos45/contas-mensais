@@ -87,12 +87,11 @@ if (conta.Data == default)
 
     // 🔒 garante que a categoria pertence ao usuário
     var categoriaExiste = await _context.Categorias.AnyAsync(c =>
-        c.Id == conta.CategoriaId &&
-        c.UsuarioId == usuarioId
-    );
+    c.Id == conta.CategoriaId
+);
 
-    if (!categoriaExiste)
-        return BadRequest("Categoria inválida para o usuário");
+if (!categoriaExiste)
+    return BadRequest("Categoria inválida");
 
     conta.UsuarioId = usuarioId;
 

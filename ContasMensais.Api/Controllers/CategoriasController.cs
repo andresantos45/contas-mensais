@@ -21,15 +21,7 @@ namespace ContasMensais.Api.Controllers
         }
 
         
-private int ObterUsuarioId()
-{
-    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    if (string.IsNullOrEmpty(userId))
-        throw new UnauthorizedAccessException("Usuário não autenticado");
-
-    return int.Parse(userId);
-}
 
         // 📥 LISTAR
         [HttpGet]
@@ -53,11 +45,8 @@ private int ObterUsuarioId()
             if (string.IsNullOrWhiteSpace(categoria.Nome))
                 return BadRequest("Nome inválido");
 
-            var usuarioId = ObterUsuarioId();
-            categoria.UsuarioId = usuarioId;
-
             _context.Categorias.Add(categoria);
-            await _context.SaveChangesAsync();
+await _context.SaveChangesAsync();
 
             return Ok(new
             {
@@ -70,17 +59,15 @@ private int ObterUsuarioId()
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var usuarioId = ObterUsuarioId();
-
             var categoria = await _context.Categorias
-                .FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId);
+    .FirstOrDefaultAsync(c => c.Id == id);
 
             if (categoria == null)
                 return NotFound();
 
             // 🔒 impede exclusão se estiver em uso
             var emUso = await _context.Contas
-                .AnyAsync(c => c.CategoriaId == id && c.UsuarioId == usuarioId);
+    .AnyAsync(c => c.CategoriaId == id);
 
             if (emUso)
                 return BadRequest("Categoria está vinculada a contas");

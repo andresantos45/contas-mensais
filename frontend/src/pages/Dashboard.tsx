@@ -691,14 +691,13 @@ export default function Dashboard() {
 
       if (contaEditando) {
         // ✏️ EDITAR CONTA
-        await api.put(`/contas/${contaEditando.id}`, {
+        await api.put(`/api/contas/${contaEditando.id}`, {
           descricao,
           valor: Number(valor),
           data: dataObj.toISOString(),
           categoriaId: Number(categoriaId),
           tipo,
         });
-
         setToast({
           mensagem: "Conta atualizada com sucesso",
         });
@@ -706,7 +705,7 @@ export default function Dashboard() {
         setContaEditando(null);
       } else {
         // ➕ CRIAR CONTA
-        await api.post("/contas", {
+        await api.post("/api/contas", {
           descricao,
           valor: Number(valor),
           data: dataObj.toISOString(),
@@ -770,11 +769,11 @@ export default function Dashboard() {
     }
 
     try {
-      const response = await api.post("/categorias", {
+      await api.post("/api/categorias", {
         nome: novaCategoria,
       });
 
-      const recarregar = await api.get("/categorias");
+      const recarregar = await api.get("/api/categorias");
 
       setCategorias(
         recarregar.data.sort((a: Categoria, b: Categoria) =>
@@ -819,7 +818,7 @@ export default function Dashboard() {
     if (!categoriaParaExcluir) return;
 
     try {
-      await api.delete(`/categorias/${categoriaParaExcluir.id}`);
+      await api.delete(`/api/categorias/${categoriaParaExcluir.id}`);
 
       setCategorias(categorias.filter((c) => c.id !== categoriaParaExcluir.id));
 
@@ -852,10 +851,10 @@ export default function Dashboard() {
             1
           ).toISOString();
 
-      await api.post("/contas", {
+      await api.post("/api/contas", {
         descricao: ultimaContaExcluida.descricao,
         valor: ultimaContaExcluida.valor,
-        data: dataValida, // ✅ nunca undefined
+        data: dataValida,
         categoriaId: ultimaContaExcluida.categoriaId!,
       });
 
@@ -1446,7 +1445,7 @@ export default function Dashboard() {
                   try {
                     const conta = contaParaExcluir;
 
-                    await api.delete(`/contas/${conta.id}`);
+                    await api.delete(`/api/contas/${conta.id}`);
 
                     setContas(contas.filter((c) => c.id !== conta.id));
                     setUltimaContaExcluida(conta);

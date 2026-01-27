@@ -9,9 +9,9 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
   // 🚫 NÃO envia token no login
-  if (token && !config.url?.includes("/auth/login")) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token && !config.url?.includes("/api/auth/login")) {
+  config.headers.Authorization = `Bearer ${token}`;
+}
 
   return config;
 });

@@ -28,7 +28,7 @@ modelBuilder.Entity<Usuario>(entity =>
 entity.HasKey(e => e.Id);
 
 entity.Property(e => e.Id)
-      .HasColumnName("id")
+      .HasColumnName("Id")   // ✅ I MAIÚSCULO — IGUAL AO BANCO
       .ValueGeneratedOnAdd();
 
     entity.Property(e => e.Nome)

@@ -40,7 +40,7 @@ modelBuilder.Entity<Usuario>(entity =>
           .HasColumnName("senha_hash");
 
     entity.Property(e => e.Role)
-          .HasColumnName("role");
+      .HasColumnName("Role");
 
     entity.Property(e => e.CriadoEm)
           .HasColumnName("criado_em");

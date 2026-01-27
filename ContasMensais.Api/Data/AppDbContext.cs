@@ -23,12 +23,13 @@ namespace ContasMensais.Api.Data
 // ======================
 modelBuilder.Entity<Usuario>(entity =>
 {
-    entity.ToTable("usuarios");
+    entity.ToTable("usuarios", "public");
 
-    entity.HasKey(e => e.Id);
+entity.HasKey(e => e.Id);
 
-    entity.Property(e => e.Id)
-          .HasColumnName("id");
+entity.Property(e => e.Id)
+      .HasColumnName("id")
+      .ValueGeneratedOnAdd();
 
     entity.Property(e => e.Nome)
           .HasColumnName("nome");

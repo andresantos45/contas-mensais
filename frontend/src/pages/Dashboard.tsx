@@ -178,14 +178,15 @@ export default function Dashboard() {
 // =======================
 async function carregarEntradasPeriodo() {
   try {
-    const response = await api.get(`/entradas/${mesBusca}/${anoBusca}`);
-    setEntradas(response.data);
+    const response = await api.get(`/contas/${mesBusca}/${anoBusca}`);
+
+    const somenteEntradas = response.data.filter(
+      (c: any) => c.tipo === "entrada"
+    );
+
+    setEntradas(somenteEntradas);
   } catch (error: any) {
-    if (error.response?.status === 404) {
-      setEntradas([]);
-    } else {
-      console.error("Erro ao carregar entradas", error);
-    }
+    setEntradas([]);
   }
 }
   

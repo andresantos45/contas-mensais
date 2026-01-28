@@ -11,9 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 var jwtKey = builder.Configuration["JWT_KEY"]
              ?? "CHAVE_SUPER_SECRETA_MIN_32_CARACTERES_123!";
 
-// 🔹 PORTA DO RENDER (OBRIGATÓRIO)
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 
 // Controllers
 builder.Services.AddControllers();

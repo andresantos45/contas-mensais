@@ -14,8 +14,8 @@ RUN dotnet publish -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:${PORT}
+EXPOSE 10000
 
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "ContasMensais.Api.dll"]

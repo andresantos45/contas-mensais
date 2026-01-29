@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import UsuariosAdmin from "./pages/UsuariosAdmin";
 import { jwtDecode } from "jwt-decode";
+import Entradas from "./pages/Entradas";
 
 function RotaProtegidaAdmin({ children }) {
   const token = localStorage.getItem("token");
@@ -37,6 +38,9 @@ function RotaProtegida({ children }) {
 export default function App() {
   return (
     <Routes>
+      {/* ✅ ROTA RAIZ – SEMPRE EXISTE */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
       <Route path="/login" element={<Login />} />
 
       <Route
@@ -48,7 +52,6 @@ export default function App() {
         }
       />
 
-      {/* 🔓 TEMPORÁRIO – apenas exige login */}
       <Route
         path="/admin/usuarios"
         element={
@@ -58,7 +61,14 @@ export default function App() {
         }
       />
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route
+        path="/entradas"
+        element={
+          <RotaProtegida>
+            <Entradas />
+          </RotaProtegida>
+        }
+      />
     </Routes>
   );
 }

@@ -1,23 +1,24 @@
-import { CSSProperties } from "react";
-import { useIsMobile } from "../../hooks/useIsMobile";
+import ItemConta from "../Dashboard/ItemConta";
+import { Conta } from "../../types/Conta";
 
 interface Entrada {
   id: number;
   descricao: string;
   valor: number;
-  data?: string;
   mes: number;
   ano: number;
-  categoriaId: number;
   categoriaNome: string;
 }
 
 interface ListaEntradasProps {
   entradas: Entrada[];
   cores: {
+    fundo: string;
+    card: string;
     texto: string;
     textoSuave: string;
     borda: string;
+    botao: string;
   };
   iniciarEdicao: (e: Entrada) => void;
   excluirEntrada: (id: number) => void;
@@ -29,74 +30,33 @@ export default function ListaEntradas({
   iniciarEdicao,
   excluirEntrada,
 }: ListaEntradasProps) {
-  const isMobile = useIsMobile();
-
   return (
-    <div>
-      {entradas.map((e) => (
-        <div
-          key={e.id}
-          style={{
-            display: "grid",
-            gridTemplateColumns: isMobile
-              ? "1fr auto auto"
-              : "2fr 2fr 1fr 1fr auto auto",
-            gap: 12,
-            padding: "12px 8px",
-            borderBottom: `1px solid ${cores.borda}`,
-            alignItems: "center",
-          }}
-        >
-          <strong>{e.descricao}</strong>
+    <>
+      {entradas.map((e) => {
+        // 🔁 Adapter correto: só os campos que a UI usa
+        const contaFake: Pick<
+          Conta,
+          "id" | "descricao" | "valor" | "mes" | "ano" | "categoriaNome"
+        > = {
+          id: e.id,
+          descricao: e.descricao,
+          valor: e.valor,
+          mes: e.mes,
+          ano: e.ano,
+          categoriaNome: e.categoriaNome,
+        };
 
-          {!isMobile && (
-            <span style={{ color: cores.textoSuave }}>
-              {e.categoriaNome}
-            </span>
-          )}
-
-          <strong>
-            {e.valor.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            })}
-          </strong>
-
-          {!isMobile && (
-            <span style={{ color: cores.textoSuave }}>
-              {e.mes}/{e.ano}
-            </span>
-          )}
-
-          <button
-            onClick={() => iniciarEdicao(e)}
-            style={{
-              background: "#22c55e",
-              color: "#fff",
-              border: "none",
-              borderRadius: 6,
-              padding: "6px 10px",
-              cursor: "pointer",
-            }}
-          >
-            ✏️
-          </button>
-
-          <button
-            onClick={() => excluirEntrada(e.id)}
-            style={{
-              background: "#dc2626",
-              color: "#fff",
-              border: "none",
-              borderRadius: 6,
-              padding: "6px 10px",
-              cursor: "pointer",
-            }}
-          >
-            ❌
-          </button>
-        </div>
-      ))}
-    </div>
+        return (
+          <ItemConta
+            key={e.id}
+            conta={contaFake as Conta}
+            contaFutura={false}
+            cores={cores}
+            iniciarEdicao={() => iniciarEdicao(e)}
+            excluirConta={() => excluirEntrada(e.id)}
+          />
+        );
+      })}
+    </>
   );
 }

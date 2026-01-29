@@ -1,7 +1,6 @@
 import { useState } from "react";
 import AbaGeral from "./AbaGeral";
 import AbaUsuarios from "./AbaUsuarios";
-import { Categoria } from "../../types/Categoria";
 
 interface GestaoCategoriasProps {
   isAdmin: boolean;
@@ -13,31 +12,53 @@ interface GestaoCategoriasProps {
     borda: string;
     botao: string;
   };
-  categorias: {
+
+  // 📂 categorias de CONTAS
+  categoriasContas: {
     id: number;
     nome: string;
   }[];
-  excluirCategoria: (id: number) => void;
-  novaCategoria: string;
-  setNovaCategoria: (v: string) => void;
-  criarCategoria: (e: React.FormEvent) => void;
+  criarCategoriaConta: (e: React.FormEvent) => void;
+  excluirCategoriaConta: (id: number) => void;
+
+  // 💰 categorias de ENTRADAS
+  categoriasEntradas: {
+    id: number;
+    nome: string;
+  }[];
+  criarCategoriaEntrada: (e: React.FormEvent) => void;
+  excluirCategoriaEntrada: (id: number) => void;
+
+  // ✏️ input de categoria de CONTAS
+  novaCategoriaConta: string;
+  setNovaCategoriaConta: (v: string) => void;
+
+  // ✏️ input de categoria de ENTRADAS
+  novaCategoriaEntrada: string;
+  setNovaCategoriaEntrada: (v: string) => void;
 }
-
-
 
 export default function GestaoCategorias({
   cores,
-  categorias,
-  excluirCategoria,
-  novaCategoria,
-  setNovaCategoria,
-  criarCategoria,
-
   isAdmin,
-}: GestaoCategoriasProps) {
-  const [abaAtiva, setAbaAtiva] = useState<"geral" | "usuarios">("geral");
 
-  function trocarAba(aba: "geral" | "usuarios") {
+  categoriasContas,
+  criarCategoriaConta,
+  excluirCategoriaConta,
+  novaCategoriaConta,
+  setNovaCategoriaConta,
+
+  categoriasEntradas,
+  criarCategoriaEntrada,
+  excluirCategoriaEntrada,
+  novaCategoriaEntrada,
+  setNovaCategoriaEntrada,
+}: GestaoCategoriasProps) {
+  const [abaAtiva, setAbaAtiva] = useState<
+    "geral" | "usuarios" | "categorias" | "entradas"
+  >("geral");
+
+  function trocarAba(aba: "geral" | "usuarios" | "categorias" | "entradas") {
     setAbaAtiva(aba);
   }
 
@@ -54,6 +75,7 @@ export default function GestaoCategorias({
           gap: 8,
           marginTop: 16,
           marginBottom: 20,
+          flexWrap: "wrap",
         }}
       >
         <button
@@ -64,13 +86,41 @@ export default function GestaoCategorias({
             cursor: "pointer",
             fontWeight: 700,
             background: abaAtiva === "geral" ? cores.botao : "transparent",
-            boxShadow:
-              abaAtiva === "geral" ? "0 6px 20px rgba(0,0,0,0.25)" : "none",
             color: abaAtiva === "geral" ? "#fff" : cores.texto,
             border: `1px solid ${cores.borda}`,
           }}
         >
           ⚙️ Geral
+        </button>
+
+        <button
+          onClick={() => trocarAba("categorias")}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 8,
+            cursor: "pointer",
+            fontWeight: 700,
+            background: abaAtiva === "categorias" ? cores.botao : "transparent",
+            color: abaAtiva === "categorias" ? "#fff" : cores.texto,
+            border: `1px solid ${cores.borda}`,
+          }}
+        >
+          📂 Categorias (Contas)
+        </button>
+
+        <button
+          onClick={() => trocarAba("entradas")}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 8,
+            cursor: "pointer",
+            fontWeight: 700,
+            background: abaAtiva === "entradas" ? "#22c55e" : "transparent",
+            color: abaAtiva === "entradas" ? "#fff" : cores.texto,
+            border: `1px solid ${cores.borda}`,
+          }}
+        >
+          💰 Categorias de Entradas
         </button>
 
         {isAdmin && (
@@ -82,10 +132,6 @@ export default function GestaoCategorias({
               cursor: "pointer",
               fontWeight: 700,
               background: abaAtiva === "usuarios" ? "#6366f1" : "transparent",
-              boxShadow:
-                abaAtiva === "usuarios"
-                  ? "0 6px 20px rgba(0,0,0,0.25)"
-                  : "none",
               color: abaAtiva === "usuarios" ? "#fff" : cores.texto,
               border: `1px solid ${cores.borda}`,
             }}
@@ -101,15 +147,26 @@ export default function GestaoCategorias({
           animation: "fadeSlide 0.25s ease",
         }}
       >
-        {abaAtiva === "geral" && (
+        {abaAtiva === "categorias" && (
           <AbaGeral
-            cores={cores}
-            categorias={categorias}
-            novaCategoria={novaCategoria}
-            setNovaCategoria={setNovaCategoria}
-            criarCategoria={criarCategoria}
-            excluirCategoria={excluirCategoria}
-          />
+  cores={cores}
+  categorias={categoriasContas}
+  novaCategoria={novaCategoriaConta}
+  setNovaCategoria={setNovaCategoriaConta}
+  criarCategoria={criarCategoriaConta}
+  excluirCategoria={excluirCategoriaConta}
+/>
+        )}
+
+        {abaAtiva === "entradas" && (
+          <AbaGeral
+  cores={cores}
+  categorias={categoriasEntradas}
+  novaCategoria={novaCategoriaEntrada}
+  setNovaCategoria={setNovaCategoriaEntrada}
+  criarCategoria={criarCategoriaEntrada}
+  excluirCategoria={excluirCategoriaEntrada}
+/>
         )}
 
         {abaAtiva === "usuarios" && isAdmin && <AbaUsuarios cores={cores} />}

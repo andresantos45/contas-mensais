@@ -23,7 +23,8 @@ import GestaoCategorias from "../components/Dashboard/GestaoCategorias.tsx";
 import { calcularDashboard } from "../components/Dashboard/dashboardCalculations";
 import { Conta } from "../types/Conta";
 import { ContaExcel } from "../types/ContaExcel";
-import { Categoria } from "../types/Categoria";
+import { CategoriaConta } from "../types/CategoriaConta";
+import { CategoriaEntrada } from "../types/CategoriaEntrada";
 import Toast from "../components/UI/Toast";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { isContaFutura } from "../utils/isContaFutura";
@@ -56,8 +57,13 @@ export default function Dashboard() {
   const [anoBusca, setAnoBusca] = useState(2025);
   const [totalPeriodoAnterior, setTotalPeriodoAnterior] = useState(0);
   const [exportando, setExportando] = useState<null | "excel" | "pdf">(null);
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
-  const [novaCategoria, setNovaCategoria] = useState("");
+  const [categoriasEntradas, setCategoriasEntradas] = useState<
+    CategoriaEntrada[]
+  >([]);
+
+  const [categorias, setCategorias] = useState<CategoriaConta[]>([]);
+  const [novaCategoriaConta, setNovaCategoriaConta] = useState("");
+  const [novaCategoriaEntrada, setNovaCategoriaEntrada] = useState("");
   const [contaEditando, setContaEditando] = useState<Conta | null>(null);
   const [salvandoConta, setSalvandoConta] = useState(false);
   const [mostrarConfigModal, setMostrarConfigModal] = useState(false);
@@ -68,11 +74,13 @@ export default function Dashboard() {
   } | null>(null);
   const [contaParaExcluir, setContaParaExcluir] = useState<Conta | null>(null);
   const [categoriaParaExcluir, setCategoriaParaExcluir] =
-    useState<Categoria | null>(null);
+    useState<CategoriaConta | null>(null);
   const [ultimaContaExcluida, setUltimaContaExcluida] = useState<Conta | null>(
     null
   );
   const [timeoutUndo, setTimeoutUndo] = useState<number | null>(null);
+  const [ultimaEntradaExcluida, setUltimaEntradaExcluida] = useState<any | null>(null);
+const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(null);
   const [mostrarFuturas, setMostrarFuturas] = useState(false);
 
   // 🔀 MODO DE TELA
@@ -80,6 +88,7 @@ export default function Dashboard() {
 
   // 🔥 ENTRADAS — STATES
   const [entradas, setEntradas] = useState<any[]>([]);
+  const [entradasBase, setEntradasBase] = useState<any[]>([]);
   const [entradaEditando, setEntradaEditando] = useState<any | null>(null);
   const [salvandoEntrada, setSalvandoEntrada] = useState(false);
 
@@ -87,6 +96,72 @@ export default function Dashboard() {
   const [valorEntrada, setValorEntrada] = useState("");
   const [dataEntrada, setDataEntrada] = useState("");
   const [categoriaEntradaId, setCategoriaEntradaId] = useState("");
+
+  // =======================
+  // ➕ CRIAR ENTRADA
+  // =======================
+  async function criarEntrada(e?: React.FormEvent) {
+    e?.preventDefault();
+
+    if (
+      !descricaoEntrada ||
+      !valorEntrada ||
+      !dataEntrada ||
+      !categoriaEntradaId
+    ) {
+      alert("Preencha todos os campos da entrada");
+      return;
+    }
+
+    try {
+      setSalvandoEntrada(true);
+
+      const dataObj = new Date(dataEntrada);
+
+      if (isNaN(dataObj.getTime())) {
+        alert("Data inválida");
+        return;
+      }
+
+      if (entradaEditando) {
+        await api.put(`/api/entradas/${entradaEditando.id}`, {
+          descricao: descricaoEntrada,
+          valor: Number(valorEntrada),
+          data: dataObj.toISOString(),
+          categoriaId: Number(categoriaEntradaId),
+        });
+
+        setToast({ mensagem: "Entrada atualizada com sucesso" });
+        setEntradaEditando(null);
+      } else {
+        await api.post("/api/entradas", {
+          descricao: descricaoEntrada,
+          valor: Number(valorEntrada),
+          data: dataObj.toISOString(),
+          categoriaId: Number(categoriaEntradaId),
+        });
+      }
+
+      setToast({
+        mensagem: "Entrada criada com sucesso",
+        tipo: "sucesso",
+      });
+
+      // limpa formulário
+      setDescricaoEntrada("");
+      setValorEntrada("");
+      setDataEntrada("");
+      setCategoriaEntradaId("");
+
+      // recarrega entradas
+      await carregarEntradasPeriodo();
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao criar entrada");
+    } finally {
+      setSalvandoEntrada(false);
+    }
+  }
 
   useEffect(() => {
     if (mostrarConfigModal) {
@@ -125,6 +200,15 @@ export default function Dashboard() {
   const [categoriaId, setCategoriaId] = useState("");
   const [tipo, setTipo] = useState<"entrada" | "saida">("saida");
 
+  useEffect(() => {
+    if (!entradaEditando) return;
+
+    setDescricaoEntrada(entradaEditando.descricao);
+    setValorEntrada(String(entradaEditando.valor));
+    setDataEntrada(entradaEditando.data.slice(0, 10));
+    setCategoriaEntradaId(String(entradaEditando.categoriaId));
+  }, [entradaEditando]);
+
   async function carregarContasPeriodo() {
     try {
       // 1️⃣ busca normal do período
@@ -155,7 +239,9 @@ export default function Dashboard() {
 
   async function carregarCategorias() {
     try {
-      const response = await api.get<Categoria[]>("/api/categorias");
+      const response = await api.get<CategoriaConta[]>(
+        "/api/categorias-contas"
+      );
 
       setCategorias(
         response.data.sort((a, b) =>
@@ -163,11 +249,25 @@ export default function Dashboard() {
         )
       );
     } catch (error: any) {
-      if (error.response?.status === 404) {
-        setCategorias([]); // ✅ nenhuma categoria ainda
-      } else {
-        console.error("Erro ao carregar categorias", error);
-      }
+      setCategorias([]);
+      console.error("Erro ao carregar categorias de contas", error);
+    }
+  }
+
+  async function carregarCategoriasEntradas() {
+    try {
+      const response = await api.get<CategoriaEntrada[]>(
+        "/api/categorias-entradas"
+      );
+
+      setCategoriasEntradas(
+        response.data.sort((a, b) =>
+          a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
+        )
+      );
+    } catch (error) {
+      console.error("Erro ao carregar categorias de entradas", error);
+      setCategoriasEntradas([]); // 🔒 evita quebra silenciosa
     }
   }
 
@@ -176,14 +276,11 @@ export default function Dashboard() {
   // =======================
   async function carregarEntradasPeriodo() {
     try {
-      const response = await api.get(`/api/contas/${mesBusca}/${anoBusca}`);
-
-      const somenteEntradas = response.data.filter(
-        (c: any) => c.tipo === "entrada"
-      );
-
-      setEntradas(somenteEntradas);
-    } catch (error: any) {
+      const response = await api.get(`/api/entradas/${mesBusca}/${anoBusca}`);
+      setEntradasBase(response.data); // 🔒 fonte da verdade
+      setEntradas(response.data); // 🔍 lista exibida
+    } catch {
+      setEntradasBase([]);
       setEntradas([]);
     }
   }
@@ -195,12 +292,18 @@ export default function Dashboard() {
       try {
         setLoading(true);
 
-        await Promise.all([
+        const promessas = [
           carregarContasPeriodo(),
-          carregarCategorias(),
+          carregarCategorias(), // categorias de contas
+          carregarCategoriasEntradas(), // categorias de entradas
           carregarPeriodoAnterior(),
-          carregarEntradasPeriodo(), // 🔥 ENTRADAS
-        ]);
+        ];
+
+        if (modoTela === "entradas") {
+          promessas.push(carregarEntradasPeriodo());
+        }
+
+        await Promise.all(promessas);
       } catch (erro: any) {
         if (erro.code === "ERR_NETWORK") {
           alert(
@@ -651,6 +754,7 @@ export default function Dashboard() {
   // =======================
   // CRIAR / EDITAR CONTA
   // =======================
+
   async function criarConta(e: React.FormEvent) {
     e.preventDefault();
 
@@ -744,52 +848,83 @@ export default function Dashboard() {
     }
   }
 
-  // =======================
-  // CRIAR CATEGORIA
-  // =======================
-  async function criarCategoria(e: React.FormEvent) {
+  async function criarCategoriaConta(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!novaCategoria.trim()) {
+    if (!novaCategoriaConta.trim()) {
       alert("Informe o nome da categoria");
       return;
     }
 
-    // 🚫 evita categoria duplicada
-    if (
-      categorias.some(
-        (c) => c.nome.toLowerCase() === novaCategoria.toLowerCase()
-      )
-    ) {
-      setToast({
-        mensagem: "Categoria já existe",
-        tipo: "erro",
-      });
+    await api.post("/api/categorias-contas", {
+      nome: novaCategoriaConta,
+    });
+
+    await carregarCategorias();
+    setNovaCategoriaConta("");
+
+    setToast({
+      mensagem: "Categoria de conta criada com sucesso",
+      tipo: "sucesso",
+    });
+  }
+
+  async function criarCategoriaEntrada(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!novaCategoriaEntrada.trim()) {
+      alert("Informe o nome da categoria");
       return;
     }
 
-    try {
-      await api.post("/api/categorias", {
-        nome: novaCategoria,
-      });
+    await api.post("/api/categorias-entradas", {
+      nome: novaCategoriaEntrada,
+    });
 
-      const recarregar = await api.get("/api/categorias");
+    await carregarCategoriasEntradas();
+    setNovaCategoriaEntrada("");
 
-      setCategorias(
-        recarregar.data.sort((a: Categoria, b: Categoria) =>
-          a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
-        )
-      );
-
-      setNovaCategoria("");
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao criar categoria");
-    }
+    setToast({
+      mensagem: "Categoria de entrada criada com sucesso",
+      tipo: "sucesso",
+    });
   }
+
   // =======================
   // EXCLUIR CONTA
   // =======================
+
+  async function excluirEntrada(id: number) {
+  const entrada = entradas.find((e) => e.id === id);
+  if (!entrada) return;
+
+  if (!confirm("Deseja excluir esta entrada?")) return;
+
+  try {
+    await api.delete(`/api/entradas/${id}`);
+
+    setUltimaEntradaExcluida(entrada);
+
+    setToast({
+      mensagem: "Entrada excluída",
+    });
+
+    const timeout = window.setTimeout(() => {
+      setUltimaEntradaExcluida(null);
+    }, 5000);
+
+    setTimeoutUndoEntrada(timeout);
+
+    await carregarEntradasPeriodo();
+  } catch {
+    setToast({
+      mensagem: "Erro ao excluir entrada",
+      tipo: "erro",
+    });
+  }
+}
+
+
   async function excluirConta(id: number) {
     const conta = contas.find((c) => c.id === id);
     if (!conta) return;
@@ -818,10 +953,17 @@ export default function Dashboard() {
     if (!categoriaParaExcluir) return;
 
     try {
-      await api.delete(`/api/categorias/${categoriaParaExcluir.id}`);
+      await api.delete(`/api/categorias-contas/${categoriaParaExcluir.id}`);
 
-      setCategorias(categorias.filter((c) => c.id !== categoriaParaExcluir.id));
+      const recarregar = await api.get<CategoriaConta[]>(
+        "/api/categorias-contas"
+      );
 
+      setCategorias(
+        recarregar.data.sort((a, b) =>
+          a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
+        )
+      );
       setToast({
         mensagem: "Categoria excluída com sucesso",
       });
@@ -879,6 +1021,37 @@ export default function Dashboard() {
     }
   }
 
+
+  async function desfazerExclusaoEntrada() {
+  if (!ultimaEntradaExcluida) return;
+
+  try {
+    await api.post("/api/entradas", {
+      descricao: ultimaEntradaExcluida.descricao,
+      valor: ultimaEntradaExcluida.valor,
+      data: ultimaEntradaExcluida.data,
+      categoriaId: ultimaEntradaExcluida.categoriaId,
+    });
+
+    setToast({
+      mensagem: "Exclusão desfeita",
+    });
+
+    if (timeoutUndoEntrada) {
+      clearTimeout(timeoutUndoEntrada);
+      setTimeoutUndoEntrada(null);
+    }
+
+    setUltimaEntradaExcluida(null);
+    await carregarEntradasPeriodo();
+  } catch {
+    setToast({
+      mensagem: "Erro ao desfazer exclusão",
+      tipo: "erro",
+    });
+  }
+}
+
   // =======================
   // INICIAR EDIÇÃO
   // =======================
@@ -900,6 +1073,7 @@ export default function Dashboard() {
     setCategoriaId(String(conta.categoriaId ?? ""));
     setTipo(conta.tipo);
   }
+
   return (
     <div
       style={{
@@ -984,12 +1158,20 @@ export default function Dashboard() {
 
               <GestaoCategorias
                 cores={cores}
-                categorias={categorias}
-                excluirCategoria={excluirCategoria}
-                novaCategoria={novaCategoria}
-                setNovaCategoria={setNovaCategoria}
-                criarCategoria={criarCategoria}
                 isAdmin={isAdmin}
+                categoriasContas={categorias}
+                criarCategoriaConta={criarCategoriaConta}
+                excluirCategoriaConta={excluirCategoria}
+                categoriasEntradas={categoriasEntradas}
+                criarCategoriaEntrada={criarCategoriaEntrada}
+                excluirCategoriaEntrada={async (id) => {
+                  await api.delete(`/api/categorias-entradas/${id}`);
+                  await carregarCategoriasEntradas();
+                }}
+                novaCategoriaConta={novaCategoriaConta}
+                setNovaCategoriaConta={setNovaCategoriaConta}
+                novaCategoriaEntrada={novaCategoriaEntrada}
+                setNovaCategoriaEntrada={setNovaCategoriaEntrada}
               />
 
               <div style={{ textAlign: "right", marginTop: 20 }}>
@@ -1070,10 +1252,10 @@ export default function Dashboard() {
               setData={setDataEntrada}
               categoriaId={categoriaEntradaId}
               setCategoriaId={setCategoriaEntradaId}
-              categorias={categorias}
+              categorias={categoriasEntradas}
               entradaEditando={entradaEditando}
               salvandoEntrada={salvandoEntrada}
-              criarEntrada={() => {}}
+              criarEntrada={criarEntrada}
               cores={cores}
               cancelarEdicao={() => {
                 setEntradaEditando(null);
@@ -1108,7 +1290,9 @@ export default function Dashboard() {
               color: cores.texto,
             }}
           >
-            Contas do Período
+            {modoTela === "contas"
+              ? "Contas do Período"
+              : "Entradas do Período"}
           </h3>
 
           {contasFuturas.length > 0 && (
@@ -1131,8 +1315,10 @@ export default function Dashboard() {
               display: "flex",
               gap: 12,
               flexWrap: "wrap",
+              alignItems: "center",
             }}
           >
+            {/* MÊS */}
             <select
               value={mesBusca}
               onChange={(e) => setMesBusca(Number(e.target.value))}
@@ -1167,6 +1353,7 @@ export default function Dashboard() {
               ))}
             </select>
 
+            {/* ANO */}
             <input
               type="number"
               value={anoBusca}
@@ -1182,6 +1369,37 @@ export default function Dashboard() {
                 fontWeight: 500,
               }}
             />
+
+            {/* 🔍 PESQUISA — SOMENTE ENTRADAS */}
+            {modoTela === "entradas" && (
+              <input
+                type="text"
+                placeholder="Pesquisar entrada..."
+                onChange={(e) => {
+                  const termo = e.target.value.toLowerCase();
+
+                  if (!termo) {
+                    setEntradas(entradasBase);
+                    return;
+                  }
+
+                  setEntradas(
+                    entradasBase.filter((en: any) =>
+                      en.descricao.toLowerCase().includes(termo)
+                    )
+                  );
+                }}
+                style={{
+                  minWidth: 220,
+                  background: "#ffffff",
+                  color: "#111827",
+                  border: "1px solid #d1d5db",
+                  borderRadius: 8,
+                  padding: "10px 12px",
+                  fontWeight: 500,
+                }}
+              />
+            )}
           </div>
         </div>
 
@@ -1312,7 +1530,7 @@ export default function Dashboard() {
             entradas={entradas}
             cores={cores}
             iniciarEdicao={setEntradaEditando}
-            excluirEntrada={(id) => {}}
+            excluirEntrada={excluirEntrada}
           />
         )}
 
@@ -1557,20 +1775,25 @@ export default function Dashboard() {
       )}
 
       {toast && (
-        <Toast
-          mensagem={toast.mensagem}
-          tipo={toast.tipo}
-          onClose={() => setToast(null)}
-          acao={
-            ultimaContaExcluida
-              ? {
-                  texto: "Desfazer",
-                  onClick: desfazerExclusaoConta,
-                }
-              : undefined
+  <Toast
+    mensagem={toast.mensagem}
+    tipo={toast.tipo}
+    onClose={() => setToast(null)}
+    acao={
+      ultimaContaExcluida
+        ? {
+            texto: "Desfazer",
+            onClick: desfazerExclusaoConta,
           }
-        />
-      )}
+        : ultimaEntradaExcluida
+        ? {
+            texto: "Desfazer",
+            onClick: desfazerExclusaoEntrada,
+          }
+        : undefined
+    }
+  />
+)}
     </div>
   );
 }

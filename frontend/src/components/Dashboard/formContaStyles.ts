@@ -1,6 +1,6 @@
 export const formGrid = {
   display: "grid",
-  gridTemplateColumns: "repeat(4, minmax(180px, 1fr)) auto",
+  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
   gap: 12,
   marginTop: 20,
   alignItems: "end",

@@ -67,14 +67,13 @@ export default function FormConta({
 
   return (
     <form
-      onSubmit={criarConta}
-      style={{
-        ...formGrid,
-        gridTemplateColumns: isMobile ? "1fr" : formGrid.gridTemplateColumns,
-        gap: isMobile ? 12 : formGrid.gap,
-        width: "100%",
-      }}
-    >
+  onSubmit={criarConta}
+  style={{
+    ...formGrid,
+    gap: isMobile ? 12 : formGrid.gap,
+    width: "100%",
+  }}
+>
       {/* DESCRIÇÃO */}
       <div>
         <label style={{ ...label, color: cores.textoSuave }}>Descrição</label>

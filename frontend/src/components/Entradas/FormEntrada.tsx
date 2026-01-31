@@ -77,7 +77,6 @@ export default function FormEntrada({
       onSubmit={criarEntrada}
       style={{
         ...formGrid,
-        gridTemplateColumns: isMobile ? "1fr" : formGrid.gridTemplateColumns,
         gap: isMobile ? 12 : formGrid.gap,
         width: "100%",
       }}
@@ -159,13 +158,14 @@ export default function FormEntrada({
           fontSize: isMobile ? 13 : 14,
           opacity: salvandoEntrada ? 0.6 : 1,
           cursor: salvandoEntrada ? "not-allowed" : "pointer",
+          gridColumn: "1 / -1", // 🔥 ocupa linha inteira
         }}
       >
         {salvandoEntrada
           ? "⏳ Salvando..."
           : entradaEditando
-          ? "💾 Salvar entrada"
-          : "➕ Adicionar entrada"}
+            ? "💾 Salvar entrada"
+            : "➕ Adicionar entrada"}
       </button>
 
       {/* BOTÃO CANCELAR */}

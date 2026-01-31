@@ -14,7 +14,7 @@ namespace ContasMensais.Api.Models
 
         // 🔗 Categoria
         public int CategoriaId { get; set; }
-        public Categoria? Categoria { get; set; }
+       
 
         // 🔐 Usuário dono da conta
         public int UsuarioId { get; set; }

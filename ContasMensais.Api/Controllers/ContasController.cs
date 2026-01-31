@@ -41,7 +41,6 @@ private int ObterUsuarioId()
             var usuarioId = ObterUsuarioId();
 
 var query = _context.Contas
-    .Include(c => c.Categoria)
     .Where(c =>
         c.UsuarioId == usuarioId &&
         c.Data.Year == ano
@@ -55,16 +54,15 @@ var query = _context.Contas
 
             var contas = await query
     .Select(c => new
-{
-    c.Id,
-    c.Descricao,
-    c.Valor,
-    Data = c.Data,          // ✅ NECESSÁRIO
-    Mes = c.Data.Month,
-    Ano = c.Data.Year,
-    CategoriaId = c.CategoriaId, // ✅ NECESSÁRIO
-    CategoriaNome = c.Categoria != null ? c.Categoria.Nome : null
-})
+    {
+        c.Id,
+        c.Descricao,
+        c.Valor,
+        Data = c.Data,
+        Mes = c.Data.Month,
+        Ano = c.Data.Year,
+        CategoriaId = c.CategoriaId
+    })
     .ToListAsync();
 
             return Ok(contas);
@@ -86,9 +84,8 @@ if (conta.Data == default)
     return BadRequest("Data inválida");
 
     // 🔒 garante que a categoria pertence ao usuário
-    var categoriaExiste = await _context.Categorias.AnyAsync(c =>
-    c.Id == conta.CategoriaId &&
-    c.UsuarioId == usuarioId
+    var categoriaExiste = await _context.CategoriasContas.AnyAsync(c =>
+    c.Id == conta.CategoriaId
 );
 
 if (!categoriaExiste)

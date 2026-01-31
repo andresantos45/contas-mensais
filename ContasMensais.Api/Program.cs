@@ -5,6 +5,7 @@ using ContasMensais.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using ContasMensais.Api.Services;
 using System.Security.Claims;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 // 🔐 CHAVE JWT CENTRALIZADA (ÚNICO PONTO DA CHAVE)
@@ -106,12 +107,26 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+});
+
 var app = builder.Build();
 
+// 🔥 OBRIGATÓRIO NO RENDER
+app.UseForwardedHeaders();
 
-// Middlewares
+// HTTPS
+app.UseHttpsRedirection();
+
+// Routing
 app.UseRouting();
 
+// 🌍 CORS — ANTES de auth, swagger e controllers
 app.UseCors("FrontendPolicy");
 
 // Swagger (OBRIGATÓRIO)

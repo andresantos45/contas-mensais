@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ContasMensais.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260127152004_AddUsuarioToCategorias")]
-    partial class AddUsuarioToCategorias
+    [Migration("20260129153058_InitialSchemaCategorias")]
+    partial class InitialSchemaCategorias
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace ContasMensais.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ContasMensais.Api.Models.Categoria", b =>
+            modelBuilder.Entity("ContasMensais.Api.Models.CategoriaConta", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -34,10 +34,6 @@ namespace ContasMensais.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("text")
@@ -45,13 +41,32 @@ namespace ContasMensais.Api.Migrations
 
                     b.Property<int>("UsuarioId")
                         .HasColumnType("integer")
-                        .HasColumnName("Usuarioid");
+                        .HasColumnName("usuarioid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("categorias", "public");
+                    b.ToTable("categorias_contas", (string)null);
+                });
+
+            modelBuilder.Entity("ContasMensais.Api.Models.CategoriaEntrada", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nome");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("categorias_entradas", (string)null);
                 });
 
             modelBuilder.Entity("ContasMensais.Api.Models.Conta", b =>
@@ -81,8 +96,6 @@ namespace ContasMensais.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoriaId");
-
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("contas", (string)null);
@@ -91,11 +104,8 @@ namespace ContasMensais.Api.Migrations
             modelBuilder.Entity("ContasMensais.Api.Models.Usuario", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("Id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CriadoEm")
                         .HasColumnType("timestamp with time zone")
@@ -123,13 +133,16 @@ namespace ContasMensais.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("usuarios", "public");
+                    b.ToTable("usuarios", "public", t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
-            modelBuilder.Entity("ContasMensais.Api.Models.Categoria", b =>
+            modelBuilder.Entity("ContasMensais.Api.Models.CategoriaConta", b =>
                 {
                     b.HasOne("ContasMensais.Api.Models.Usuario", "Usuario")
-                        .WithMany("Categorias")
+                        .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -139,26 +152,13 @@ namespace ContasMensais.Api.Migrations
 
             modelBuilder.Entity("ContasMensais.Api.Models.Conta", b =>
                 {
-                    b.HasOne("ContasMensais.Api.Models.Categoria", "Categoria")
-                        .WithMany()
-                        .HasForeignKey("CategoriaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ContasMensais.Api.Models.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Categoria");
-
                     b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("ContasMensais.Api.Models.Usuario", b =>
-                {
-                    b.Navigation("Categorias");
                 });
 #pragma warning restore 612, 618
         }

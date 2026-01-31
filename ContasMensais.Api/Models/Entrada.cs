@@ -12,5 +12,8 @@ namespace ContasMensais.Api.Models
 
         public int CategoriaId { get; set; }
         public string CategoriaNome { get; set; } = string.Empty;
+
+        // 🔐 DONO DA ENTRADA
+        public int UsuarioId { get; set; }
     }
 }

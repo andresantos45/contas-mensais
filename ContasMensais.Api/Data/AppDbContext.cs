@@ -11,7 +11,9 @@ namespace ContasMensais.Api.Data
         }
 
         public DbSet<Conta> Contas { get; set; }
-        public DbSet<Categoria> Categorias { get; set; }
+        public DbSet<CategoriaConta> CategoriasContas { get; set; }
+
+        public DbSet<CategoriaEntrada> CategoriasEntradas { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,11 +27,11 @@ modelBuilder.Entity<Usuario>(entity =>
 {
     entity.ToTable("usuarios", "public");
 
-entity.HasKey(e => e.Id);
+    entity.HasKey(e => e.Id);
 
-entity.Property(e => e.Id)
-      .HasColumnName("Id")   // ✅ I MAIÚSCULO — IGUAL AO BANCO
-      .ValueGeneratedOnAdd();
+    entity.Property(e => e.Id)
+          .HasColumnName("Id")
+          .ValueGeneratedNever(); // 🔒 EF NÃO GERA / NÃO CRIA
 
     entity.Property(e => e.Nome)
           .HasColumnName("nome");
@@ -41,17 +43,21 @@ entity.Property(e => e.Id)
           .HasColumnName("senha_hash");
 
     entity.Property(e => e.Role)
-      .HasColumnName("Role");
+          .HasColumnName("Role");
 
     entity.Property(e => e.CriadoEm)
           .HasColumnName("criado_em");
+
+    // 🔒 EXCLUI USUARIOS DAS MIGRATIONS
+    entity.Metadata.SetIsTableExcludedFromMigrations(true);
 });
 
 // ======================
 // FIXA NOMES DAS TABELAS RESTANTES
 // ======================
 modelBuilder.Entity<Conta>().ToTable("contas");
-modelBuilder.Entity<Categoria>().ToTable("categorias");
+modelBuilder.Entity<CategoriaConta>().ToTable("categorias_contas");
+modelBuilder.Entity<CategoriaEntrada>().ToTable("categorias_entradas");
 
             // ======================
             // CONTA
@@ -71,10 +77,7 @@ modelBuilder.Entity<Categoria>().ToTable("categorias");
                       .IsRequired();
 
                 // 🔗 Categoria
-                entity.HasOne(e => e.Categoria)
-                      .WithMany()
-                      .HasForeignKey(e => e.CategoriaId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                
 
                 // 🔐 Usuário (DONO DA CONTA)
                 entity.HasOne(e => e.Usuario)
@@ -86,29 +89,7 @@ modelBuilder.Entity<Categoria>().ToTable("categorias");
             // ======================
             // CATEGORIA
             // ======================
-            modelBuilder.Entity<Categoria>(entity =>
-{
-    entity.ToTable("categorias", "public");
-
-    entity.HasKey(e => e.Id);
-
-    entity.Property(e => e.Id)
-          .HasColumnName("id");
-
-    entity.Property(e => e.Nome)
-          .HasColumnName("nome");
-
-    entity.Property(e => e.CreatedAt)
-          .HasColumnName("created_at");
-
-    entity.Property(e => e.UsuarioId)
-          .HasColumnName("Usuarioid");
-
-    entity.HasOne(e => e.Usuario)
-          .WithMany(u => u.Categorias)
-          .HasForeignKey(e => e.UsuarioId)
-          .OnDelete(DeleteBehavior.Cascade);
-});
+            
         }
     }
 }

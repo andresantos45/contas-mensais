@@ -5,6 +5,7 @@ import {
   gridGraficos,
 } from "../components/Dashboard/dashboardStyles";
 import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -57,6 +58,12 @@ export default function Dashboard() {
   const [anoBusca, setAnoBusca] = useState(2025);
   const [totalPeriodoAnterior, setTotalPeriodoAnterior] = useState(0);
   const [exportando, setExportando] = useState<null | "excel" | "pdf">(null);
+  const [filtroCategoria, setFiltroCategoria] = useState("");
+  const [filtroValorMin, setFiltroValorMin] = useState("");
+  const [filtroValorMax, setFiltroValorMax] = useState("");
+  const [filtroDataInicio, setFiltroDataInicio] = useState("");
+  const [filtroDataFim, setFiltroDataFim] = useState("");
+  const [filtroDescricao, setFiltroDescricao] = useState("");
   const [categoriasEntradas, setCategoriasEntradas] = useState<
     CategoriaEntrada[]
   >([]);
@@ -79,8 +86,12 @@ export default function Dashboard() {
     null
   );
   const [timeoutUndo, setTimeoutUndo] = useState<number | null>(null);
-  const [ultimaEntradaExcluida, setUltimaEntradaExcluida] = useState<any | null>(null);
-const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(null);
+  const [ultimaEntradaExcluida, setUltimaEntradaExcluida] = useState<
+    any | null
+  >(null);
+  const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(
+    null
+  );
   const [mostrarFuturas, setMostrarFuturas] = useState(false);
 
   // 🔀 MODO DE TELA
@@ -285,41 +296,88 @@ const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(null
     }
   }
 
+  // =======================
+  // 🔍 FILTRO AVANÇADO — ENTRADAS
+  // =======================
+  function aplicarFiltrosEntradas() {
+    let lista = [...entradasBase];
+
+    // 🔍 descrição
+    if (filtroDescricao) {
+      lista = lista.filter((e: any) =>
+        e.descricao.toLowerCase().includes(filtroDescricao.toLowerCase())
+      );
+    }
+
+    // 🗂️ categoria
+    if (filtroCategoria) {
+      lista = lista.filter(
+        (e: any) => String(e.categoriaId) === filtroCategoria
+      );
+    }
+
+    // 💰 valor mínimo
+    if (filtroValorMin) {
+      lista = lista.filter((e: any) => e.valor >= Number(filtroValorMin));
+    }
+
+    // 💰 valor máximo
+    if (filtroValorMax) {
+      lista = lista.filter((e: any) => e.valor <= Number(filtroValorMax));
+    }
+
+    // 📅 data inicial
+    if (filtroDataInicio) {
+      lista = lista.filter(
+        (e: any) => new Date(e.data) >= new Date(filtroDataInicio)
+      );
+    }
+
+    // 📅 data final
+    if (filtroDataFim) {
+      lista = lista.filter(
+        (e: any) => new Date(e.data) <= new Date(filtroDataFim)
+      );
+    }
+
+    setEntradas(lista);
+  }
+
+  // =======================
+  // 🔁 REAPLICAR FILTROS QUANDO ALGO MUDAR
+  // =======================
+  useEffect(() => {
+    aplicarFiltrosEntradas();
+  }, [
+    filtroDescricao,
+    filtroCategoria,
+    filtroValorMin,
+    filtroValorMax,
+    filtroDataInicio,
+    filtroDataFim,
+    entradasBase,
+  ]);
+
   useEffect(() => {
     let ativo = true;
 
-    async function carregarTudo() {
+    async function carregarPorPeriodo() {
       try {
         setLoading(true);
 
-        const promessas = [
-          carregarContasPeriodo(),
-          carregarCategorias(), // categorias de contas
-          carregarCategoriasEntradas(), // categorias de entradas
-          carregarPeriodoAnterior(),
-        ];
+        await Promise.all([carregarCategorias(), carregarCategoriasEntradas()]);
 
-        if (modoTela === "entradas") {
-          promessas.push(carregarEntradasPeriodo());
-        }
-
-        await Promise.all(promessas);
+        await carregarContasPeriodo();
+        await carregarEntradasPeriodo();
+        await carregarPeriodoAnterior();
       } catch (erro: any) {
-        if (erro.code === "ERR_NETWORK") {
-          alert(
-            "Servidor indisponível no momento. Tente novamente mais tarde."
-          );
-        } else {
-          console.error("Erro ao carregar dados", erro);
-        }
+        console.error("Erro ao carregar dados", erro);
       } finally {
         if (ativo) setLoading(false);
       }
     }
 
-    setMostrarFuturas(false); // 🔒 sempre começa fechado
-
-    carregarTudo();
+    carregarPorPeriodo();
 
     return () => {
       ativo = false;
@@ -443,6 +501,49 @@ const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(null
     0
   );
 
+  const dadosComparativoPizza = {
+  Entradas: totalEntradasPeriodo,
+  Saídas: totalPeriodo,
+};
+
+  const totalEntradasPorMesNormalizado: Record<number, number> = {
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
+    8: 0,
+    9: 0,
+    10: 0,
+    11: 0,
+    12: 0,
+  };
+
+  entradas.forEach((e: any) => {
+    const data = new Date(e.data);
+    const mes = data.getMonth() + 1;
+    totalEntradasPorMesNormalizado[mes] += e.valor;
+  });
+
+  // =======================
+  // 📊 ENTRADAS POR CATEGORIA
+  // =======================
+  const totalEntradasPorCategoria: Record<string, number> = {};
+
+  entradas.forEach((e: any) => {
+    const nomeCategoria =
+      categoriasEntradas.find((c) => c.id === e.categoriaId)?.nome ??
+      "Sem categoria";
+
+    if (!totalEntradasPorCategoria[nomeCategoria]) {
+      totalEntradasPorCategoria[nomeCategoria] = 0;
+    }
+
+    totalEntradasPorCategoria[nomeCategoria] += e.valor;
+  });
+
   // SALDO = ENTRADAS - SAÍDAS
   const saldoFinal = totalEntradasPeriodo - totalPeriodo;
 
@@ -469,6 +570,119 @@ const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(null
 
   const dadosGraficoMensal =
     mesBusca === 0 ? totalAnualNormalizado : totalPorMes;
+
+  /* 🔥 DADOS DO GRÁFICO DE ENTRADAS */
+  const dadosGraficoEntradas = useMemo(() => {
+    // Ano inteiro → remove meses zerados
+    if (mesBusca === 0) {
+      const filtrado: Record<number, number> = {};
+
+      Object.entries(totalEntradasPorMesNormalizado).forEach(([mes, valor]) => {
+        if (valor > 0) {
+          filtrado[Number(mes)] = valor;
+        }
+      });
+
+      return filtrado;
+    }
+
+    // Mês específico → valor único
+    return totalEntradasPeriodo > 0 ? { [mesBusca]: totalEntradasPeriodo } : {};
+  }, [mesBusca, totalEntradasPeriodo, totalEntradasPorMesNormalizado]);
+
+  // =======================
+  // 📊 SALDO MENSAL (ENTRADAS - SAÍDAS)
+  // =======================
+  const dadosGraficoSaldo = useMemo(() => {
+    const base: Record<number, number> = {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+      6: 0,
+      7: 0,
+      8: 0,
+      9: 0,
+      10: 0,
+      11: 0,
+      12: 0,
+    };
+
+    // soma entradas
+    entradas.forEach((e: any) => {
+      const mes = new Date(e.data).getMonth() + 1;
+      base[mes] += e.valor;
+    });
+
+    // subtrai saídas
+    contasFiltradas.forEach((c) => {
+      base[c.mes] -= c.valor;
+    });
+
+    // mês único ou ano inteiro
+    if (mesBusca === 0) {
+      return base;
+    }
+
+    return { [mesBusca]: base[mesBusca] };
+  }, [entradas, contasFiltradas, mesBusca]);
+
+  // =======================
+  // 📊 COMPARATIVO — ENTRADAS x SAÍDAS
+  // =======================
+  const dadosGraficoComparativo = useMemo(() => {
+    const entradasPorMes: Record<number, number> = {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+      6: 0,
+      7: 0,
+      8: 0,
+      9: 0,
+      10: 0,
+      11: 0,
+      12: 0,
+    };
+
+    const saidasPorMes: Record<number, number> = {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+      6: 0,
+      7: 0,
+      8: 0,
+      9: 0,
+      10: 0,
+      11: 0,
+      12: 0,
+    };
+
+    entradas.forEach((e: any) => {
+      const mes = new Date(e.data).getMonth() + 1;
+      entradasPorMes[mes] += e.valor;
+    });
+
+    contasFiltradas.forEach((c) => {
+      saidasPorMes[c.mes] += c.valor;
+    });
+
+    if (mesBusca === 0) {
+      return {
+        entradas: entradasPorMes,
+        saidas: saidasPorMes,
+      };
+    }
+
+    return {
+      entradas: { [mesBusca]: entradasPorMes[mesBusca] },
+      saidas: { [mesBusca]: saidasPorMes[mesBusca] },
+    };
+  }, [entradas, contasFiltradas, mesBusca]);
 
   const totalFuturoPorMes: Record<number, number> = {};
 
@@ -895,35 +1109,34 @@ const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(null
   // =======================
 
   async function excluirEntrada(id: number) {
-  const entrada = entradas.find((e) => e.id === id);
-  if (!entrada) return;
+    const entrada = entradas.find((e) => e.id === id);
+    if (!entrada) return;
 
-  if (!confirm("Deseja excluir esta entrada?")) return;
+    if (!confirm("Deseja excluir esta entrada?")) return;
 
-  try {
-    await api.delete(`/api/entradas/${id}`);
+    try {
+      await api.delete(`/api/entradas/${id}`);
 
-    setUltimaEntradaExcluida(entrada);
+      setUltimaEntradaExcluida(entrada);
 
-    setToast({
-      mensagem: "Entrada excluída",
-    });
+      setToast({
+        mensagem: "Entrada excluída",
+      });
 
-    const timeout = window.setTimeout(() => {
-      setUltimaEntradaExcluida(null);
-    }, 5000);
+      const timeout = window.setTimeout(() => {
+        setUltimaEntradaExcluida(null);
+      }, 5000);
 
-    setTimeoutUndoEntrada(timeout);
+      setTimeoutUndoEntrada(timeout);
 
-    await carregarEntradasPeriodo();
-  } catch {
-    setToast({
-      mensagem: "Erro ao excluir entrada",
-      tipo: "erro",
-    });
+      await carregarEntradasPeriodo();
+    } catch {
+      setToast({
+        mensagem: "Erro ao excluir entrada",
+        tipo: "erro",
+      });
+    }
   }
-}
-
 
   async function excluirConta(id: number) {
     const conta = contas.find((c) => c.id === id);
@@ -1021,36 +1234,35 @@ const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(null
     }
   }
 
-
   async function desfazerExclusaoEntrada() {
-  if (!ultimaEntradaExcluida) return;
+    if (!ultimaEntradaExcluida) return;
 
-  try {
-    await api.post("/api/entradas", {
-      descricao: ultimaEntradaExcluida.descricao,
-      valor: ultimaEntradaExcluida.valor,
-      data: ultimaEntradaExcluida.data,
-      categoriaId: ultimaEntradaExcluida.categoriaId,
-    });
+    try {
+      await api.post("/api/entradas", {
+        descricao: ultimaEntradaExcluida.descricao,
+        valor: ultimaEntradaExcluida.valor,
+        data: ultimaEntradaExcluida.data,
+        categoriaId: ultimaEntradaExcluida.categoriaId,
+      });
 
-    setToast({
-      mensagem: "Exclusão desfeita",
-    });
+      setToast({
+        mensagem: "Exclusão desfeita",
+      });
 
-    if (timeoutUndoEntrada) {
-      clearTimeout(timeoutUndoEntrada);
-      setTimeoutUndoEntrada(null);
+      if (timeoutUndoEntrada) {
+        clearTimeout(timeoutUndoEntrada);
+        setTimeoutUndoEntrada(null);
+      }
+
+      setUltimaEntradaExcluida(null);
+      await carregarEntradasPeriodo();
+    } catch {
+      setToast({
+        mensagem: "Erro ao desfazer exclusão",
+        tipo: "erro",
+      });
     }
-
-    setUltimaEntradaExcluida(null);
-    await carregarEntradasPeriodo();
-  } catch {
-    setToast({
-      mensagem: "Erro ao desfazer exclusão",
-      tipo: "erro",
-    });
   }
-}
 
   // =======================
   // INICIAR EDIÇÃO
@@ -1309,7 +1521,7 @@ const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(null
             </p>
           )}
 
-          {/* PESQUISA — MÊS / ANO */}
+          {/* PESQUISA — MÊS / ANO / FILTROS DE ENTRADAS */}
           <div
             style={{
               display: "flex",
@@ -1370,40 +1582,139 @@ const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(null
               }}
             />
 
-            {/* 🔍 PESQUISA — SOMENTE ENTRADAS */}
+            {/* 🔍 FILTROS — SOMENTE ENTRADAS */}
             {modoTela === "entradas" && (
-              <input
-                type="text"
-                placeholder="Pesquisar entrada..."
-                onChange={(e) => {
-                  const termo = e.target.value.toLowerCase();
+              <>
+                {/* DESCRIÇÃO */}
+                <input
+                  type="text"
+                  placeholder="Descrição"
+                  value={filtroDescricao}
+                  onChange={(e) => setFiltroDescricao(e.target.value)}
+                  style={{
+                    minWidth: 200,
+                    background: "#ffffff",
+                    color: "#111827",
+                    border: "1px solid #d1d5db",
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                    fontWeight: 500,
+                  }}
+                />
 
-                  if (!termo) {
-                    setEntradas(entradasBase);
-                    return;
-                  }
+                {/* CATEGORIA */}
+                <select
+                  value={filtroCategoria}
+                  onChange={(e) => setFiltroCategoria(e.target.value)}
+                  style={{
+                    minWidth: 180,
+                    background: "#ffffff",
+                    color: "#111827",
+                    border: "1px solid #d1d5db",
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                    fontWeight: 500,
+                  }}
+                >
+                  <option value="">Todas categorias</option>
+                  {categoriasEntradas.map((cat) => (
+                    <option key={cat.id} value={String(cat.id)}>
+                      {cat.nome}
+                    </option>
+                  ))}
+                </select>
 
-                  setEntradas(
-                    entradasBase.filter((en: any) =>
-                      en.descricao.toLowerCase().includes(termo)
-                    )
-                  );
-                }}
-                style={{
-                  minWidth: 220,
-                  background: "#ffffff",
-                  color: "#111827",
-                  border: "1px solid #d1d5db",
-                  borderRadius: 8,
-                  padding: "10px 12px",
-                  fontWeight: 500,
-                }}
-              />
+                {/* VALOR MÍN */}
+                <input
+                  type="number"
+                  placeholder="Valor mín."
+                  value={filtroValorMin}
+                  onChange={(e) => setFiltroValorMin(e.target.value)}
+                  style={{
+                    width: 120,
+                    background: "#ffffff",
+                    color: "#111827",
+                    border: "1px solid #d1d5db",
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                    fontWeight: 500,
+                  }}
+                />
+
+                {/* VALOR MÁX */}
+                <input
+                  type="number"
+                  placeholder="Valor máx."
+                  value={filtroValorMax}
+                  onChange={(e) => setFiltroValorMax(e.target.value)}
+                  style={{
+                    width: 120,
+                    background: "#ffffff",
+                    color: "#111827",
+                    border: "1px solid #d1d5db",
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                    fontWeight: 500,
+                  }}
+                />
+
+                {/* DATA INICIAL */}
+                <input
+                  type="date"
+                  value={filtroDataInicio}
+                  onChange={(e) => setFiltroDataInicio(e.target.value)}
+                  style={{
+                    background: "#ffffff",
+                    color: "#111827",
+                    border: "1px solid #d1d5db",
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                    fontWeight: 500,
+                  }}
+                />
+
+                {/* DATA FINAL */}
+                <input
+                  type="date"
+                  value={filtroDataFim}
+                  onChange={(e) => setFiltroDataFim(e.target.value)}
+                  style={{
+                    background: "#ffffff",
+                    color: "#111827",
+                    border: "1px solid #d1d5db",
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                    fontWeight: 500,
+                  }}
+                />
+
+                {/* LIMPAR FILTROS */}
+                <button
+                  onClick={() => {
+                    setFiltroDescricao("");
+                    setFiltroCategoria("");
+                    setFiltroValorMin("");
+                    setFiltroValorMax("");
+                    setFiltroDataInicio("");
+                    setFiltroDataFim("");
+                  }}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid #d1d5db",
+                    borderRadius: 8,
+                    padding: "10px 14px",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                  }}
+                >
+                  Limpar
+                </button>
+              </>
             )}
           </div>
         </div>
 
-        {mesSelecionadoEhFuturo && (
+        {modoTela === "contas" && mesSelecionadoEhFuturo && (
           <div
             style={{
               marginTop: 12,
@@ -1428,7 +1739,7 @@ const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(null
           </div>
         )}
 
-        {contasFuturas.length > 0 && (
+        {modoTela === "contas" && contasFuturas.length > 0 && (
           <div style={{ marginBottom: 12 }}>
             <button
               onClick={() => setMostrarFuturas(!mostrarFuturas)}
@@ -1534,76 +1845,167 @@ const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(null
           />
         )}
 
-        {/* GRÁFICOS — SEMPRE VISÍVEIS */}
-        <div
-          style={{
-            ...gridGraficos,
-            gap: isMobile ? 20 : gridGraficos.gap,
-          }}
-        >
-          {/* PIZZA — POR MÊS */}
+        {/* GRÁFICOS */}
+        {modoTela === "contas" ? (
           <div
             style={{
-              background: cores.card,
-              borderRadius: 16,
-              padding: isMobile ? 12 : 16,
-              border: `1px solid ${cores.borda}`,
+              ...gridGraficos,
+              gap: isMobile ? 20 : gridGraficos.gap,
             }}
           >
-            <h3
-              style={{
-                marginBottom: isMobile ? 8 : 12,
-                fontSize: isMobile ? 14 : 16,
-              }}
-            >
-              📅 Gastos por mês
-            </h3>
-            <GraficoMensal dados={dadosGraficoMensal} />
-          </div>
-
-          {Object.keys(totalFuturoPorMes).length > 0 && (
             <div
               style={{
                 background: cores.card,
                 borderRadius: 16,
                 padding: isMobile ? 12 : 16,
-                border: `1px dashed ${cores.borda}`,
+                border: `1px solid ${cores.borda}`,
               }}
             >
               <h3
                 style={{
                   marginBottom: isMobile ? 8 : 12,
                   fontSize: isMobile ? 14 : 16,
-                  color: "#60a5fa",
                 }}
               >
-                🗓️ Planejamento futuro
+                📅 Gastos por mês
               </h3>
-
-              <GraficoMensal dados={totalFuturoPorMes} />
+              <GraficoMensal dados={dadosGraficoMensal} />
             </div>
-          )}
 
-          {/* PIZZA — POR CATEGORIA */}
+            {Object.keys(totalFuturoPorMes).length > 0 && (
+              <div
+                style={{
+                  background: cores.card,
+                  borderRadius: 16,
+                  padding: isMobile ? 12 : 16,
+                  border: `1px dashed ${cores.borda}`,
+                }}
+              >
+                <h3
+                  style={{
+                    marginBottom: isMobile ? 8 : 12,
+                    fontSize: isMobile ? 14 : 16,
+                    color: "#60a5fa",
+                  }}
+                >
+                  🗓️ Planejamento futuro
+                </h3>
+
+                <GraficoMensal dados={totalFuturoPorMes} />
+              </div>
+            )}
+
+            <div
+  style={{
+    background: cores.card,
+    borderRadius: 16,
+    padding: isMobile ? 12 : 16,
+    border: `1px solid ${cores.borda}`,
+  }}
+>
+  <h3
+    style={{
+      marginBottom: isMobile ? 8 : 12,
+      fontSize: isMobile ? 14 : 16,
+    }}
+  >
+    💰 Saldo mensal
+  </h3>
+
+  <GraficoMensal dados={dadosGraficoSaldo} tipo="saldo" />
+</div>
+
+<div
+  style={{
+    background: cores.card,
+    borderRadius: 16,
+    padding: isMobile ? 12 : 16,
+    border: `1px solid ${cores.borda}`,
+  }}
+>
+  <h3
+    style={{
+      marginBottom: isMobile ? 8 : 12,
+      fontSize: isMobile ? 14 : 16,
+    }}
+  >
+    📊 Entradas x Saídas
+  </h3>
+
+  <GraficoMensal
+    dados={dadosComparativoPizza}
+    tipo="comparativo"
+  />
+</div>
+
+<div
+  style={{
+    background: cores.card,
+    borderRadius: 16,
+    padding: isMobile ? 12 : 16,
+    border: `1px solid ${cores.borda}`,
+  }}
+>
+  <h3
+    style={{
+      marginBottom: isMobile ? 8 : 12,
+      fontSize: isMobile ? 14 : 16,
+    }}
+  >
+    🗂️ Gastos por categoria
+  </h3>
+
+  <GraficoCategoria dados={totalPorCategoria} />
+</div>
+          </div>
+        ) : (
           <div
             style={{
-              background: cores.card,
-              borderRadius: 16,
-              padding: isMobile ? 12 : 16,
-              border: `1px solid ${cores.borda}`,
+              ...gridGraficos,
+              gap: isMobile ? 20 : gridGraficos.gap,
+              marginTop: 24,
             }}
           >
-            <h3
+            <div
               style={{
-                marginBottom: isMobile ? 8 : 12,
-                fontSize: isMobile ? 14 : 16,
+                background: cores.card,
+                borderRadius: 16,
+                padding: isMobile ? 12 : 16,
+                border: `1px solid ${cores.borda}`,
               }}
             >
-              🗂️ Gastos por categoria
-            </h3>
-            <GraficoCategoria dados={totalPorCategoria} />
+              <h3
+                style={{
+                  marginBottom: isMobile ? 8 : 12,
+                  fontSize: isMobile ? 14 : 16,
+                }}
+              >
+                💰 Entradas por período
+              </h3>
+              ✅ <GraficoMensal dados={dadosGraficoEntradas} />
+            </div>
+
+            <div
+              style={{
+                background: cores.card,
+                borderRadius: 16,
+                padding: isMobile ? 12 : 16,
+                border: `1px solid ${cores.borda}`,
+              }}
+            >
+              <h3
+                style={{
+                  marginBottom: isMobile ? 8 : 12,
+                  fontSize: isMobile ? 14 : 16,
+                }}
+              >
+                🗂️ Entradas por categoria
+              </h3>
+
+              <GraficoCategoria dados={totalEntradasPorCategoria} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {contaParaExcluir && (
@@ -1775,25 +2177,25 @@ const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(null
       )}
 
       {toast && (
-  <Toast
-    mensagem={toast.mensagem}
-    tipo={toast.tipo}
-    onClose={() => setToast(null)}
-    acao={
-      ultimaContaExcluida
-        ? {
-            texto: "Desfazer",
-            onClick: desfazerExclusaoConta,
+        <Toast
+          mensagem={toast.mensagem}
+          tipo={toast.tipo}
+          onClose={() => setToast(null)}
+          acao={
+            ultimaContaExcluida
+              ? {
+                  texto: "Desfazer",
+                  onClick: desfazerExclusaoConta,
+                }
+              : ultimaEntradaExcluida
+                ? {
+                    texto: "Desfazer",
+                    onClick: desfazerExclusaoEntrada,
+                  }
+                : undefined
           }
-        : ultimaEntradaExcluida
-        ? {
-            texto: "Desfazer",
-            onClick: desfazerExclusaoEntrada,
-          }
-        : undefined
-    }
-  />
-)}
+        />
+      )}
     </div>
   );
 }

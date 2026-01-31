@@ -1,10 +1,12 @@
 import { Pie } from "react-chartjs-2";
+import { gerarCor } from "../../utils/gerarCor";
 import {
   Chart as ChartJS,
   ArcElement,
   Tooltip,
   Legend,
 } from "chart.js";
+
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -27,41 +29,48 @@ export default function GraficoCategoria({ dados }: any) {
   }
 
   // 2️⃣ DADOS
-  const labels = Object.keys(dados);
-  const valores = Object.values(dados);
+const labels = Object.keys(dados);
+const valores = Object.values(dados);
 
-  // 3️⃣ DATA
-  const data = {
-    labels,
-    datasets: [
-      {
-        data: valores,
-        backgroundColor: [
-          "#0ea5e9",
-          "#38bdf8",
-          "#0284c7",
-          "#0369a1",
-          "#075985",
-          "#0c4a6e",
-        ],
-      },
-    ],
-  };
+// 🎨 cor única por categoria (baseada no nome)
+const backgroundColor = labels.map((label) => gerarCor(label));
+
+// 3️⃣ DATA
+const data = {
+  labels,
+  datasets: [
+    {
+      data: valores,
+      backgroundColor,
+    },
+  ],
+};
 
   // 4️⃣ OPTIONS
   const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "bottom" as const,
-        labels: {
-          boxWidth: 14,
-          padding: 16,
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: "bottom" as const,
+      labels: {
+        boxWidth: 14,
+        padding: 16,
+      },
+    },
+    tooltip: {
+      callbacks: {
+        label: (context: any) => {
+          const valor = context.raw ?? 0;
+          return valor.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
         },
       },
     },
-  };
+  },
+};
 
   // 5️⃣ RENDER FINAL
   return (

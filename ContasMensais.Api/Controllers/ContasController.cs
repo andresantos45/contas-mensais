@@ -61,7 +61,13 @@ var query = _context.Contas
         Data = c.Data,
         Mes = c.Data.Month,
         Ano = c.Data.Year,
-        CategoriaId = c.CategoriaId
+        CategoriaId = c.CategoriaId,
+
+        // ✅ NOME DA CATEGORIA (O QUE FALTAVA)
+        CategoriaNome = _context.CategoriasContas
+            .Where(cat => cat.Id == c.CategoriaId)
+            .Select(cat => cat.Nome)
+            .FirstOrDefault()
     })
     .ToListAsync();
 

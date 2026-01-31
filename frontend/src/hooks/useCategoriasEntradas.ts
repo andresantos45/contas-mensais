@@ -22,17 +22,38 @@ export function useCategoriasEntradas() {
     }
   }
 
-  async function criar(nome: string) {
-    const nova = await criarCategoriaEntrada(nome);
-    setCategoriasEntradas((prev) =>
-      [...prev, nova].sort((a, b) => a.nome.localeCompare(b.nome))
-    );
+  async function criar(
+  nome: string
+): Promise<CategoriaEntrada | null> {
+  const nova = await criarCategoriaEntrada(nome);
+
+  if (!nova) {
+    return null;
   }
 
+  setCategoriasEntradas((prev) =>
+    [...prev, nova].sort((a, b) =>
+      a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
+    )
+  );
+
+  return nova;
+}
+
   async function excluir(id: number) {
+  try {
     await excluirCategoriaEntrada(id);
     setCategoriasEntradas((prev) => prev.filter((c) => c.id !== id));
+  } catch (error: any) {
+    if (error.response?.status === 409) {
+      throw new Error(
+        "Esta categoria está vinculada a uma ou mais entradas e não pode ser excluída."
+      );
+    }
+
+    throw new Error("Erro ao excluir categoria de entrada");
   }
+}
 
   useEffect(() => {
     carregar();

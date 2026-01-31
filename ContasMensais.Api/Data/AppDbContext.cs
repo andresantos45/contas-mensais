@@ -14,6 +14,7 @@ namespace ContasMensais.Api.Data
         public DbSet<CategoriaConta> CategoriasContas { get; set; }
 
         public DbSet<CategoriaEntrada> CategoriasEntradas { get; set; }
+        public DbSet<Entrada> Entradas { get; set; }   // ✅ ADICIONAR
         public DbSet<Usuario> Usuarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -58,6 +59,7 @@ modelBuilder.Entity<Usuario>(entity =>
 modelBuilder.Entity<Conta>().ToTable("contas");
 modelBuilder.Entity<CategoriaConta>().ToTable("categorias_contas");
 modelBuilder.Entity<CategoriaEntrada>().ToTable("categorias_entradas");
+modelBuilder.Entity<Entrada>().ToTable("entradas"); // ✅ OPCIONAL, mas recomendado
 
             // ======================
             // CONTA

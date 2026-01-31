@@ -91,16 +91,16 @@ RETURNING id
 
             var sql = @"
     SELECT
-        e.id,
-        e.descricao,
-        e.valor,
-        e.data,
-        e.mes,
-        e.ano,
-        e.categoria_id AS CategoriaId,
-        c.nome AS CategoriaNome
-    FROM entradas e
-    JOIN categorias_entradas c ON c.id = e.categoria_id
+    e.id,
+    e.descricao,
+    e.valor,
+    e.data,
+    e.mes,
+    e.ano,
+    e.categoria_id AS CategoriaId,
+    c.nome AS CategoriaNome
+FROM entradas e
+JOIN categorias_entradas c ON c.id = e.categoria_id
     WHERE
         (@Mes = 0 OR e.mes = @Mes)
         AND e.ano = @Ano

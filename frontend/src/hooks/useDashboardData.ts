@@ -3,20 +3,26 @@ import api from "../services/api";
 import { Conta } from "../types/Conta";
 import { CategoriaConta } from "../types/CategoriaConta";
 import { CategoriaEntrada } from "../types/CategoriaEntrada";
-import { isContaFutura } from "../utils/isContaFutura";
+import { Entrada } from "../types/Entrada";
+import { assert } from "../utils/assert";
 
 export function useDashboardData(mesBusca: number, anoBusca: number) {
   const [loading, setLoading] = useState(false);
 
   const [contas, setContas] = useState<Conta[]>([]);
-  const [entradas, setEntradas] = useState<any[]>([]);
-  const [entradasBase, setEntradasBase] = useState<any[]>([]);
+
+  const [entradas, setEntradas] = useState<Entrada[]>([]);
+  const [entradasBase, setEntradasBase] = useState<Entrada[]>([]);
   const [categorias, setCategorias] = useState<CategoriaConta[]>([]);
-  const [categoriasEntradas, setCategoriasEntradas] = useState<CategoriaEntrada[]>([]);
+  const [categoriasEntradas, setCategoriasEntradas] = useState<
+    CategoriaEntrada[]
+  >([]);
   const [totalPeriodoAnterior, setTotalPeriodoAnterior] = useState(0);
 
   async function carregarContasPeriodo() {
-    const response = await api.get<Conta[]>(`/api/contas/${mesBusca}/${anoBusca}`);
+    const response = await api.get<Conta[]>(
+      `/api/contas/${mesBusca}/${anoBusca}`
+    );
     let todas = response.data;
 
     const hoje = new Date();
@@ -27,13 +33,38 @@ export function useDashboardData(mesBusca: number, anoBusca: number) {
       todas = ano.data;
     }
 
-    setContas(todas);
+    const contasNormalizadas = todas.map((c: Conta) => {
+      const categoria = categorias.find((cat) => cat.id === c.categoriaId);
+
+      assert(
+        categoria,
+        `Conta sem categoria válida (categoriaId=${c.categoriaId})`
+      );
+
+      return {
+        ...c,
+        categoriaNome: categoria.nome,
+      };
+    });
+
+    setContas(contasNormalizadas);
   }
 
   async function carregarEntradasPeriodo() {
-    const response = await api.get(`/api/entradas/${mesBusca}/${anoBusca}`);
-    setEntradas(response.data);
-    setEntradasBase(response.data);
+    const response = await api.get<Entrada[]>(
+      `/api/entradas/${mesBusca}/${anoBusca}`
+    );
+
+    const entradasNormalizadas: Entrada[] = response.data.map((e) => {
+      if (!e.categoriaNome) {
+        throw new Error(`Entrada sem categoriaNome (id=${e.id})`);
+      }
+
+      return e;
+    });
+
+    setEntradas(entradasNormalizadas);
+    setEntradasBase(entradasNormalizadas);
   }
 
   async function carregarCategorias() {
@@ -46,7 +77,9 @@ export function useDashboardData(mesBusca: number, anoBusca: number) {
   }
 
   async function carregarCategoriasEntradas() {
-    const response = await api.get<CategoriaEntrada[]>("/api/categorias-entradas");
+    const response = await api.get<CategoriaEntrada[]>(
+      "/api/categorias-entradas"
+    );
     setCategoriasEntradas(
       response.data.sort((a, b) =>
         a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
@@ -71,7 +104,7 @@ export function useDashboardData(mesBusca: number, anoBusca: number) {
     setTotalPeriodoAnterior(total);
   }
 
- // =======================
+  // =======================
   // 🔄 FUNÇÕES DE RELOAD
   // =======================
 
@@ -95,9 +128,11 @@ export function useDashboardData(mesBusca: number, anoBusca: number) {
     async function carregarTudo() {
       try {
         setLoading(true);
+
+        await carregarCategorias();
+        await carregarCategoriasEntradas();
+
         await Promise.all([
-          carregarCategorias(),
-          carregarCategoriasEntradas(),
           carregarContasPeriodo(),
           carregarEntradasPeriodo(),
           carregarPeriodoAnterior(),
@@ -114,17 +149,17 @@ export function useDashboardData(mesBusca: number, anoBusca: number) {
   }, [mesBusca, anoBusca]);
 
   return {
-  loading,
-  contas,
-  entradas,
-  entradasBase,
-  categorias,
-  categoriasEntradas,
-  totalPeriodoAnterior,
+    loading,
+    contas,
+    entradas,
+    entradasBase,
+    categorias,
+    categoriasEntradas,
+    totalPeriodoAnterior,
 
-  // 🔄 reloads
-  reloadContas,
-  reloadEntradas,
-  reloadCategorias,
-};
+    // 🔄 reloads
+    reloadContas,
+    reloadEntradas,
+    reloadCategorias,
+  };
 }

@@ -1,14 +1,6 @@
 import ItemConta from "../Dashboard/ItemConta";
 import { Conta } from "../../types/Conta";
-
-interface Entrada {
-  id: number;
-  descricao: string;
-  valor: number;
-  mes: number;
-  ano: number;
-  categoriaNome: string;
-}
+import { Entrada } from "../../types/Entrada";
 
 interface ListaEntradasProps {
   entradas: Entrada[];
@@ -35,16 +27,16 @@ export default function ListaEntradas({
       {entradas.map((e) => {
         // 🔁 Adapter correto: só os campos que a UI usa
         const contaFake: Pick<
-          Conta,
-          "id" | "descricao" | "valor" | "mes" | "ano" | "categoriaNome"
-        > = {
-          id: e.id,
-          descricao: e.descricao,
-          valor: e.valor,
-          mes: e.mes,
-          ano: e.ano,
-          categoriaNome: e.categoriaNome,
-        };
+  Conta,
+  "id" | "descricao" | "valor" | "mes" | "ano" | "categoriaNome"
+> = {
+  id: e.id,
+  descricao: e.descricao,
+  valor: e.valor,
+  mes: e.mes,
+  ano: e.ano,
+  categoriaNome: e.categoriaNome,
+};
 
         return (
           <ItemConta

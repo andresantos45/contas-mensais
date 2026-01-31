@@ -2,28 +2,20 @@ import { useEffect } from "react";
 import { CSSProperties } from "react";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { formGrid, label, inputBase, buttonPrimary } from "./entradasStyles";
+import { Entrada } from "../../types/Entrada";
 
 export interface CategoriaEntrada {
   id: number;
   nome: string;
 }
 
-interface Entrada {
-  id: number;
-  descricao: string;
-  valor: number;
-  data?: string;
-  mes: number;
-  ano: number;
-  categoriaId: number;
-  categoriaNome: string;
-}
-
 interface FormEntradaProps {
   descricao: string;
   setDescricao: (v: string) => void;
+
   valor: string;
   setValor: (v: string) => void;
+
   data: string;
   setData: (v: string) => void;
 

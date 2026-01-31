@@ -17,18 +17,20 @@ import { isContaFutura } from "../utils/isContaFutura";
 import { Conta } from "../types/Conta";
 import { ContaExcel } from "../types/ContaExcel";
 import { CategoriaConta } from "../types/CategoriaConta";
+import { Entrada } from "../types/Entrada";
 // Components
 import DashboardHeader from "../components/Dashboard/DashboardHeader";
-import DashboardCards from "../components/Dashboard/DashboardCards.tsx";
-import ListaContas from "../components/Dashboard/ListaContas.tsx";
-import FormConta from "../components/Dashboard/FormConta.tsx";
-import GestaoCategorias from "../components/Dashboard/GestaoCategorias.tsx";
+import DashboardCards from "../components/Dashboard/DashboardCards";
+import ListaContas from "../components/Dashboard/ListaContas";
+import FormConta from "../components/Dashboard/FormConta";
+import GestaoCategorias from "../components/Dashboard/GestaoCategorias";
 import GraficoMensal from "../components/Graficos/GraficoMensal";
 import GraficoCategoria from "../components/Graficos/GraficoCategoria";
 import GraficoLinha from "../components/Graficos/GraficoLinha";
 import FormEntrada from "../components/Entradas/FormEntrada";
 import ListaEntradas from "../components/Entradas/ListaEntradas";
 import Toast from "../components/UI/Toast";
+
 // Styles
 import {
   dashboardContainer,
@@ -78,6 +80,17 @@ export default function Dashboard() {
 
   const isAdmin = useIsAdmin();
 
+  const [ultimaCategoriaEntradaExcluida, setUltimaCategoriaEntradaExcluida] =
+    useState<{ nome: string } | null>(null);
+
+  const [timeoutUndoCategoriaEntrada, setTimeoutUndoCategoriaEntrada] =
+    useState<number | null>(null);
+  const [ultimaCategoriaContaExcluida, setUltimaCategoriaContaExcluida] =
+    useState<{ nome: string } | null>(null);
+
+  const [timeoutUndoCategoriaConta, setTimeoutUndoCategoriaConta] = useState<
+    number | null
+  >(null);
   const [exportando, setExportando] = useState<null | "excel" | "pdf">(null);
   const [filtroCategoria, setFiltroCategoria] = useState("");
   const [filtroValorMin, setFiltroValorMin] = useState("");
@@ -104,32 +117,37 @@ export default function Dashboard() {
   const [contaParaExcluir, setContaParaExcluir] = useState<Conta | null>(null);
   const [categoriaParaExcluir, setCategoriaParaExcluir] =
     useState<CategoriaConta | null>(null);
+  const [categoriaEntradaParaExcluir, setCategoriaEntradaParaExcluir] =
+    useState<{ id: number; nome: string } | null>(null);
+
   const [ultimaContaExcluida, setUltimaContaExcluida] = useState<Conta | null>(
     null
   );
   const [timeoutUndo, setTimeoutUndo] = useState<number | null>(null);
-  const [ultimaEntradaExcluida, setUltimaEntradaExcluida] = useState<
-    any | null
-  >(null);
+  const [ultimaEntradaExcluida, setUltimaEntradaExcluida] =
+    useState<Entrada | null>(null);
   const [timeoutUndoEntrada, setTimeoutUndoEntrada] = useState<number | null>(
     null
   );
   const [mostrarFuturas, setMostrarFuturas] = useState(false);
   // 🔥 ENTRADAS FILTRADAS (SUBSTITUI setEntradas)
-  const [entradasFiltradas, setEntradasFiltradas] = useState<any[]>([]);
+  const [entradasFiltradas, setEntradasFiltradas] = useState<Entrada[]>([]);
 
   // 🔀 MODO DE TELA
   const [modoTela, setModoTela] = useState<"contas" | "entradas">("contas");
 
   // 🔥 ENTRADAS — STATES
 
-  const [entradaEditando, setEntradaEditando] = useState<any | null>(null);
+  const [entradaEditando, setEntradaEditando] = useState<Entrada | null>(null);
   const [salvandoEntrada, setSalvandoEntrada] = useState(false);
+  const [criandoCategoriaEntrada, setCriandoCategoriaEntrada] = useState(false);
+  const [excluindoCategoriaEntrada, setExcluindoCategoriaEntrada] =
+    useState(false);
 
   const [descricaoEntrada, setDescricaoEntrada] = useState("");
   const [valorEntrada, setValorEntrada] = useState("");
   const [dataEntrada, setDataEntrada] = useState("");
-  const [categoriaEntradaId, setCategoriaEntradaId] = useState("");
+  const [categoriaIdEntrada, setCategoriaIdEntrada] = useState("");
 
   // =======================
   // ➕ CRIAR ENTRADA
@@ -141,7 +159,7 @@ export default function Dashboard() {
       !descricaoEntrada ||
       !valorEntrada ||
       !dataEntrada ||
-      !categoriaEntradaId
+      !categoriaIdEntrada
     ) {
       alert("Preencha todos os campos da entrada");
       return;
@@ -162,7 +180,7 @@ export default function Dashboard() {
           descricao: descricaoEntrada,
           valor: Number(valorEntrada),
           data: dataObj.toISOString(),
-          categoriaId: Number(categoriaEntradaId),
+          categoriaId: Number(categoriaIdEntrada),
         });
 
         setToast({ mensagem: "Entrada atualizada com sucesso" });
@@ -172,7 +190,7 @@ export default function Dashboard() {
           descricao: descricaoEntrada,
           valor: Number(valorEntrada),
           data: dataObj.toISOString(),
-          categoriaId: Number(categoriaEntradaId),
+          categoriaId: Number(categoriaIdEntrada),
         });
       }
 
@@ -185,7 +203,7 @@ export default function Dashboard() {
       setDescricaoEntrada("");
       setValorEntrada("");
       setDataEntrada("");
-      setCategoriaEntradaId("");
+      setCategoriaIdEntrada("");
 
       // recarrega entradas
       await reloadEntradas();
@@ -240,7 +258,7 @@ export default function Dashboard() {
     setDescricaoEntrada(entradaEditando.descricao);
     setValorEntrada(String(entradaEditando.valor));
     setDataEntrada(entradaEditando.data.slice(0, 10));
-    setCategoriaEntradaId(String(entradaEditando.categoriaId));
+    setCategoriaIdEntrada(String(entradaEditando.categoriaId));
   }, [entradaEditando]);
 
   // =======================
@@ -250,14 +268,14 @@ export default function Dashboard() {
     let lista = [...entradasBase];
 
     if (filtroDescricao) {
-      lista = lista.filter((e: any) =>
+      lista = lista.filter((e: Entrada) =>
         e.descricao.toLowerCase().includes(filtroDescricao.toLowerCase())
       );
     }
 
     if (filtroCategoria) {
       lista = lista.filter(
-        (e: any) => String(e.categoriaId) === filtroCategoria
+        (e: Entrada) => String(e.categoriaId) === filtroCategoria
       );
     }
 
@@ -266,18 +284,17 @@ export default function Dashboard() {
     }
 
     if (filtroValorMax) {
-      lista = lista.filter((e: any) => e.valor <= Number(filtroValorMax));
+      lista = lista.filter((e: Entrada) => e.valor <= Number(filtroValorMax));
     }
-
     if (filtroDataInicio) {
       lista = lista.filter(
-        (e: any) => new Date(e.data) >= new Date(filtroDataInicio)
+        (e: Entrada) => new Date(e.data) >= new Date(filtroDataInicio)
       );
     }
 
     if (filtroDataFim) {
       lista = lista.filter(
-        (e: any) => new Date(e.data) <= new Date(filtroDataFim)
+        (e: Entrada) => new Date(e.data) <= new Date(filtroDataFim)
       );
     }
 
@@ -368,6 +385,8 @@ export default function Dashboard() {
 
   const {
     totalPeriodo,
+    totalEntradas,
+    saldoFinal,
     mediaMensal,
     diferenca,
     percentual,
@@ -379,6 +398,7 @@ export default function Dashboard() {
     valorCategoriaMaior,
   } = calcularDashboard(
     contasFiltradas,
+    entradas,
     mesBusca,
     anoBusca,
     totalPeriodoAnterior
@@ -413,7 +433,7 @@ export default function Dashboard() {
       12: 0,
     };
 
-    entradas.forEach((e: any) => {
+    entradas.forEach((e: Entrada) => {
       const mes = new Date(e.data).getMonth() + 1;
       base[mes] += e.valor;
     });
@@ -425,15 +445,16 @@ export default function Dashboard() {
   // 📈 SALDO ACUMULADO (ANO)
   // =======================
   const saldoAcumuladoPorMes = useMemo<Record<number, number>>(() => {
-    const acumulado: Record<number, number> = {};
+    const acumulado: Record<string, number> = {};
     let saldoCorrente = 0;
 
     for (let mes = 1; mes <= 12; mes++) {
       const entradasMes = totalEntradasPorMesNormalizado[mes] ?? 0;
-      const saidasMes = totalPorMes[mes] ?? 0;
+      const saidasMes =
+        (totalPorMes as Record<string, number>)[String(mes)] ?? 0;
 
       saldoCorrente += entradasMes - saidasMes;
-      acumulado[mes] = saldoCorrente;
+      acumulado[String(mes)] = saldoCorrente;
     }
 
     return acumulado;
@@ -444,20 +465,11 @@ export default function Dashboard() {
   // =======================
   const totalEntradasPorCategoria: Record<string, number> = {};
 
-  entradas.forEach((e: any) => {
-    const nomeCategoria =
-      categoriasEntradas.find((c) => c.id === e.categoriaId)?.nome ??
-      "Sem categoria";
-
-    if (!totalEntradasPorCategoria[nomeCategoria]) {
-      totalEntradasPorCategoria[nomeCategoria] = 0;
-    }
-
-    totalEntradasPorCategoria[nomeCategoria] += e.valor;
+  entradas.forEach((e: Entrada) => {
+    totalEntradasPorCategoria[e.categoriaNome] =
+      (totalEntradasPorCategoria[e.categoriaNome] ?? 0) + e.valor;
   });
-
   // SALDO = ENTRADAS - SAÍDAS
-  const saldoFinal = totalEntradasPeriodo - totalPeriodo;
 
   const totalAnualNormalizado: Record<number, number> = {
     1: 0,
@@ -522,7 +534,7 @@ export default function Dashboard() {
     };
 
     // soma entradas
-    entradas.forEach((e: any) => {
+    entradas.forEach((e: Entrada) => {
       const mes = new Date(e.data).getMonth() + 1;
       base[mes] += e.valor;
     });
@@ -980,16 +992,33 @@ export default function Dashboard() {
       return;
     }
 
-    await api.post("/api/categorias-contas", {
-      nome: novaCategoriaConta,
-    });
+    try {
+      await api.post("/api/categorias-contas", {
+        nome: novaCategoriaConta,
+      });
 
-    setNovaCategoriaConta("");
+      await reloadCategorias();
 
-    setToast({
-      mensagem: "Categoria de conta criada com sucesso",
-      tipo: "sucesso",
-    });
+      setNovaCategoriaConta("");
+
+      setToast({
+        mensagem: "Categoria de conta criada com sucesso",
+        tipo: "sucesso",
+      });
+    } catch (error: any) {
+      if (error.response?.status === 409 || error.response?.status === 400) {
+        setToast({
+          mensagem: "Categoria já existe",
+          tipo: "erro",
+        });
+        return;
+      }
+
+      setToast({
+        mensagem: "Erro ao criar categoria de conta",
+        tipo: "erro",
+      });
+    }
   }
 
   async function criarCategoriaEntrada(e: React.FormEvent) {
@@ -1000,14 +1029,27 @@ export default function Dashboard() {
       return;
     }
 
-    await criarCategoriaEntradaHook(novaCategoriaEntrada);
+    if (criandoCategoriaEntrada) return;
 
-    setNovaCategoriaEntrada("");
+    try {
+      setCriandoCategoriaEntrada(true);
 
-    setToast({
-      mensagem: "Categoria de entrada criada com sucesso",
-      tipo: "sucesso",
-    });
+      await criarCategoriaEntradaHook(novaCategoriaEntrada);
+
+      setNovaCategoriaEntrada("");
+
+      setToast({
+        mensagem: "Categoria de entrada criada com sucesso",
+        tipo: "sucesso",
+      });
+    } catch (error: any) {
+      setToast({
+        mensagem: error.message ?? "Erro ao criar categoria de entrada",
+        tipo: "erro",
+      });
+    } finally {
+      setCriandoCategoriaEntrada(false);
+    }
   }
 
   // =======================
@@ -1075,9 +1117,19 @@ export default function Dashboard() {
     try {
       await api.delete(`/api/categorias-contas/${categoriaParaExcluir.id}`);
 
-      setToast({
-        mensagem: "Categoria excluída com sucesso",
+      setUltimaCategoriaContaExcluida({
+        nome: categoriaParaExcluir.nome,
       });
+
+      setToast({
+        mensagem: "Categoria excluída",
+      });
+
+      const timeout = window.setTimeout(() => {
+        setUltimaCategoriaContaExcluida(null);
+      }, 5000);
+
+      setTimeoutUndoCategoriaConta(timeout);
     } catch (error) {
       console.error(error);
       setToast({
@@ -1130,6 +1182,34 @@ export default function Dashboard() {
     }
   }
 
+  async function desfazerExclusaoCategoriaConta() {
+    if (!ultimaCategoriaContaExcluida) return;
+
+    try {
+      await api.post("/api/categorias-contas", {
+        nome: ultimaCategoriaContaExcluida.nome,
+      });
+
+      await reloadCategorias();
+
+      setToast({
+        mensagem: "Exclusão desfeita",
+      });
+
+      if (timeoutUndoCategoriaConta) {
+        clearTimeout(timeoutUndoCategoriaConta);
+        setTimeoutUndoCategoriaConta(null);
+      }
+
+      setUltimaCategoriaContaExcluida(null);
+    } catch {
+      setToast({
+        mensagem: "Erro ao desfazer exclusão",
+        tipo: "erro",
+      });
+    }
+  }
+
   async function desfazerExclusaoEntrada() {
     if (!ultimaEntradaExcluida) return;
 
@@ -1156,6 +1236,64 @@ export default function Dashboard() {
         mensagem: "Erro ao desfazer exclusão",
         tipo: "erro",
       });
+    }
+  }
+
+  async function desfazerExclusaoCategoriaEntrada() {
+    if (!ultimaCategoriaEntradaExcluida) return;
+
+    try {
+      await criarCategoriaEntradaHook(ultimaCategoriaEntradaExcluida.nome);
+
+      setToast({
+        mensagem: "Exclusão desfeita",
+      });
+
+      if (timeoutUndoCategoriaEntrada) {
+        clearTimeout(timeoutUndoCategoriaEntrada);
+        setTimeoutUndoCategoriaEntrada(null);
+      }
+
+      setUltimaCategoriaEntradaExcluida(null);
+    } catch (error: any) {
+      setToast({
+        mensagem: error.message ?? "Erro ao desfazer exclusão",
+        tipo: "erro",
+      });
+    }
+  }
+
+  async function confirmarExclusaoCategoriaEntrada() {
+    if (!categoriaEntradaParaExcluir || excluindoCategoriaEntrada) return;
+
+    try {
+      setExcluindoCategoriaEntrada(true);
+
+      await excluirCategoriaEntradaHook(categoriaEntradaParaExcluir.id);
+
+      // guarda para desfazer
+      setUltimaCategoriaEntradaExcluida({
+        nome: categoriaEntradaParaExcluir.nome,
+      });
+
+      setToast({
+        mensagem: "Categoria de entrada excluída",
+      });
+
+      // limpa após 5s
+      const timeout = window.setTimeout(() => {
+        setUltimaCategoriaEntradaExcluida(null);
+      }, 5000);
+
+      setTimeoutUndoCategoriaEntrada(timeout);
+    } catch (error: any) {
+      setToast({
+        mensagem: error.message ?? "Erro ao excluir categoria de entrada",
+        tipo: "erro",
+      });
+    } finally {
+      setExcluindoCategoriaEntrada(false);
+      setCategoriaEntradaParaExcluir(null);
     }
   }
 
@@ -1271,7 +1409,17 @@ export default function Dashboard() {
                 excluirCategoriaConta={excluirCategoria}
                 categoriasEntradas={categoriasEntradasHook}
                 criarCategoriaEntrada={criarCategoriaEntrada}
-                excluirCategoriaEntrada={excluirCategoriaEntradaHook}
+                excluirCategoriaEntrada={(id: number) => {
+                  const categoria = categoriasEntradasHook.find(
+                    (c) => c.id === id
+                  );
+                  if (!categoria) return;
+
+                  setCategoriaEntradaParaExcluir({
+                    id: categoria.id,
+                    nome: categoria.nome,
+                  });
+                }}
                 novaCategoriaConta={novaCategoriaConta}
                 setNovaCategoriaConta={setNovaCategoriaConta}
                 novaCategoriaEntrada={novaCategoriaEntrada}
@@ -1354,8 +1502,8 @@ export default function Dashboard() {
               setValor={setValorEntrada}
               data={dataEntrada}
               setData={setDataEntrada}
-              categoriaId={categoriaEntradaId}
-              setCategoriaId={setCategoriaEntradaId}
+              categoriaId={categoriaIdEntrada}
+              setCategoriaId={setCategoriaIdEntrada}
               categorias={categoriasEntradas}
               entradaEditando={entradaEditando}
               salvandoEntrada={salvandoEntrada}
@@ -1366,7 +1514,7 @@ export default function Dashboard() {
                 setDescricaoEntrada("");
                 setValorEntrada("");
                 setDataEntrada("");
-                setCategoriaEntradaId("");
+                setCategoriaIdEntrada("");
               }}
             />
           )}
@@ -1377,7 +1525,7 @@ export default function Dashboard() {
           mesBusca={mesBusca}
           totalPeriodo={totalPeriodo}
           totalEntradas={totalEntradasPeriodo}
-          saldoFinal={saldoFinal}
+          saldoFinal={saldoFinal ?? 0}
           mediaMensal={mediaMensal}
           diferenca={diferenca}
           percentual={percentual}
@@ -1732,7 +1880,7 @@ export default function Dashboard() {
           <ListaEntradas
             entradas={entradasFiltradas}
             cores={cores}
-            iniciarEdicao={setEntradaEditando}
+            iniciarEdicao={(entrada: Entrada) => setEntradaEditando(entrada)}
             excluirEntrada={excluirEntrada}
           />
         )}
@@ -2110,6 +2258,77 @@ export default function Dashboard() {
         </div>
       )}
 
+      {categoriaEntradaParaExcluir && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1200,
+          }}
+        >
+          <div
+            style={{
+              background: cores.card,
+              color: cores.texto,
+              padding: 24,
+              borderRadius: 16,
+              width: "90%",
+              maxWidth: 420,
+            }}
+          >
+            <h3 style={{ marginTop: 0 }}>🗑️ Excluir categoria de entrada</h3>
+
+            <p style={{ color: cores.textoSuave }}>
+              Tem certeza que deseja excluir a categoria{" "}
+              <strong>{categoriaEntradaParaExcluir.nome}</strong>?
+            </p>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 12,
+                marginTop: 20,
+              }}
+            >
+              <button
+                onClick={() => setCategoriaEntradaParaExcluir(null)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: cores.textoSuave,
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={confirmarExclusaoCategoriaEntrada}
+                disabled={excluindoCategoriaEntrada}
+                style={{
+                  background: "#dc2626",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "10px 14px",
+                  fontWeight: 600,
+                  cursor: excluindoCategoriaEntrada ? "not-allowed" : "pointer",
+                  opacity: excluindoCategoriaEntrada ? 0.7 : 1,
+                }}
+              >
+                {excluindoCategoriaEntrada ? "Excluindo..." : "Excluir"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {toast && (
         <Toast
           mensagem={toast.mensagem}
@@ -2117,16 +2336,20 @@ export default function Dashboard() {
           onClose={() => setToast(null)}
           acao={
             ultimaContaExcluida
-              ? {
-                  texto: "Desfazer",
-                  onClick: desfazerExclusaoConta,
-                }
+              ? { texto: "Desfazer", onClick: desfazerExclusaoConta }
               : ultimaEntradaExcluida
-                ? {
-                    texto: "Desfazer",
-                    onClick: desfazerExclusaoEntrada,
-                  }
-                : undefined
+                ? { texto: "Desfazer", onClick: desfazerExclusaoEntrada }
+                : ultimaCategoriaEntradaExcluida
+                  ? {
+                      texto: "Desfazer",
+                      onClick: desfazerExclusaoCategoriaEntrada,
+                    }
+                  : ultimaCategoriaContaExcluida
+                    ? {
+                        texto: "Desfazer",
+                        onClick: desfazerExclusaoCategoriaConta,
+                      }
+                    : undefined
           }
         />
       )}

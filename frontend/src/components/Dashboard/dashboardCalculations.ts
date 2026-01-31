@@ -2,6 +2,7 @@ import { Conta } from "../../types/Conta";
 
 export function calcularDashboard(
   contas: Conta[],
+  entradas: { valor: number }[],
   mesBusca: number,
   anoBusca: number,
   totalPeriodoAnterior: number
@@ -22,9 +23,16 @@ export function calcularDashboard(
   }
 
   const totalPeriodo = contas.reduce(
-    (soma: number, c: Conta) => soma + Number(c.valor),
-    0
-  );
+  (soma: number, c: Conta) => soma + Number(c.valor),
+  0
+);
+
+const totalEntradas = entradas.reduce(
+  (soma: number, e) => soma + Number(e.valor),
+  0
+);
+
+const saldoFinal = totalEntradas - totalPeriodo;
 
   const divisorMedia = mesBusca === 0 ? 12 : 1;
   const mediaMensal = totalPeriodo / divisorMedia;
@@ -72,15 +80,17 @@ export function calcularDashboard(
   )[0];
 
   return {
-    totalPeriodo,
-    mediaMensal,
-    diferenca,
-    percentual,
-    tipo,
-    tendencia,
-    totalPorMes,
-    totalPorCategoria,
-    nomeCategoriaMaior: categoriaMaior?.[0] ?? "—",
-    valorCategoriaMaior: categoriaMaior?.[1] ?? 0,
-  };
+  totalPeriodo,
+  totalEntradas,
+  saldoFinal,
+  mediaMensal,
+  diferenca,
+  percentual,
+  tipo,
+  tendencia,
+  totalPorMes,
+  totalPorCategoria,
+  nomeCategoriaMaior: categoriaMaior?.[0] ?? "—",
+  valorCategoriaMaior: categoriaMaior?.[1] ?? 0,
+};
 }

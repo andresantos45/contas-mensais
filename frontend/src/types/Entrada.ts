@@ -3,8 +3,10 @@ export interface Entrada {
   descricao: string;
   valor: number;
   data: string; // ISO
+
   mes: number;
   ano: number;
-  categoriaEntradaId: number;
-  categoriaEntradaNome?: string;
+
+  categoriaId: number;
+  categoriaNome: string;
 }

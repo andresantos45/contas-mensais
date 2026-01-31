@@ -46,9 +46,17 @@ public async Task<IActionResult> Post([FromBody] CriarCategoriaEntradaDTO dto)
     if (string.IsNullOrWhiteSpace(dto.Nome))
         return BadRequest("Nome inválido");
 
+    var nomeNormalizado = dto.Nome.Trim().ToLower();
+
+    var existe = await _context.CategoriasEntradas
+        .AnyAsync(c => c.Nome.ToLower() == nomeNormalizado);
+
+    if (existe)
+        return Conflict("Categoria já existe.");
+
     var categoria = new CategoriaEntrada
     {
-        Nome = dto.Nome
+        Nome = dto.Nome.Trim()
     };
 
     _context.CategoriasEntradas.Add(categoria);
@@ -62,19 +70,37 @@ public async Task<IActionResult> Post([FromBody] CriarCategoriaEntradaDTO dto)
 }
 
         // ❌ EXCLUIR
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var categoria = await _context.CategoriasEntradas
-                .FirstOrDefaultAsync(c => c.Id == id);
+[HttpDelete("{id:int}")]
+public async Task<IActionResult> Delete(int id)
+{
+    var categoria = await _context.CategoriasEntradas
+        .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (categoria == null)
-                return NotFound();
+    if (categoria == null)
+        return NotFound();
 
-            _context.CategoriasEntradas.Remove(categoria);
-            await _context.SaveChangesAsync();
+    // 🔒 VERIFICA SE EXISTE ENTRADA USANDO A CATEGORIA
+    var emUso = await _context.Entradas
+        .AnyAsync(e => e.CategoriaId == id);
 
-            return NoContent();
-        }
+    if (emUso)
+        return Conflict("Esta categoria está vinculada a uma ou mais entradas e não pode ser excluída.");
+
+    try
+    {
+        _context.CategoriasEntradas.Remove(categoria);
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
+    catch (DbUpdateException)
+    {
+        // Proteção contra sujeira de dados / FK
+        return Conflict("Não foi possível excluir a categoria porque ela está em uso.");
+    }
+    catch (Exception)
+    {
+        return StatusCode(500, "Erro interno ao excluir categoria.");
+    }
+}
+}
 }

@@ -1,6 +1,6 @@
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { gerarCor } from "../../utils/gerarCor";
+import { getCorComparativo } from "../../utils/gerarCor";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -22,15 +22,15 @@ const NOMES_MESES: Record<number, string> = {
 
 // 🎨 CORES FIXAS — NUNCA SE REPETEM
 const CORES_MESES: Record<number, string> = {
-  1: "#22c55e",  // Jan - verde
-  2: "#2563eb",  // Fev - azul
-  3: "#f97316",  // Mar - laranja
-  4: "#a855f7",  // Abr - roxo
-  5: "#ef4444",  // Mai - vermelho
-  6: "#14b8a6",  // Jun - teal
-  7: "#eab308",  // Jul - amarelo
-  8: "#0ea5e9",  // Ago - azul claro
-  9: "#db2777",  // Set - rosa
+  1: "#22c55e", // Jan - verde
+  2: "#2563eb", // Fev - azul
+  3: "#f97316", // Mar - laranja
+  4: "#a855f7", // Abr - roxo
+  5: "#ef4444", // Mai - vermelho
+  6: "#14b8a6", // Jun - teal
+  7: "#eab308", // Jul - amarelo
+  8: "#0ea5e9", // Ago - azul claro
+  9: "#db2777", // Set - rosa
   10: "#4d7c0f", // Out - oliva
   11: "#7c3aed", // Nov - violeta
   12: "#be123c", // Dez - vinho
@@ -96,14 +96,12 @@ export default function GraficoMensal({
   const backgroundColor =
     tipo === "mensal"
       ? dadosFiltrados.map(([mes]) => CORES_MESES[Number(mes)])
-
       : tipo === "saldo"
         ? dadosFiltrados.map(([, valor]) =>
             valor >= 0 ? "#22c55e" : "#dc2626"
           )
-
-        // 🗂️ categorias / comparativo → cor única por nome
-        : dadosFiltrados.map(([label]) => gerarCor(label));
+        : // 🗂️ categorias / comparativo → cor única por nome
+          dadosFiltrados.map(([label]) => getCorComparativo(label));
 
   const data = {
     labels,
@@ -122,18 +120,37 @@ export default function GraficoMensal({
       legend: {
         position: "bottom" as const,
         labels: {
+          color: "#e5e7eb", // 🔥 texto visível
           boxWidth: 14,
           padding: 16,
+          generateLabels: (chart: any) => {
+            const data = chart.data;
+            return data.labels.map((label: string, i: number) => {
+              const valor = data.datasets[0].data[i];
+
+              return {
+                text: `${label} — ${valor.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}`,
+                fillStyle: data.datasets[0].backgroundColor[i],
+                strokeStyle: data.datasets[0].backgroundColor[i],
+                lineWidth: 1,
+                index: i,
+                fontColor: "#e5e7eb", // 🔥 ESSENCIAL
+              };
+            });
+          },
         },
       },
       tooltip: {
         callbacks: {
           label: (context: any) => {
             const valor = context.raw ?? 0;
-            return valor.toLocaleString("pt-BR", {
+            return `${context.label} — ${valor.toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",
-            });
+            })}`;
           },
         },
       },
@@ -141,7 +158,7 @@ export default function GraficoMensal({
   };
 
   return (
-    <div style={{ height: 260, width: "100%", position: "relative" }}>
+    <div style={{ height: 340, width: "100%", position: "relative" }}>
       <Pie data={data} options={options} />
     </div>
   );

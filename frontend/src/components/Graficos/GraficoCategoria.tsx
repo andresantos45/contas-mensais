@@ -1,12 +1,6 @@
 import { Pie } from "react-chartjs-2";
-import { gerarCor } from "../../utils/gerarCor";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
-
+import { getCorCategoria } from "../../utils/gerarCor";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -29,54 +23,93 @@ export default function GraficoCategoria({ dados }: any) {
   }
 
   // 2️⃣ DADOS
-const labels = Object.keys(dados);
-const valores = Object.values(dados);
+  // 🔥 NORMALIZA + ORDENA (decrescente)
+  const dadosOrdenados = Object.entries(dados)
+    .map(([label, valor]) => [label, Number(valor)] as const)
+    .filter(([, valor]) => valor > 0)
+    .sort((a, b) => b[1] - a[1]);
 
-// 🎨 cor única por categoria (baseada no nome)
-const backgroundColor = labels.map((label) => gerarCor(label));
+  const labels = dadosOrdenados.map(([label]) => label);
+  const valores = dadosOrdenados.map(([, valor]) => valor);
 
-// 3️⃣ DATA
-const data = {
-  labels,
-  datasets: [
-    {
-      data: valores,
-      backgroundColor,
-    },
-  ],
-};
+  // 🎨 cor única por categoria (baseada no nome)
+  const totalCategorias = labels.length;
+
+  const backgroundColor = labels.map((label, index) => {
+    const baseHue = (360 / totalCategorias) * index;
+    return `hsl(${baseHue}, 70%, 55%)`;
+  });
+
+  // 🔢 total para porcentagem
+  const total = valores.reduce((s, v) => s + v, 0);
+
+  // 3️⃣ DATA
+  const data = {
+    labels,
+    datasets: [
+      {
+        data: valores,
+        backgroundColor,
+      },
+    ],
+  };
 
   // 4️⃣ OPTIONS
   const options = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: "bottom" as const,
-      labels: {
-        boxWidth: 14,
-        padding: 16,
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+        labels: {
+          color: "#e5e7eb", // 🔥 COR DO TEXTO (resolve o problema)
+          boxWidth: 14,
+          padding: 16,
+          generateLabels: (chart: any) => {
+            const data = chart.data;
+            return data.labels.map((label: string, i: number) => {
+              const valor = data.datasets[0].data[i];
+              const percentual =
+                total > 0 ? ((valor / total) * 100).toFixed(1) : "0";
+
+              return {
+                text: `${label} — ${valor.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })} (${percentual}%)`,
+                fillStyle: data.datasets[0].backgroundColor[i],
+                strokeStyle: data.datasets[0].backgroundColor[i],
+                lineWidth: 1,
+                index: i,
+                fontColor: "#e5e7eb", // 🔥 ESTA É A CHAVE
+              };
+            });
+          },
+        },
       },
-    },
-    tooltip: {
-      callbacks: {
-        label: (context: any) => {
-          const valor = context.raw ?? 0;
-          return valor.toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          });
+
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            const valor = context.raw ?? 0;
+            const percentual =
+              total > 0 ? ((valor / total) * 100).toFixed(1) : "0";
+
+            return `${context.label} — ${valor.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })} (${percentual}%)`;
+          },
         },
       },
     },
-  },
-};
+  };
 
   // 5️⃣ RENDER FINAL
   return (
     <div
       style={{
-        height: 260,
+        height: 340, // 🔥 espaço para legenda completa
         width: "100%",
         position: "relative",
       }}

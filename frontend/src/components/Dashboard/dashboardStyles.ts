@@ -1,6 +1,6 @@
 export const dashboardContainer = {
   minHeight: "100vh",
-  padding: "32px 20px",
+  padding: "16px 12px",
   maxWidth: "1400px",
   margin: "0 auto",
   width: "100%",
@@ -10,31 +10,31 @@ export const dashboardContainer = {
 
 export const dashboardCard = {
   width: "100%",
-  borderRadius: 20,
-  padding: 32,
+  borderRadius: 16,
+  padding: 16,
   display: "flex" as const,
   flexDirection: "column" as const,
   boxSizing: "border-box" as const,
 };
 
 export const sectionTitle = {
-  fontSize: 20,
+  fontSize: 16,
   fontWeight: 700,
-  marginBottom: 16,
+  marginBottom: 12,
 };
 
 export const gridCards = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-  gap: 20,
-  marginTop: 32,
+  gridTemplateColumns: "1fr",
+  gap: 16,
+  marginTop: 20,
   width: "100%",
 };
 
 export const gridGraficos = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-  gap: 32,
-  marginTop: 40,
+  gridTemplateColumns: "1fr",
+  gap: 20,
+  marginTop: 24,
   width: "100%",
 };

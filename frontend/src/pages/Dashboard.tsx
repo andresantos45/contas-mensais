@@ -1,34 +1,43 @@
+// React / libs
+import { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+// Services
+import api from "../services/api";
+// Hooks
+import { useDashboardData } from "../hooks/useDashboardData";
+import { useCategoriasEntradas } from "../hooks/useCategoriasEntradas";
+import { useIsMobile } from "../hooks/useIsMobile";
+// Utils
+import { isContaFutura } from "../utils/isContaFutura";
+// Types
+import { Conta } from "../types/Conta";
+import { ContaExcel } from "../types/ContaExcel";
+import { CategoriaConta } from "../types/CategoriaConta";
+// Components
+import DashboardHeader from "../components/Dashboard/DashboardHeader";
+import DashboardCards from "../components/Dashboard/DashboardCards.tsx";
+import ListaContas from "../components/Dashboard/ListaContas.tsx";
+import FormConta from "../components/Dashboard/FormConta.tsx";
+import GestaoCategorias from "../components/Dashboard/GestaoCategorias.tsx";
+import GraficoMensal from "../components/Graficos/GraficoMensal";
+import GraficoCategoria from "../components/Graficos/GraficoCategoria";
+import GraficoLinha from "../components/Graficos/GraficoLinha";
+import FormEntrada from "../components/Entradas/FormEntrada";
+import ListaEntradas from "../components/Entradas/ListaEntradas";
+import Toast from "../components/UI/Toast";
+// Styles
 import {
   dashboardContainer,
   dashboardCard,
   sectionTitle,
   gridGraficos,
 } from "../components/Dashboard/dashboardStyles";
-import { useEffect, useState } from "react";
-import { useMemo } from "react";
-import * as XLSX from "xlsx";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import GraficoMensal from "../components/Graficos/GraficoMensal";
-import GraficoCategoria from "../components/Graficos/GraficoCategoria";
-import api from "../services/api";
-import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import DashboardHeader from "../components/Dashboard/DashboardHeader";
-import DashboardCards from "../components/Dashboard/DashboardCards.tsx";
-import ListaContas from "../components/Dashboard/ListaContas.tsx";
-import FormConta from "../components/Dashboard/FormConta.tsx";
-import FormEntrada from "../components/Entradas/FormEntrada";
-import ListaEntradas from "../components/Entradas/ListaEntradas";
-import GestaoCategorias from "../components/Dashboard/GestaoCategorias.tsx";
+// Calculations
 import { calcularDashboard } from "../components/Dashboard/dashboardCalculations";
-import { Conta } from "../types/Conta";
-import { ContaExcel } from "../types/ContaExcel";
-import { CategoriaConta } from "../types/CategoriaConta";
-import { CategoriaEntrada } from "../types/CategoriaEntrada";
-import Toast from "../components/UI/Toast";
-import { useIsMobile } from "../hooks/useIsMobile";
-import { isContaFutura } from "../utils/isContaFutura";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -49,14 +58,26 @@ export default function Dashboard() {
       return false;
     }
   }
-
-  const isAdmin = useIsAdmin();
   const [modoEscuro, setModoEscuro] = useState(true);
-  const [contas, setContas] = useState<Conta[]>([]);
-  const [loading, setLoading] = useState(false);
   const [mesBusca, setMesBusca] = useState(1);
   const [anoBusca, setAnoBusca] = useState(2025);
-  const [totalPeriodoAnterior, setTotalPeriodoAnterior] = useState(0);
+
+  const {
+    loading,
+    contas,
+    entradas,
+    entradasBase,
+    categorias,
+    categoriasEntradas,
+    totalPeriodoAnterior,
+
+    reloadContas,
+    reloadEntradas,
+    reloadCategorias,
+  } = useDashboardData(mesBusca, anoBusca);
+
+  const isAdmin = useIsAdmin();
+
   const [exportando, setExportando] = useState<null | "excel" | "pdf">(null);
   const [filtroCategoria, setFiltroCategoria] = useState("");
   const [filtroValorMin, setFiltroValorMin] = useState("");
@@ -64,13 +85,14 @@ export default function Dashboard() {
   const [filtroDataInicio, setFiltroDataInicio] = useState("");
   const [filtroDataFim, setFiltroDataFim] = useState("");
   const [filtroDescricao, setFiltroDescricao] = useState("");
-  const [categoriasEntradas, setCategoriasEntradas] = useState<
-    CategoriaEntrada[]
-  >([]);
 
-  const [categorias, setCategorias] = useState<CategoriaConta[]>([]);
   const [novaCategoriaConta, setNovaCategoriaConta] = useState("");
   const [novaCategoriaEntrada, setNovaCategoriaEntrada] = useState("");
+  const {
+    categoriasEntradas: categoriasEntradasHook,
+    criar: criarCategoriaEntradaHook,
+    excluir: excluirCategoriaEntradaHook,
+  } = useCategoriasEntradas();
   const [contaEditando, setContaEditando] = useState<Conta | null>(null);
   const [salvandoConta, setSalvandoConta] = useState(false);
   const [mostrarConfigModal, setMostrarConfigModal] = useState(false);
@@ -93,13 +115,14 @@ export default function Dashboard() {
     null
   );
   const [mostrarFuturas, setMostrarFuturas] = useState(false);
+  // 🔥 ENTRADAS FILTRADAS (SUBSTITUI setEntradas)
+  const [entradasFiltradas, setEntradasFiltradas] = useState<any[]>([]);
 
   // 🔀 MODO DE TELA
   const [modoTela, setModoTela] = useState<"contas" | "entradas">("contas");
 
   // 🔥 ENTRADAS — STATES
-  const [entradas, setEntradas] = useState<any[]>([]);
-  const [entradasBase, setEntradasBase] = useState<any[]>([]);
+
   const [entradaEditando, setEntradaEditando] = useState<any | null>(null);
   const [salvandoEntrada, setSalvandoEntrada] = useState(false);
 
@@ -165,7 +188,7 @@ export default function Dashboard() {
       setCategoriaEntradaId("");
 
       // recarrega entradas
-      await carregarEntradasPeriodo();
+      await reloadEntradas();
     } catch (error) {
       console.error(error);
       alert("Erro ao criar entrada");
@@ -220,127 +243,45 @@ export default function Dashboard() {
     setCategoriaEntradaId(String(entradaEditando.categoriaId));
   }, [entradaEditando]);
 
-  async function carregarContasPeriodo() {
-    try {
-      // 1️⃣ busca normal do período
-      const response = await api.get<Conta[]>(
-        `/api/contas/${mesBusca}/${anoBusca}`
-      );
-      let todasContas = response.data;
-
-      // 2️⃣ se o mês selecionado for futuro, busca também o ano inteiro
-      const hoje = new Date();
-      const inicioMesSelecionado = new Date(anoBusca, mesBusca - 1, 1);
-
-      if (mesBusca !== 0 && inicioMesSelecionado > hoje) {
-        const responseAno = await api.get<Conta[]>(`/api/contas/0/${anoBusca}`);
-
-        todasContas = responseAno.data;
-      }
-
-      setContas(todasContas);
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        setContas([]);
-      } else {
-        console.error("Erro ao carregar contas", error);
-      }
-    }
-  }
-
-  async function carregarCategorias() {
-    try {
-      const response = await api.get<CategoriaConta[]>(
-        "/api/categorias-contas"
-      );
-
-      setCategorias(
-        response.data.sort((a, b) =>
-          a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
-        )
-      );
-    } catch (error: any) {
-      setCategorias([]);
-      console.error("Erro ao carregar categorias de contas", error);
-    }
-  }
-
-  async function carregarCategoriasEntradas() {
-    try {
-      const response = await api.get<CategoriaEntrada[]>(
-        "/api/categorias-entradas"
-      );
-
-      setCategoriasEntradas(
-        response.data.sort((a, b) =>
-          a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
-        )
-      );
-    } catch (error) {
-      console.error("Erro ao carregar categorias de entradas", error);
-      setCategoriasEntradas([]); // 🔒 evita quebra silenciosa
-    }
-  }
-
-  // =======================
-  // 🔥 CARREGAR ENTRADAS DO PERÍODO
-  // =======================
-  async function carregarEntradasPeriodo() {
-    try {
-      const response = await api.get(`/api/entradas/${mesBusca}/${anoBusca}`);
-      setEntradasBase(response.data); // 🔒 fonte da verdade
-      setEntradas(response.data); // 🔍 lista exibida
-    } catch {
-      setEntradasBase([]);
-      setEntradas([]);
-    }
-  }
-
   // =======================
   // 🔍 FILTRO AVANÇADO — ENTRADAS
   // =======================
   function aplicarFiltrosEntradas() {
     let lista = [...entradasBase];
 
-    // 🔍 descrição
     if (filtroDescricao) {
       lista = lista.filter((e: any) =>
         e.descricao.toLowerCase().includes(filtroDescricao.toLowerCase())
       );
     }
 
-    // 🗂️ categoria
     if (filtroCategoria) {
       lista = lista.filter(
         (e: any) => String(e.categoriaId) === filtroCategoria
       );
     }
 
-    // 💰 valor mínimo
     if (filtroValorMin) {
       lista = lista.filter((e: any) => e.valor >= Number(filtroValorMin));
     }
 
-    // 💰 valor máximo
     if (filtroValorMax) {
       lista = lista.filter((e: any) => e.valor <= Number(filtroValorMax));
     }
 
-    // 📅 data inicial
     if (filtroDataInicio) {
       lista = lista.filter(
         (e: any) => new Date(e.data) >= new Date(filtroDataInicio)
       );
     }
 
-    // 📅 data final
     if (filtroDataFim) {
       lista = lista.filter(
         (e: any) => new Date(e.data) <= new Date(filtroDataFim)
       );
     }
 
-    setEntradas(lista);
+    setEntradasFiltradas(lista);
   }
 
   // =======================
@@ -359,59 +300,9 @@ export default function Dashboard() {
   ]);
 
   useEffect(() => {
-    let ativo = true;
+    setEntradasFiltradas(entradasBase);
+  }, [entradasBase]);
 
-    async function carregarPorPeriodo() {
-      try {
-        setLoading(true);
-
-        await Promise.all([carregarCategorias(), carregarCategoriasEntradas()]);
-
-        await carregarContasPeriodo();
-        await carregarEntradasPeriodo();
-        await carregarPeriodoAnterior();
-      } catch (erro: any) {
-        console.error("Erro ao carregar dados", erro);
-      } finally {
-        if (ativo) setLoading(false);
-      }
-    }
-
-    carregarPorPeriodo();
-
-    return () => {
-      ativo = false;
-    };
-  }, [mesBusca, anoBusca]);
-
-  async function carregarPeriodoAnterior() {
-    let total = 0;
-
-    try {
-      if (mesBusca === 0) {
-        const response = await api.get(`/api/contas/0/${anoBusca - 1}`);
-        const dados = response.data;
-
-        total = dados.reduce((soma: number, c: Conta) => soma + c.valor, 0);
-      } else {
-        // MÊS ESPECÍFICO → MÊS ANTERIOR
-        const mesAnterior = mesBusca - 1;
-        const anoAnterior = mesAnterior === 0 ? anoBusca - 1 : anoBusca;
-        const mesFinal = mesAnterior === 0 ? 12 : mesAnterior;
-
-        const response = await api.get(
-          `/api/contas/${mesFinal}/${anoAnterior}`
-        );
-        const dados = response.data;
-
-        total = dados.reduce((soma: number, c: Conta) => soma + c.valor, 0);
-      }
-    } catch (erro) {
-      console.error("Erro ao carregar período anterior", erro);
-    }
-
-    setTotalPeriodoAnterior(total);
-  }
   const cores = {
     fundo: modoEscuro ? "#0f172a" : "#f3f4f6",
     card: modoEscuro ? "#020617" : "#ffffff",
@@ -502,30 +393,51 @@ export default function Dashboard() {
   );
 
   const dadosComparativoPizza = {
-  Entradas: totalEntradasPeriodo,
-  Saídas: totalPeriodo,
-};
-
-  const totalEntradasPorMesNormalizado: Record<number, number> = {
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0,
-    5: 0,
-    6: 0,
-    7: 0,
-    8: 0,
-    9: 0,
-    10: 0,
-    11: 0,
-    12: 0,
+    Entradas: totalEntradasPeriodo,
+    Saídas: totalPeriodo,
   };
 
-  entradas.forEach((e: any) => {
-    const data = new Date(e.data);
-    const mes = data.getMonth() + 1;
-    totalEntradasPorMesNormalizado[mes] += e.valor;
-  });
+  const totalEntradasPorMesNormalizado = useMemo<Record<number, number>>(() => {
+    const base: Record<number, number> = {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+      6: 0,
+      7: 0,
+      8: 0,
+      9: 0,
+      10: 0,
+      11: 0,
+      12: 0,
+    };
+
+    entradas.forEach((e: any) => {
+      const mes = new Date(e.data).getMonth() + 1;
+      base[mes] += e.valor;
+    });
+
+    return base;
+  }, [entradas]);
+
+  // =======================
+  // 📈 SALDO ACUMULADO (ANO)
+  // =======================
+  const saldoAcumuladoPorMes = useMemo<Record<number, number>>(() => {
+    const acumulado: Record<number, number> = {};
+    let saldoCorrente = 0;
+
+    for (let mes = 1; mes <= 12; mes++) {
+      const entradasMes = totalEntradasPorMesNormalizado[mes] ?? 0;
+      const saidasMes = totalPorMes[mes] ?? 0;
+
+      saldoCorrente += entradasMes - saidasMes;
+      acumulado[mes] = saldoCorrente;
+    }
+
+    return acumulado;
+  }, [totalEntradasPorMesNormalizado, totalPorMes]);
 
   // =======================
   // 📊 ENTRADAS POR CATEGORIA
@@ -1049,8 +961,6 @@ export default function Dashboard() {
       setCategoriaId("");
 
       // recarrega contas
-      await carregarContasPeriodo();
-      await carregarPeriodoAnterior();
     } catch (error) {
       console.error(error);
       setToast({
@@ -1074,7 +984,6 @@ export default function Dashboard() {
       nome: novaCategoriaConta,
     });
 
-    await carregarCategorias();
     setNovaCategoriaConta("");
 
     setToast({
@@ -1091,11 +1000,8 @@ export default function Dashboard() {
       return;
     }
 
-    await api.post("/api/categorias-entradas", {
-      nome: novaCategoriaEntrada,
-    });
+    await criarCategoriaEntradaHook(novaCategoriaEntrada);
 
-    await carregarCategoriasEntradas();
     setNovaCategoriaEntrada("");
 
     setToast({
@@ -1129,7 +1035,8 @@ export default function Dashboard() {
 
       setTimeoutUndoEntrada(timeout);
 
-      await carregarEntradasPeriodo();
+      // 🔄 sincroniza estado
+      await reloadEntradas();
     } catch {
       setToast({
         mensagem: "Erro ao excluir entrada",
@@ -1168,15 +1075,6 @@ export default function Dashboard() {
     try {
       await api.delete(`/api/categorias-contas/${categoriaParaExcluir.id}`);
 
-      const recarregar = await api.get<CategoriaConta[]>(
-        "/api/categorias-contas"
-      );
-
-      setCategorias(
-        recarregar.data.sort((a, b) =>
-          a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
-        )
-      );
       setToast({
         mensagem: "Categoria excluída com sucesso",
       });
@@ -1223,8 +1121,6 @@ export default function Dashboard() {
       }
 
       setUltimaContaExcluida(null);
-      await carregarContasPeriodo();
-      await carregarPeriodoAnterior();
     } catch (error) {
       console.error(error);
       setToast({
@@ -1255,7 +1151,6 @@ export default function Dashboard() {
       }
 
       setUltimaEntradaExcluida(null);
-      await carregarEntradasPeriodo();
     } catch {
       setToast({
         mensagem: "Erro ao desfazer exclusão",
@@ -1374,12 +1269,9 @@ export default function Dashboard() {
                 categoriasContas={categorias}
                 criarCategoriaConta={criarCategoriaConta}
                 excluirCategoriaConta={excluirCategoria}
-                categoriasEntradas={categoriasEntradas}
+                categoriasEntradas={categoriasEntradasHook}
                 criarCategoriaEntrada={criarCategoriaEntrada}
-                excluirCategoriaEntrada={async (id) => {
-                  await api.delete(`/api/categorias-entradas/${id}`);
-                  await carregarCategoriasEntradas();
-                }}
+                excluirCategoriaEntrada={excluirCategoriaEntradaHook}
                 novaCategoriaConta={novaCategoriaConta}
                 setNovaCategoriaConta={setNovaCategoriaConta}
                 novaCategoriaEntrada={novaCategoriaEntrada}
@@ -1617,7 +1509,7 @@ export default function Dashboard() {
                   }}
                 >
                   <option value="">Todas categorias</option>
-                  {categoriasEntradas.map((cat) => (
+                  {categoriasEntradasHook.map((cat) => (
                     <option key={cat.id} value={String(cat.id)}>
                       {cat.nome}
                     </option>
@@ -1838,7 +1730,7 @@ export default function Dashboard() {
           />
         ) : (
           <ListaEntradas
-            entradas={entradas}
+            entradas={entradasFiltradas}
             cores={cores}
             iniciarEdicao={setEntradaEditando}
             excluirEntrada={excluirEntrada}
@@ -1896,67 +1788,111 @@ export default function Dashboard() {
             )}
 
             <div
-  style={{
-    background: cores.card,
-    borderRadius: 16,
-    padding: isMobile ? 12 : 16,
-    border: `1px solid ${cores.borda}`,
-  }}
->
-  <h3
-    style={{
-      marginBottom: isMobile ? 8 : 12,
-      fontSize: isMobile ? 14 : 16,
-    }}
-  >
-    💰 Saldo mensal
-  </h3>
+              style={{
+                background: cores.card,
+                borderRadius: 16,
+                padding: isMobile ? 12 : 16,
+                border: `1px solid ${cores.borda}`,
+              }}
+            >
+              <h3
+                style={{
+                  marginBottom: isMobile ? 8 : 12,
+                  fontSize: isMobile ? 14 : 16,
+                }}
+              >
+                💰 Saldo mensal
+              </h3>
 
-  <GraficoMensal dados={dadosGraficoSaldo} tipo="saldo" />
-</div>
+              <GraficoMensal dados={dadosGraficoSaldo} tipo="saldo" />
+            </div>
 
-<div
-  style={{
-    background: cores.card,
-    borderRadius: 16,
-    padding: isMobile ? 12 : 16,
-    border: `1px solid ${cores.borda}`,
-  }}
->
-  <h3
-    style={{
-      marginBottom: isMobile ? 8 : 12,
-      fontSize: isMobile ? 14 : 16,
-    }}
-  >
-    📊 Entradas x Saídas
-  </h3>
+            <div
+              style={{
+                background: cores.card,
+                borderRadius: 16,
+                padding: isMobile ? 12 : 16,
+                border: `1px solid ${cores.borda}`,
+              }}
+            >
+              <h3
+                style={{
+                  marginBottom: isMobile ? 8 : 12,
+                  fontSize: isMobile ? 14 : 16,
+                }}
+              >
+                📊 Entradas x Saídas
+              </h3>
 
-  <GraficoMensal
-    dados={dadosComparativoPizza}
-    tipo="comparativo"
-  />
-</div>
+              <GraficoMensal dados={dadosComparativoPizza} tipo="comparativo" />
+            </div>
 
-<div
-  style={{
-    background: cores.card,
-    borderRadius: 16,
-    padding: isMobile ? 12 : 16,
-    border: `1px solid ${cores.borda}`,
-  }}
->
-  <h3
-    style={{
-      marginBottom: isMobile ? 8 : 12,
-      fontSize: isMobile ? 14 : 16,
-    }}
-  >
-    🗂️ Gastos por categoria
-  </h3>
+            <div
+              style={{
+                background: cores.card,
+                borderRadius: 16,
+                padding: isMobile ? 12 : 16,
+                border: `1px solid ${cores.borda}`,
+              }}
+            >
+              <h3
+                style={{
+                  marginBottom: isMobile ? 8 : 12,
+                  fontSize: isMobile ? 14 : 16,
+                }}
+              >
+                🗂️ Gastos por categoria
+              </h3>
 
-  <GraficoCategoria dados={totalPorCategoria} />
-</div>
+              <GraficoCategoria dados={totalPorCategoria} />
+            </div>
+
+            {mesBusca === 0 && (
+              <div
+                style={{
+                  background: cores.card,
+                  borderRadius: 16,
+                  padding: isMobile ? 12 : 16,
+                  border: `1px solid ${cores.borda}`,
+                }}
+              >
+                <h3
+                  style={{
+                    marginBottom: isMobile ? 8 : 12,
+                    fontSize: isMobile ? 14 : 16,
+                  }}
+                >
+                  📈 Evolução mensal (Entradas x Saídas)
+                </h3>
+
+                <GraficoLinha
+                  entradas={totalEntradasPorMesNormalizado}
+                  saidas={totalPorMes}
+                />
+              </div>
+            )}
+
+            {mesBusca === 0 && (
+              <div
+                style={{
+                  background: cores.card,
+                  borderRadius: 16,
+                  padding: isMobile ? 12 : 16,
+                  border: `1px solid ${cores.borda}`,
+                }}
+              >
+                <h3
+                  style={{
+                    marginBottom: isMobile ? 8 : 12,
+                    fontSize: isMobile ? 14 : 16,
+                  }}
+                >
+                  📊 Saldo acumulado no ano
+                </h3>
+
+                <GraficoLinha saldoAcumulado={saldoAcumuladoPorMes} />
+              </div>
+            )}
           </div>
         ) : (
           <div
@@ -2067,7 +2003,7 @@ export default function Dashboard() {
 
                     await api.delete(`/api/contas/${conta.id}`);
 
-                    setContas(contas.filter((c) => c.id !== conta.id));
+                    await reloadContas();
                     setUltimaContaExcluida(conta);
 
                     setToast({
@@ -2079,8 +2015,6 @@ export default function Dashboard() {
                     }, 5000);
 
                     setTimeoutUndo(timeout);
-
-                    await carregarPeriodoAnterior();
                   } catch {
                     setToast({
                       mensagem: "Erro ao excluir conta",

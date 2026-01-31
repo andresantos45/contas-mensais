@@ -121,7 +121,11 @@ var app = builder.Build();
 app.UseForwardedHeaders();
 
 // HTTPS
-app.UseHttpsRedirection();
+// HTTPS — SOMENTE EM PRODUÇÃO
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // Routing
 app.UseRouting();

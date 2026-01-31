@@ -1,20 +1,13 @@
-const CORES_FIXAS = [
-  "#22c55e", // verde
-  "#3b82f6", // azul
-  "#f97316", // laranja
-  "#ef4444", // vermelho
-  "#a855f7", // roxo
-  "#14b8a6", // teal
-  "#eab308", // amarelo
-  "#ec4899", // rosa
-  "#64748b", // cinza
-];
-
 import { Pie } from "react-chartjs-2";
 import { getCorCategoria } from "../../utils/gerarCor";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
+
+
+interface GraficoCategoriaProps {
+  dados: Record<string, number>;
+}
 
 export default function GraficoCategoria({ dados }: any) {
   // 1️⃣ EMPTY STATE

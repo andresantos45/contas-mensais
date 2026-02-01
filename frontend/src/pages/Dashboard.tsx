@@ -1,7 +1,7 @@
 // React / libs
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -16,6 +16,7 @@ import { isContaFutura } from "../utils/isContaFutura";
 // Types
 import { Conta } from "../types/Conta";
 import { ContaExcel } from "../types/ContaExcel";
+import { EntradaExcel } from "../types/EntradaExcel";
 import { CategoriaConta } from "../types/CategoriaConta";
 import { Entrada } from "../types/Entrada";
 // Components
@@ -46,20 +47,10 @@ export default function Dashboard() {
 
   function handleLogout() {
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     navigate("/login", { replace: true });
   }
 
-  function useIsAdmin(): boolean {
-    const token = localStorage.getItem("token");
-    if (!token) return false;
-
-    try {
-      const decoded: any = jwtDecode(token);
-      return decoded.role === "admin";
-    } catch {
-      return false;
-    }
-  }
   const [modoEscuro, setModoEscuro] = useState(true);
   const [mesBusca, setMesBusca] = useState(1);
   const [anoBusca, setAnoBusca] = useState(2025);
@@ -78,8 +69,6 @@ export default function Dashboard() {
     reloadCategorias,
   } = useDashboardData(mesBusca, anoBusca);
 
-  const isAdmin = useIsAdmin();
-
   const [ultimaCategoriaEntradaExcluida, setUltimaCategoriaEntradaExcluida] =
     useState<{ nome: string } | null>(null);
 
@@ -93,16 +82,12 @@ export default function Dashboard() {
   >(null);
   const [exportando, setExportando] = useState<null | "excel" | "pdf">(null);
   const [filtroCategoria, setFiltroCategoria] = useState("");
-  const [filtroValorMin, setFiltroValorMin] = useState("");
-  const [filtroValorMax, setFiltroValorMax] = useState("");
-  const [filtroDataInicio, setFiltroDataInicio] = useState("");
-  const [filtroDataFim, setFiltroDataFim] = useState("");
-  const [filtroDescricao, setFiltroDescricao] = useState("");
-
+  const [filtroDescricaoConta, setFiltroDescricaoConta] = useState("");
+  const [filtroCategoriaConta, setFiltroCategoriaConta] = useState("");
   const [novaCategoriaConta, setNovaCategoriaConta] = useState("");
   const [novaCategoriaEntrada, setNovaCategoriaEntrada] = useState("");
   const {
-    categoriasEntradas: categoriasEntradasHook,
+    categoriasEntradas: categoriasEntradasHook = [],
     criar: criarCategoriaEntradaHook,
     excluir: excluirCategoriaEntradaHook,
   } = useCategoriasEntradas();
@@ -132,6 +117,7 @@ export default function Dashboard() {
   const [mostrarFuturas, setMostrarFuturas] = useState(false);
   // 🔥 ENTRADAS FILTRADAS (SUBSTITUI setEntradas)
   const [entradasFiltradas, setEntradasFiltradas] = useState<Entrada[]>([]);
+  const [contasFiltradasUI, setContasFiltradasUI] = useState<Conta[]>([]);
 
   // 🔀 MODO DE TELA
   const [modoTela, setModoTela] = useState<"contas" | "entradas">("contas");
@@ -161,7 +147,10 @@ export default function Dashboard() {
       !dataEntrada ||
       !categoriaIdEntrada
     ) {
-      alert("Preencha todos os campos da entrada");
+      setToast({
+        mensagem: "Preencha todos os campos da entrada",
+        tipo: "erro",
+      });
       return;
     }
 
@@ -171,7 +160,10 @@ export default function Dashboard() {
       const dataObj = new Date(dataEntrada);
 
       if (isNaN(dataObj.getTime())) {
-        alert("Data inválida");
+        setToast({
+          mensagem: "Data inválida",
+          tipo: "erro",
+        });
         return;
       }
 
@@ -208,8 +200,11 @@ export default function Dashboard() {
       // recarrega entradas
       await reloadEntradas();
     } catch (error) {
-      console.error(error);
-      alert("Erro ao criar entrada");
+      // erro tratado silenciosamente
+      setToast({
+        mensagem: "Erro ao criar entrada",
+        tipo: "erro",
+      });
     } finally {
       setSalvandoEntrada(false);
     }
@@ -267,34 +262,9 @@ export default function Dashboard() {
   function aplicarFiltrosEntradas() {
     let lista = [...entradasBase];
 
-    if (filtroDescricao) {
-      lista = lista.filter((e: Entrada) =>
-        e.descricao.toLowerCase().includes(filtroDescricao.toLowerCase())
-      );
-    }
-
     if (filtroCategoria) {
       lista = lista.filter(
         (e: Entrada) => String(e.categoriaId) === filtroCategoria
-      );
-    }
-
-    if (filtroValorMin) {
-      lista = lista.filter((e: any) => e.valor >= Number(filtroValorMin));
-    }
-
-    if (filtroValorMax) {
-      lista = lista.filter((e: Entrada) => e.valor <= Number(filtroValorMax));
-    }
-    if (filtroDataInicio) {
-      lista = lista.filter(
-        (e: Entrada) => new Date(e.data) >= new Date(filtroDataInicio)
-      );
-    }
-
-    if (filtroDataFim) {
-      lista = lista.filter(
-        (e: Entrada) => new Date(e.data) <= new Date(filtroDataFim)
       );
     }
 
@@ -304,21 +274,13 @@ export default function Dashboard() {
   // =======================
   // 🔁 REAPLICAR FILTROS QUANDO ALGO MUDAR
   // =======================
-  useEffect(() => {
-    aplicarFiltrosEntradas();
-  }, [
-    filtroDescricao,
-    filtroCategoria,
-    filtroValorMin,
-    filtroValorMax,
-    filtroDataInicio,
-    filtroDataFim,
-    entradasBase,
-  ]);
 
   useEffect(() => {
-    setEntradasFiltradas(entradasBase);
-  }, [entradasBase]);
+    aplicarFiltrosContas();
+  }, [filtroDescricaoConta, filtroCategoriaConta, contas]);
+  useEffect(() => {
+    aplicarFiltrosEntradas();
+  }, [filtroCategoria, entradasBase]);
 
   const cores = {
     fundo: modoEscuro ? "#0f172a" : "#f3f4f6",
@@ -367,6 +329,27 @@ export default function Dashboard() {
       ? contasFuturas
       : contasFiltradas;
 
+  // =======================
+  // 🔍 FILTRO AVANÇADO — CONTAS
+  // =======================
+  function aplicarFiltrosContas() {
+    let lista = [...contasExibidas];
+
+    if (filtroDescricaoConta.trim()) {
+      lista = lista.filter((c) =>
+        c.descricao.toLowerCase().includes(filtroDescricaoConta.toLowerCase())
+      );
+    }
+
+    if (filtroCategoriaConta) {
+      lista = lista.filter(
+        (c) => String(c.categoriaId) === filtroCategoriaConta
+      );
+    }
+
+    setContasFiltradasUI(lista);
+  }
+
   const totalPlanejadoMesSelecionado = mesSelecionadoEhFuturo
     ? contasExibidas.reduce((soma: number, c: Conta) => soma + c.valor, 0)
     : 0;
@@ -403,6 +386,16 @@ export default function Dashboard() {
     anoBusca,
     totalPeriodoAnterior
   );
+
+  // ✅ NORMALIZA categorias para o gráfico (NUNCA deixar undefined)
+  const totalPorCategoriaNormalizado: Record<string, number> = {};
+
+  Object.entries(totalPorCategoria).forEach(([categoria, valor]) => {
+    const nome = categoria && categoria.trim() ? categoria : "Sem categoria";
+
+    totalPorCategoriaNormalizado[nome] =
+      (totalPorCategoriaNormalizado[nome] ?? 0) + valor;
+  });
 
   // =======================
   // 🔥 TOTAIS DE ENTRADAS E SALDO
@@ -466,8 +459,10 @@ export default function Dashboard() {
   const totalEntradasPorCategoria: Record<string, number> = {};
 
   entradas.forEach((e: Entrada) => {
-    totalEntradasPorCategoria[e.categoriaNome] =
-      (totalEntradasPorCategoria[e.categoriaNome] ?? 0) + e.valor;
+    const nomeCategoria = e.categoriaNome?.trim() || "Sem categoria";
+
+    totalEntradasPorCategoria[nomeCategoria] =
+      (totalEntradasPorCategoria[nomeCategoria] ?? 0) + e.valor;
   });
   // SALDO = ENTRADAS - SAÍDAS
 
@@ -622,12 +617,15 @@ export default function Dashboard() {
   // EXPORTAÇÃO PARA EXCEL
   // =======================
   async function exportarExcel() {
-    if (contasFiltradas.length === 0) {
+    const contasParaExportar = mostrarFuturas
+      ? [...contasFiltradas, ...contasFuturas]
+      : contasFiltradas;
+
+    if (contasParaExportar.length === 0) {
       setToast({
         mensagem: "Nenhum dado para exportar",
         tipo: "erro",
       });
-
       return;
     }
 
@@ -651,20 +649,20 @@ export default function Dashboard() {
         "Dez",
       ];
 
-      // agrupa contas por mês
       const contasPorMes: Record<number, ContaExcel[]> = {};
 
-      contasFiltradas.forEach((c) => {
+      contasParaExportar.forEach((c) => {
         if (!contasPorMes[c.mes]) {
           contasPorMes[c.mes] = [];
         }
 
         contasPorMes[c.mes].push({
           Descrição: c.descricao,
-          Categoria: c.categoriaNome,
+          Categoria: c.categoriaNome ?? "Sem categoria",
           Valor: c.valor,
           Mês: c.mes,
           Ano: c.ano,
+          Planejamento: isContaFutura(c.data ?? "") ? "Sim" : "Não",
         });
       });
 
@@ -687,27 +685,109 @@ export default function Dashboard() {
     }
   }
 
+  async function exportarExcelEntradas() {
+    const entradasParaExportar =
+      mesBusca === 0
+        ? entradasFiltradas
+        : entradasFiltradas.filter((e) => {
+            const d = new Date(e.data);
+            return (
+              d.getMonth() + 1 === mesBusca && d.getFullYear() === anoBusca
+            );
+          });
+
+    if (entradasParaExportar.length === 0) {
+      setToast({
+        mensagem: "Nenhuma entrada para exportar",
+        tipo: "erro",
+      });
+      return;
+    }
+
+    try {
+      setExportando("excel");
+
+      const workbook = XLSX.utils.book_new();
+
+      const nomesMeses = [
+        "Jan",
+        "Fev",
+        "Mar",
+        "Abr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez",
+      ];
+
+      const entradasPorMes: Record<number, EntradaExcel[]> = {};
+
+      entradasParaExportar.forEach((e) => {
+        const dataObj = new Date(e.data);
+        const mes = dataObj.getMonth() + 1;
+
+        if (!entradasPorMes[mes]) {
+          entradasPorMes[mes] = [];
+        }
+
+        entradasPorMes[mes].push({
+          Descrição: e.descricao,
+          Categoria: e.categoriaNome ?? "Sem categoria",
+          Valor: e.valor,
+          Mês: mes,
+          Ano: dataObj.getFullYear(),
+        });
+      });
+
+      Object.entries(entradasPorMes).forEach(([mes, dados]) => {
+        const worksheet = XLSX.utils.json_to_sheet(dados);
+        const nomeAba = nomesMeses[Number(mes) - 1];
+
+        XLSX.utils.book_append_sheet(workbook, worksheet, nomeAba);
+      });
+
+      XLSX.writeFile(
+        workbook,
+        mesBusca === 0
+          ? `entradas_ano_${anoBusca}.xlsx`
+          : `entradas_${mesBusca}_${anoBusca}.xlsx`
+      );
+    } finally {
+      setExportando(null);
+    }
+  }
+
   // =======================
   // EXPORTAÇÃO PARA PDF (7.3)
   // =======================
   async function exportarPDF() {
-    if (contasFiltradas.length === 0) {
-      alert("Nenhum dado para exportar");
+    const temDados =
+      mesBusca === 0 ? contas.length > 0 : contasFiltradas.length > 0;
+
+    if (!temDados) {
+      setToast({
+        mensagem: "Nenhum dado para exportar",
+        tipo: "erro",
+      });
       return;
     }
-
     const doc = new jsPDF();
 
     let contasAnoInteiro: Conta[] = [];
 
     if (mesBusca === 0) {
       try {
-        const response = await api.get<Conta[]>(`/contas/0/${anoBusca}`);
-        contasAnoInteiro = response.data.filter(
-          (c) => !isContaFutura(c.data ?? "")
-        );
+        const response = await api.get<Conta[]>(`/api/contas/0/${anoBusca}`);
+        contasAnoInteiro = response.data;
       } catch {
-        alert("Erro ao buscar contas do ano para exportação");
+        setToast({
+          mensagem: "Erro ao buscar contas do ano para exportação",
+          tipo: "erro",
+        });
         return;
       }
     }
@@ -759,7 +839,7 @@ export default function Dashboard() {
         y += 6;
 
         const linhas = contasDoMes.map((c: any) => [
-          c.descricao,
+          `${c.descricao}${isContaFutura(c.data ?? "") ? " (FUTURA)" : ""}`,
           c.categoriaNome,
           c.valor.toLocaleString("pt-BR", {
             style: "currency",
@@ -793,8 +873,8 @@ export default function Dashboard() {
       y += 6;
 
       const linhas = contasMensaisPDF.map((c: Conta) => [
-        c.descricao,
-        c.categoriaNome,
+        `${c.descricao}${isContaFutura(c.data ?? "") ? " (FUTURA)" : ""}`,
+        c.categoriaNome ?? "Sem categoria",
         c.valor.toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
@@ -840,8 +920,8 @@ export default function Dashboard() {
         yFuturo += 6;
 
         const linhas = contasDoMes.map((c) => [
-          c.descricao,
-          c.categoriaNome,
+          `${c.descricao} (FUTURA)`,
+          c.categoriaNome ?? "Sem categoria",
           c.valor.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
@@ -886,6 +966,105 @@ export default function Dashboard() {
         : `contas_${nomesMeses[mesBusca - 1]}_${anoBusca}.pdf`
     );
   }
+
+  async function exportarPDFEntradas() {
+    const entradasParaExportar = entradasFiltradas;
+
+    if (entradasParaExportar.length === 0) {
+      setToast({
+        mensagem: "Nenhuma entrada para exportar",
+        tipo: "erro",
+      });
+      return;
+    }
+
+    const doc = new jsPDF();
+
+    const nomesMeses = [
+      "Janeiro",
+      "Fevereiro",
+      "Março",
+      "Abril",
+      "Maio",
+      "Junho",
+      "Julho",
+      "Agosto",
+      "Setembro",
+      "Outubro",
+      "Novembro",
+      "Dezembro",
+    ];
+
+    doc.setFontSize(18);
+    doc.text("Relatório de Entradas", 14, 20);
+
+    let y = 30;
+
+    if (mesBusca === 0) {
+      for (let mes = 1; mes <= 12; mes++) {
+        const entradasMes = entradasParaExportar.filter((e) => {
+          const d = new Date(e.data);
+          return d.getMonth() + 1 === mes && d.getFullYear() === anoBusca;
+        });
+
+        if (entradasMes.length === 0) continue;
+
+        doc.setFontSize(14);
+        doc.text(`${nomesMeses[mes - 1]} / ${anoBusca}`, 14, y);
+        y += 6;
+
+        const linhas = entradasMes.map((e) => [
+          e.descricao,
+          e.categoriaNome ?? "Sem categoria",
+          e.valor.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+        ]);
+
+        autoTable(doc, {
+          startY: y,
+          head: [["Descrição", "Categoria", "Valor"]],
+          body: linhas,
+          styles: { fontSize: 10 },
+          headStyles: { fillColor: [34, 197, 94] },
+        });
+
+        y = (doc as any).lastAutoTable.finalY + 10;
+
+        if (y > 260) {
+          doc.addPage();
+          y = 20;
+        }
+      }
+
+      doc.save(`entradas_${anoBusca}.pdf`);
+    } else {
+      doc.setFontSize(14);
+      doc.text(`${nomesMeses[mesBusca - 1]} / ${anoBusca}`, 14, y);
+      y += 6;
+
+      const linhas = entradasParaExportar.map((e) => [
+        e.descricao,
+        e.categoriaNome ?? "Sem categoria",
+        e.valor.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }),
+      ]);
+
+      autoTable(doc, {
+        startY: y,
+        head: [["Descrição", "Categoria", "Valor"]],
+        body: linhas,
+        styles: { fontSize: 10 },
+        headStyles: { fillColor: [34, 197, 94] },
+      });
+
+      doc.save(`entradas_${nomesMeses[mesBusca - 1]}_${anoBusca}.pdf`);
+    }
+  }
+
   // =======================
   // CRIAR CONTA
   // =======================
@@ -897,7 +1076,10 @@ export default function Dashboard() {
     e.preventDefault();
 
     if (!descricao || !valor || !data || !categoriaId) {
-      alert("Preencha todos os campos");
+      setToast({
+        mensagem: "Preencha todos os campos",
+        tipo: "erro",
+      });
       return;
     }
 
@@ -907,7 +1089,10 @@ export default function Dashboard() {
       const dataObj = new Date(data);
 
       if (isNaN(dataObj.getTime())) {
-        alert("Data inválida");
+        setToast({
+          mensagem: "Data inválida",
+          tipo: "erro",
+        });
         return;
       }
 
@@ -974,7 +1159,7 @@ export default function Dashboard() {
 
       // recarrega contas
     } catch (error) {
-      console.error(error);
+      // erro tratado silenciosamente
       setToast({
         mensagem: "Erro ao salvar conta",
         tipo: "erro",
@@ -988,7 +1173,10 @@ export default function Dashboard() {
     e.preventDefault();
 
     if (!novaCategoriaConta.trim()) {
-      alert("Informe o nome da categoria");
+      setToast({
+        mensagem: "Informe o nome da categoria",
+        tipo: "erro",
+      });
       return;
     }
 
@@ -1025,7 +1213,10 @@ export default function Dashboard() {
     e.preventDefault();
 
     if (!novaCategoriaEntrada.trim()) {
-      alert("Informe o nome da categoria");
+      setToast({
+        mensagem: "Informe o nome da categoria",
+        tipo: "erro",
+      });
       return;
     }
 
@@ -1131,7 +1322,7 @@ export default function Dashboard() {
 
       setTimeoutUndoCategoriaConta(timeout);
     } catch (error) {
-      console.error(error);
+      // erro tratado silenciosamente
       setToast({
         mensagem: "Erro ao excluir categoria",
         tipo: "erro",
@@ -1174,7 +1365,7 @@ export default function Dashboard() {
 
       setUltimaContaExcluida(null);
     } catch (error) {
-      console.error(error);
+      // erro tratado silenciosamente
       setToast({
         mensagem: "Erro ao desfazer exclusão",
         tipo: "erro",
@@ -1301,7 +1492,7 @@ export default function Dashboard() {
   // INICIAR EDIÇÃO
   // =======================
   function iniciarEdicao(conta: Conta) {
-    console.log("Conta em edição:", conta);
+    // log removido
 
     setContaEditando(conta);
 
@@ -1327,6 +1518,27 @@ export default function Dashboard() {
         overflowX: "hidden",
       }}
     >
+      {loading && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "#0b1220",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#aaa",
+            fontSize: "1.2rem",
+            zIndex: 9999,
+          }}
+        >
+          Revalidando sessão...
+        </div>
+      )}
+
       <div
         style={{
           ...dashboardCard,
@@ -1338,8 +1550,12 @@ export default function Dashboard() {
           textoPeriodo={textoPeriodo}
           cores={cores}
           exportando={exportando}
-          exportarExcel={exportarExcel}
-          exportarPDF={exportarPDF}
+          exportarExcel={
+            modoTela === "contas" ? exportarExcel : exportarExcelEntradas
+          }
+          exportarPDF={
+            modoTela === "contas" ? exportarPDF : exportarPDFEntradas
+          }
           abrirConfiguracoes={() => setMostrarConfigModal(true)}
           onLogout={handleLogout}
         >
@@ -1403,7 +1619,6 @@ export default function Dashboard() {
 
               <GestaoCategorias
                 cores={cores}
-                isAdmin={isAdmin}
                 categoriasContas={categorias}
                 criarCategoriaConta={criarCategoriaConta}
                 excluirCategoriaConta={excluirCategoria}
@@ -1622,17 +1837,17 @@ export default function Dashboard() {
               }}
             />
 
-            {/* 🔍 FILTROS — SOMENTE ENTRADAS */}
-            {modoTela === "entradas" && (
+            {/* 🔍 FILTROS — CONTAS */}
+            {modoTela === "contas" && (
               <>
                 {/* DESCRIÇÃO */}
                 <input
                   type="text"
-                  placeholder="Descrição"
-                  value={filtroDescricao}
-                  onChange={(e) => setFiltroDescricao(e.target.value)}
+                  placeholder="Pesquisar descrição"
+                  value={filtroDescricaoConta}
+                  onChange={(e) => setFiltroDescricaoConta(e.target.value)}
                   style={{
-                    minWidth: 200,
+                    minWidth: 220,
                     background: "#ffffff",
                     color: "#111827",
                     border: "1px solid #d1d5db",
@@ -1643,6 +1858,32 @@ export default function Dashboard() {
                 />
 
                 {/* CATEGORIA */}
+                <select
+                  value={filtroCategoriaConta}
+                  onChange={(e) => setFiltroCategoriaConta(e.target.value)}
+                  style={{
+                    minWidth: 180,
+                    background: "#ffffff",
+                    color: "#111827",
+                    border: "1px solid #d1d5db",
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                    fontWeight: 500,
+                  }}
+                >
+                  <option value="">Todas categorias</option>
+                  {categorias.map((cat) => (
+                    <option key={cat.id} value={String(cat.id)}>
+                      {cat.nome}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+
+            {/* 🔍 FILTROS — ENTRADAS (JÁ EXISTENTE) */}
+            {modoTela === "entradas" && (
+              <>
                 <select
                   value={filtroCategoria}
                   onChange={(e) => setFiltroCategoria(e.target.value)}
@@ -1657,98 +1898,13 @@ export default function Dashboard() {
                   }}
                 >
                   <option value="">Todas categorias</option>
-                  {categoriasEntradasHook.map((cat) => (
-                    <option key={cat.id} value={String(cat.id)}>
-                      {cat.nome}
-                    </option>
-                  ))}
+                  {Array.isArray(categoriasEntradasHook) &&
+                    categoriasEntradasHook.map((cat) => (
+                      <option key={cat.id} value={String(cat.id)}>
+                        {cat.nome}
+                      </option>
+                    ))}
                 </select>
-
-                {/* VALOR MÍN */}
-                <input
-                  type="number"
-                  placeholder="Valor mín."
-                  value={filtroValorMin}
-                  onChange={(e) => setFiltroValorMin(e.target.value)}
-                  style={{
-                    width: 120,
-                    background: "#ffffff",
-                    color: "#111827",
-                    border: "1px solid #d1d5db",
-                    borderRadius: 8,
-                    padding: "10px 12px",
-                    fontWeight: 500,
-                  }}
-                />
-
-                {/* VALOR MÁX */}
-                <input
-                  type="number"
-                  placeholder="Valor máx."
-                  value={filtroValorMax}
-                  onChange={(e) => setFiltroValorMax(e.target.value)}
-                  style={{
-                    width: 120,
-                    background: "#ffffff",
-                    color: "#111827",
-                    border: "1px solid #d1d5db",
-                    borderRadius: 8,
-                    padding: "10px 12px",
-                    fontWeight: 500,
-                  }}
-                />
-
-                {/* DATA INICIAL */}
-                <input
-                  type="date"
-                  value={filtroDataInicio}
-                  onChange={(e) => setFiltroDataInicio(e.target.value)}
-                  style={{
-                    background: "#ffffff",
-                    color: "#111827",
-                    border: "1px solid #d1d5db",
-                    borderRadius: 8,
-                    padding: "10px 12px",
-                    fontWeight: 500,
-                  }}
-                />
-
-                {/* DATA FINAL */}
-                <input
-                  type="date"
-                  value={filtroDataFim}
-                  onChange={(e) => setFiltroDataFim(e.target.value)}
-                  style={{
-                    background: "#ffffff",
-                    color: "#111827",
-                    border: "1px solid #d1d5db",
-                    borderRadius: 8,
-                    padding: "10px 12px",
-                    fontWeight: 500,
-                  }}
-                />
-
-                {/* LIMPAR FILTROS */}
-                <button
-                  onClick={() => {
-                    setFiltroDescricao("");
-                    setFiltroCategoria("");
-                    setFiltroValorMin("");
-                    setFiltroValorMax("");
-                    setFiltroDataInicio("");
-                    setFiltroDataFim("");
-                  }}
-                  style={{
-                    background: "transparent",
-                    border: "1px solid #d1d5db",
-                    borderRadius: 8,
-                    padding: "10px 14px",
-                    cursor: "pointer",
-                    fontWeight: 600,
-                  }}
-                >
-                  Limpar
-                </button>
               </>
             )}
           </div>
@@ -1800,7 +1956,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {!loading && contasFiltradas.length === 0 ? (
+        {!loading && modoTela === "contas" && contasExibidas.length === 0 ? (
           <div
             style={{
               padding: 24,
@@ -1871,14 +2027,18 @@ export default function Dashboard() {
           )
         ) : modoTela === "contas" ? (
           <ListaContas
-            contas={contasExibidas}
+            contas={
+              contasFiltradasUI.length > 0 ? contasFiltradasUI : contasExibidas
+            }
             cores={cores}
             iniciarEdicao={iniciarEdicao}
             excluirConta={excluirConta}
           />
         ) : (
           <ListaEntradas
-            entradas={entradasFiltradas}
+            entradas={
+              entradasFiltradas.length ? entradasFiltradas : entradasBase
+            }
             cores={cores}
             iniciarEdicao={(entrada: Entrada) => setEntradaEditando(entrada)}
             excluirEntrada={excluirEntrada}
@@ -1992,7 +2152,7 @@ export default function Dashboard() {
                 🗂️ Gastos por categoria
               </h3>
 
-              <GraficoCategoria dados={totalPorCategoria} />
+              <GraficoCategoria dados={totalPorCategoriaNormalizado} />
             </div>
 
             {mesBusca === 0 && (

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import Toast from "../components/UI/Toast";
 
 interface Categoria {
   id: number;
@@ -22,6 +23,10 @@ export default function Entradas() {
   const [valor, setValor] = useState("");
   const [data, setData] = useState("");
   const [categoriaId, setCategoriaId] = useState(0);
+  const [toast, setToast] = useState<{
+  mensagem: string;
+  tipo?: "sucesso" | "erro";
+} | null>(null);
 
   // ajuste conforme seu controle atual
   const mesAtual = new Date().getMonth() + 1;
@@ -46,10 +51,13 @@ export default function Entradas() {
 
   // 🔹 criar entrada
   const adicionarEntrada = async () => {
-    if (!descricao || !valor || !data || categoriaId === 0) {
-      alert("Preencha todos os campos");
-      return;
-    }
+    if (!descricao || !valor || !data || !categoriaId) {
+  setToast({
+    mensagem: "Preencha todos os campos",
+    tipo: "erro",
+  });
+  return;
+}
 
     await api.post("/entradas", {
       descricao,
@@ -119,6 +127,14 @@ export default function Entradas() {
           </li>
         ))}
       </ul>
+      {toast && (
+  <Toast
+    mensagem={toast.mensagem}
+    tipo={toast.tipo}
+    onClose={() => setToast(null)}
+  />
+)}
     </div>
   );
+  
 }

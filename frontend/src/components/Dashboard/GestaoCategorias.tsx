@@ -1,9 +1,7 @@
 import { useState } from "react";
 import AbaGeral from "./AbaGeral";
-import AbaUsuarios from "./AbaUsuarios";
 
 interface GestaoCategoriasProps {
-  isAdmin: boolean;
   cores: {
     fundo: string;
     card: string;
@@ -40,7 +38,6 @@ interface GestaoCategoriasProps {
 
 export default function GestaoCategorias({
   cores,
-  isAdmin,
 
   categoriasContas,
   criarCategoriaConta,
@@ -54,16 +51,12 @@ export default function GestaoCategorias({
   novaCategoriaEntrada,
   setNovaCategoriaEntrada,
 }: GestaoCategoriasProps) {
-  const [abaAtiva, setAbaAtiva] = useState<
-    "geral" | "usuarios" | "categorias" | "entradas"
-  >("geral");
+  const [abaAtiva, setAbaAtiva] = useState<"geral" | "categorias" | "entradas">(
+    "geral"
+  );
 
-  function trocarAba(aba: "geral" | "usuarios" | "categorias" | "entradas") {
+  function trocarAba(aba: "geral" | "categorias" | "entradas") {
     setAbaAtiva(aba);
-  }
-
-  if (abaAtiva === "usuarios" && !isAdmin) {
-    setAbaAtiva("geral");
   }
 
   return (
@@ -122,23 +115,6 @@ export default function GestaoCategorias({
         >
           💰 Categorias de Entradas
         </button>
-
-        {isAdmin && (
-          <button
-            onClick={() => trocarAba("usuarios")}
-            style={{
-              padding: "6px 14px",
-              borderRadius: 8,
-              cursor: "pointer",
-              fontWeight: 700,
-              background: abaAtiva === "usuarios" ? "#6366f1" : "transparent",
-              color: abaAtiva === "usuarios" ? "#fff" : cores.texto,
-              border: `1px solid ${cores.borda}`,
-            }}
-          >
-            👥 Usuários
-          </button>
-        )}
       </div>
 
       <div
@@ -149,27 +125,25 @@ export default function GestaoCategorias({
       >
         {abaAtiva === "categorias" && (
           <AbaGeral
-  cores={cores}
-  categorias={categoriasContas}
-  novaCategoria={novaCategoriaConta}
-  setNovaCategoria={setNovaCategoriaConta}
-  criarCategoria={criarCategoriaConta}
-  excluirCategoria={excluirCategoriaConta}
-/>
+            cores={cores}
+            categorias={categoriasContas}
+            novaCategoria={novaCategoriaConta}
+            setNovaCategoria={setNovaCategoriaConta}
+            criarCategoria={criarCategoriaConta}
+            excluirCategoria={excluirCategoriaConta}
+          />
         )}
 
         {abaAtiva === "entradas" && (
           <AbaGeral
-  cores={cores}
-  categorias={categoriasEntradas}
-  novaCategoria={novaCategoriaEntrada}
-  setNovaCategoria={setNovaCategoriaEntrada}
-  criarCategoria={criarCategoriaEntrada}
-  excluirCategoria={excluirCategoriaEntrada}
-/>
+            cores={cores}
+            categorias={categoriasEntradas}
+            novaCategoria={novaCategoriaEntrada}
+            setNovaCategoria={setNovaCategoriaEntrada}
+            criarCategoria={criarCategoriaEntrada}
+            excluirCategoria={excluirCategoriaEntrada}
+          />
         )}
-
-        {abaAtiva === "usuarios" && isAdmin && <AbaUsuarios cores={cores} />}
       </div>
       <style>
         {`

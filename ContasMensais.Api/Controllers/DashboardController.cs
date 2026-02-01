@@ -33,7 +33,11 @@ public async Task<IActionResult> GetYoy(int ano)
     var usuarioId = ObterUsuarioId();
 
     var resultado = await _dashboardService.CalcularYoyAsync(ano, usuarioId);
-    return Ok(resultado);
+    return Ok(new
+{
+    success = true,
+    data = resultado
+});
 }
 
     }

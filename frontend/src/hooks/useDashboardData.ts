@@ -20,30 +20,27 @@ export function useDashboardData(mesBusca: number, anoBusca: number) {
   const [totalPeriodoAnterior, setTotalPeriodoAnterior] = useState(0);
 
   async function carregarContasPeriodo() {
-    const response = await api.get<Conta[]>(
+    const response = await api.get<{ success: boolean; data: Conta[] }>(
       `/api/contas/${mesBusca}/${anoBusca}`
     );
-    let todas = response.data;
+    let todas = response.data.data;
 
     const hoje = new Date();
     const inicioMes = new Date(anoBusca, mesBusca - 1, 1);
 
     if (mesBusca !== 0 && inicioMes > hoje) {
-      const ano = await api.get<Conta[]>(`/api/contas/0/${anoBusca}`);
-      todas = ano.data;
+      const ano = await api.get<{ success: boolean; data: Conta[] }>(
+        `/api/contas/0/${anoBusca}`
+      );
+      todas = ano.data.data;
     }
 
     const contasNormalizadas = todas.map((c: Conta) => {
       const categoria = categorias.find((cat) => cat.id === c.categoriaId);
 
-      assert(
-        categoria,
-        `Conta sem categoria válida (categoriaId=${c.categoriaId})`
-      );
-
       return {
         ...c,
-        categoriaNome: categoria.nome,
+        categoriaNome: categoria?.nome ?? "Sem categoria",
       };
     });
 
@@ -51,11 +48,11 @@ export function useDashboardData(mesBusca: number, anoBusca: number) {
   }
 
   async function carregarEntradasPeriodo() {
-    const response = await api.get<Entrada[]>(
+    const response = await api.get<{ success: boolean; data: Entrada[] }>(
       `/api/entradas/${mesBusca}/${anoBusca}`
     );
 
-    const entradasNormalizadas: Entrada[] = response.data.map((e) => {
+    const entradasNormalizadas: Entrada[] = response.data.data.map((e) => {
       if (!e.categoriaNome) {
         throw new Error(`Entrada sem categoriaNome (id=${e.id})`);
       }
@@ -68,20 +65,26 @@ export function useDashboardData(mesBusca: number, anoBusca: number) {
   }
 
   async function carregarCategorias() {
-    const response = await api.get<CategoriaConta[]>("/api/categorias-contas");
+    const response = await api.get<{
+      success: boolean;
+      data: CategoriaConta[];
+    }>("/api/categorias-contas");
+
     setCategorias(
-      response.data.sort((a, b) =>
+      response.data.data.sort((a: CategoriaConta, b: CategoriaConta) =>
         a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
       )
     );
   }
 
   async function carregarCategoriasEntradas() {
-    const response = await api.get<CategoriaEntrada[]>(
-      "/api/categorias-entradas"
-    );
+    const response = await api.get<{
+      success: boolean;
+      data: CategoriaEntrada[];
+    }>("/api/categorias-entradas");
+
     setCategoriasEntradas(
-      response.data.sort((a, b) =>
+      response.data.data.sort((a: CategoriaEntrada, b: CategoriaEntrada) =>
         a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
       )
     );
@@ -91,14 +94,18 @@ export function useDashboardData(mesBusca: number, anoBusca: number) {
     let total = 0;
 
     if (mesBusca === 0) {
-      const r = await api.get(`/api/contas/0/${anoBusca - 1}`);
-      total = r.data.reduce((s: number, c: Conta) => s + c.valor, 0);
+      const r = await api.get<{ success: boolean; data: Conta[] }>(
+        `/api/contas/0/${anoBusca - 1}`
+      );
+      total = r.data.data.reduce((s: number, c: Conta) => s + c.valor, 0);
     } else {
       const mesAnt = mesBusca - 1 || 12;
       const anoAnt = mesBusca === 1 ? anoBusca - 1 : anoBusca;
 
-      const r = await api.get(`/api/contas/${mesAnt}/${anoAnt}`);
-      total = r.data.reduce((s: number, c: Conta) => s + c.valor, 0);
+      const r = await api.get<{ success: boolean; data: Conta[] }>(
+        `/api/contas/${mesAnt}/${anoAnt}`
+      );
+      total = r.data.data.reduce((s: number, c: Conta) => s + c.valor, 0);
     }
 
     setTotalPeriodoAnterior(total);

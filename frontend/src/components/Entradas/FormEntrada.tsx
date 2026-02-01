@@ -117,48 +117,64 @@ export default function FormEntrada({
         />
       </div>
 
-      {/* CATEGORIA */}
-      <div>
-        <label style={{ ...label, color: cores.textoSuave }}>
-          Categoria de entrada
-        </label>
-        <select
-          value={categoriaId}
-          onChange={(e) => setCategoriaId(e.target.value)}
-          required
-          style={inputBase}
-        >
-          <option value="" disabled>
-            Selecione uma categoria
-          </option>
-          {categorias.map((cat) => (
-            <option key={cat.id} value={String(cat.id)}>
-              {cat.nome}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* BOTÃO SALVAR */}
-      <button
-        type="submit"
-        disabled={salvandoEntrada}
+      {/* CATEGORIA + BOTÃO */}
+      <div
         style={{
-          ...(buttonPrimary as CSSProperties),
-          background: cores.botao,
-          padding: isMobile ? "10px 14px" : "12px 16px",
-          fontSize: isMobile ? 13 : 14,
-          opacity: salvandoEntrada ? 0.6 : 1,
-          cursor: salvandoEntrada ? "not-allowed" : "pointer",
-          gridColumn: "1 / -1", // 🔥 ocupa linha inteira
+          display: "flex",
+          gap: 12,
+          alignItems: "flex-end",
+          gridColumn: "span 2", // 🔥 ocupa 2 colunas como no Contas
         }}
       >
-        {salvandoEntrada
-          ? "⏳ Salvando..."
-          : entradaEditando
-            ? "💾 Salvar entrada"
-            : "➕ Adicionar entrada"}
-      </button>
+        {/* CATEGORIA */}
+        <div style={{ flex: 1 }}>
+          <label style={{ ...label, color: cores.textoSuave }}>
+            Categoria de entrada
+          </label>
+          <select
+            value={categoriaId}
+            onChange={(e) => setCategoriaId(e.target.value)}
+            required
+            style={inputBase}
+          >
+            <option value="" disabled>
+              Selecione uma categoria
+            </option>
+            {categorias.map((cat) => (
+              <option key={cat.id} value={String(cat.id)}>
+                {cat.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* BOTÃO */}
+        <button
+          type="submit"
+          disabled={salvandoEntrada}
+          style={{
+            ...(buttonPrimary as CSSProperties),
+            background: cores.botao,
+
+            height: 40,
+            padding: "0 14px",
+            fontSize: 14,
+
+            minWidth: 120,
+            alignSelf: "flex-end",
+
+            opacity: salvandoEntrada ? 0.6 : 1,
+            cursor: salvandoEntrada ? "not-allowed" : "pointer",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {salvandoEntrada
+            ? "⏳ Salvando..."
+            : entradaEditando
+              ? "💾 Salvar"
+              : "➕ Adicionar"}
+        </button>
+      </div>
 
       {/* BOTÃO CANCELAR */}
       {entradaEditando && (

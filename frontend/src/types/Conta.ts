@@ -10,7 +10,7 @@ export type Conta = {
   ano: number;
 
   categoriaId: number;
-  categoriaNome: string;
+  categoriaNome?: string; // 👈 pode faltar, frontend resolve
 
   tipo: TipoConta;
 };

@@ -87,21 +87,26 @@ export default function GraficoMensal({
 
   const labels =
     tipo === "mensal" || tipo === "saldo"
-      ? dadosFiltrados.map(([mes]) => NOMES_MESES[Number(mes)])
+      ? dadosFiltrados.map(([chave]) => {
+          const numeroMes = Number(chave);
+
+          // 🔒 se vier número → converte para nome
+          if (!isNaN(numeroMes)) {
+            return NOMES_MESES[numeroMes];
+          }
+
+          // 🔒 se já vier "Jan", "Fev", etc → usa direto
+          return chave;
+        })
       : dadosFiltrados.map(([label]) => label);
 
   const valores = dadosFiltrados.map(([, valor]) => Math.abs(valor));
 
   // 🎨 DEFINIÇÃO CLARA DAS CORES
   const backgroundColor =
-    tipo === "mensal"
-      ? dadosFiltrados.map(([mes]) => CORES_MESES[Number(mes)])
-      : tipo === "saldo"
-        ? dadosFiltrados.map(([, valor]) =>
-            valor >= 0 ? "#22c55e" : "#dc2626"
-          )
-        : // 🗂️ categorias / comparativo → cor única por nome
-          dadosFiltrados.map(([label]) => getCorComparativo(label));
+  tipo === "mensal" || tipo === "saldo"
+    ? dadosFiltrados.map(([mes]) => CORES_MESES[Number(mes)])
+    : dadosFiltrados.map(([label]) => getCorComparativo(label));
 
   const data = {
     labels,

@@ -4,7 +4,6 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-
 interface GraficoCategoriaProps {
   dados: Record<string, number>;
 }
@@ -30,7 +29,13 @@ export default function GraficoCategoria({ dados }: any) {
   // 2️⃣ DADOS
   // 🔥 NORMALIZA + ORDENA (decrescente)
   const dadosOrdenados = Object.entries(dados)
-    .map(([label, valor]) => [label, Number(valor)] as const)
+    .map(
+      ([label, valor]) =>
+        [
+          label && label !== "undefined" ? label.trim() : "Sem categoria",
+          Number(valor),
+        ] as const
+    )
     .filter(([, valor]) => valor > 0)
     .sort((a, b) => b[1] - a[1]);
 

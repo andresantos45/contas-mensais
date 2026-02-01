@@ -49,7 +49,11 @@ namespace ContasMensais.Api.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(categorias);
+            return Ok(new
+{
+    success = true,
+    data = categorias
+});
         }
 
         // ➕ CRIAR CATEGORIA
@@ -85,10 +89,14 @@ namespace ContasMensais.Api.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new
-            {
-                categoria.Id,
-                categoria.Nome
-            });
+{
+    success = true,
+    data = new
+    {
+        categoria.Id,
+        categoria.Nome
+    }
+});
         }
 
         // ❌ EXCLUIR CATEGORIA
@@ -107,7 +115,10 @@ namespace ContasMensais.Api.Controllers
             _context.CategoriasContas.Remove(categoria);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new
+{
+    success = true
+});
         }
     }
 }

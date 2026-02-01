@@ -8,6 +8,7 @@ using System.Text;
 using BCrypt.Net;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using System.Security.Cryptography;
 
 
 namespace ContasMensais.Api.Controllers
@@ -114,28 +115,117 @@ public IActionResult Login([FromBody] LoginDto dto)
 
     var tokenHandler = new JwtSecurityTokenHandler();
 
-    var tokenDescriptor = new SecurityTokenDescriptor
-    {
-        Subject = new ClaimsIdentity(claims),
-        Expires = DateTime.UtcNow.AddHours(8),
-        SigningCredentials = creds
-    };
+    // 🔄 gera refresh token
+var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 
-    var securityToken = tokenHandler.CreateToken(tokenDescriptor);
-    var tokenString = tokenHandler.WriteToken(securityToken);
+usuario.RefreshToken = refreshToken;
+usuario.RefreshTokenExpiraEm = DateTime.UtcNow.AddDays(7);
 
-    return Ok(new
-    {
-        token = tokenString,
-        usuario = new
+_context.SaveChanges();
+
+// 🔐 access token curto
+var tokenDescriptor = new SecurityTokenDescriptor
+{
+    Subject = new ClaimsIdentity(claims),
+    Expires = DateTime.UtcNow.AddMinutes(15),
+    SigningCredentials = creds
+};
+
+var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+var tokenString = tokenHandler.WriteToken(securityToken);
+
+ return Ok(new
         {
-            usuario.Id,
-            usuario.Nome,
-            usuario.Email,
-            usuario.Role
-        }
-    });
-}
-
+            token = tokenString,
+            refreshToken = refreshToken,
+            usuario = new
+            {
+                usuario.Id,
+                usuario.Nome,
+                usuario.Email,
+                usuario.Role
+            }
+        });
     }
+
+    // =========================
+    // REFRESH TOKEN
+    // =========================
+     [AllowAnonymous]
+    [HttpPost("refresh")]
+    public IActionResult RefreshToken([FromBody] RefreshTokenDto dto)
+    {
+        var usuario = _context.Usuarios
+            .FirstOrDefault(u =>
+                u.RefreshToken == dto.RefreshToken &&
+                u.RefreshTokenExpiraEm > DateTime.UtcNow
+            );
+
+        if (usuario == null)
+            return Unauthorized("Refresh token inválido ou expirado");
+
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+            new Claim(ClaimTypes.Email, usuario.Email),
+            new Claim(ClaimTypes.Role, usuario.Role)
+        };
+
+        var jwtKey = _configuration["JWT_KEY"]
+            ?? "CHAVE_SUPER_SECRETA_MIN_32_CARACTERES_123!";
+
+        var key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwtKey)
+        );
+
+        var creds = new SigningCredentials(
+            key,
+            SecurityAlgorithms.HmacSha256
+        );
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddMinutes(15),
+            SigningCredentials = creds
+        };
+
+        var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+        var tokenString = tokenHandler.WriteToken(securityToken);
+
+        return Ok(new
+        {
+            token = tokenString
+        });
+    }
+
+    // =========================
+    // LOGOUT — INVALIDA REFRESH TOKEN
+    // =========================
+    [Authorize]
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        var usuario = _context.Usuarios
+            .FirstOrDefault(u => u.Id == int.Parse(userId));
+
+        if (usuario == null)
+            return Unauthorized();
+
+        // 🔥 invalida refresh token
+        usuario.RefreshToken = null;
+        usuario.RefreshTokenExpiraEm = null;
+
+        _context.SaveChanges();
+
+        return Ok(new { message = "Logout realizado com sucesso" });
+    }
+}
 }

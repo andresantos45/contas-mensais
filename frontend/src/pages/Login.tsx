@@ -1,6 +1,6 @@
 import { useState, FormEvent } from "react";
 import { login } from "../services/authService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -8,7 +8,11 @@ export default function Login() {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const expired = searchParams.get("expired") === "1";
 
   async function handleLogin(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,12 +21,10 @@ export default function Login() {
 
     try {
       const data = await login(email, senha);
-
       localStorage.setItem("token", data.token);
-
+      localStorage.setItem("refreshToken", data.refreshToken);
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      console.error("Erro no login:", err);
       setErro("Email ou senha inválidos");
     } finally {
       setLoading(false);
@@ -32,6 +34,21 @@ export default function Login() {
   return (
     <div style={{ maxWidth: 360, margin: "100px auto" }}>
       <h2>Login</h2>
+
+      {expired && (
+        <div
+          style={{
+            marginBottom: 16,
+            padding: "12px 14px",
+            borderRadius: 8,
+            background: "#1f2933",
+            color: "#fbbf24",
+            fontSize: 14,
+          }}
+        >
+          Sua sessão expirou. Faça login novamente.
+        </div>
+      )}
 
       <form onSubmit={handleLogin}>
         <input

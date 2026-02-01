@@ -8,6 +8,15 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// 🔥 DESLIGA FILE WATCHER (RENDER CRASHA COM INOTIFY)
+builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
+builder.Configuration.AddJsonFile(
+    $"appsettings.{builder.Environment.EnvironmentName}.json",
+    optional: true,
+    reloadOnChange: false
+);
+
 // 🔐 CHAVE JWT CENTRALIZADA (ÚNICO PONTO DA CHAVE)
 var jwtKey = builder.Configuration["JWT_KEY"]
              ?? "CHAVE_SUPER_SECRETA_MIN_32_CARACTERES_123!";

@@ -33,7 +33,7 @@ export const gridCards = {
 
 export const gridGraficos = {
   display: "grid",
-  gridTemplateColumns: "1fr",
+  gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
   gap: 20,
   marginTop: 24,
   width: "100%",

@@ -6,12 +6,12 @@ export async function login(email: string, senha: string) {
     senha,
   });
 
-  return response.data; // { token, usuario }
+  return response.data; // { token, refreshToken, usuario }
 }
 
 export function logout() {
   localStorage.removeItem("token");
-  localStorage.removeItem("role");
+  localStorage.removeItem("refreshToken");
 }
 
 export function isAuthenticated() {

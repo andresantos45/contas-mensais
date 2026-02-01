@@ -38,7 +38,9 @@ private int ObterUsuarioId()
         [HttpGet("{mes:int}/{ano:int}")]
         public async Task<IActionResult> Get(int mes, int ano)
         {
-            var usuarioId = ObterUsuarioId();
+            
+
+var usuarioId = ObterUsuarioId();
 
 var query = _context.Contas
     .Where(c =>
@@ -71,7 +73,11 @@ var query = _context.Contas
     })
     .ToListAsync();
 
-            return Ok(contas);
+           return Ok(new
+{
+    success = true,
+    data = contas
+});
         }
 
         // ➕ CRIAR CONTA
@@ -109,13 +115,17 @@ var ehFutura = dataConta > hoje;
 
 return Ok(new
 {
-    conta.Id,
-    conta.Descricao,
-    conta.Valor,
-    Mes = conta.Data.Month,
-    Ano = conta.Data.Year,
-    conta.CategoriaId,
-    EhFutura = ehFutura
+    success = true,
+    data = new
+    {
+        conta.Id,
+        conta.Descricao,
+        conta.Valor,
+        Mes = conta.Data.Month,
+        Ano = conta.Data.Year,
+        conta.CategoriaId,
+        EhFutura = ehFutura
+    }
 });
 }
 
@@ -123,13 +133,11 @@ return Ok(new
         [HttpPut("{id:int}")]
 public async Task<IActionResult> Put(int id, [FromBody] Conta contaAtualizada)
 {
-    var usuarioId = ObterUsuarioId();
-
     var conta = await _context.Contas
-        .FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId);
+        .FirstOrDefaultAsync(c => c.Id == id);
 
     if (conta == null)
-        return NotFound("Conta não encontrada ou não pertence ao usuário");
+        return NotFound("Conta não encontrada");
 
     // 🔒 Atualiza SOMENTE os campos permitidos
     conta.Descricao = contaAtualizada.Descricao;
@@ -139,24 +147,29 @@ public async Task<IActionResult> Put(int id, [FromBody] Conta contaAtualizada)
 
     await _context.SaveChangesAsync();
 
-    return Ok("Conta atualizada com sucesso");
+    return Ok(new
+{
+    success = true
+});
 }
 
         // ❌ DELETAR CONTA
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var usuarioId = ObterUsuarioId();
+public async Task<IActionResult> Delete(int id)
+{
+    var conta = await _context.Contas
+        .FirstOrDefaultAsync(c => c.Id == id);
 
-var conta = await _context.Contas
-    .FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId);
-            if (conta == null)
-                return NotFound();
+    if (conta == null)
+        return NotFound();
 
             _context.Contas.Remove(conta);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return Ok(new
+{
+    success = true
+});
         }
     }
 }

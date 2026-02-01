@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ContasMensais.Api.Data;
 using ContasMensais.Api.Models;
 
+
 namespace ContasMensais.Api.Controllers
 {
     [ApiController]
@@ -11,6 +12,8 @@ namespace ContasMensais.Api.Controllers
     [Route("api/categorias-entradas")]
     public class CategoriasEntradasController : ControllerBase
     {
+        
+    
         private readonly AppDbContext _context;
 
         public CategoriasEntradasController(AppDbContext context)
@@ -23,15 +26,19 @@ namespace ContasMensais.Api.Controllers
         public async Task<IActionResult> Get()
         {
             var categorias = await _context.CategoriasEntradas
-                .OrderBy(c => c.Nome)
-                .Select(c => new
-                {
-                    c.Id,
-                    c.Nome
-                })
-                .ToListAsync();
+    .OrderBy(c => c.Nome)
+    .Select(c => new
+    {
+        c.Id,
+        c.Nome
+    })
+    .ToListAsync();
 
-            return Ok(categorias);
+return Ok(new
+{
+    success = true,
+    data = categorias
+});
         }
 
         // ➕ CRIAR
@@ -55,9 +62,9 @@ public async Task<IActionResult> Post([FromBody] CriarCategoriaEntradaDTO dto)
         return Conflict("Categoria já existe.");
 
     var categoria = new CategoriaEntrada
-    {
-        Nome = dto.Nome.Trim()
-    };
+{
+    Nome = dto.Nome.Trim()
+};
 
     _context.CategoriasEntradas.Add(categoria);
     await _context.SaveChangesAsync();
@@ -74,7 +81,7 @@ public async Task<IActionResult> Post([FromBody] CriarCategoriaEntradaDTO dto)
 public async Task<IActionResult> Delete(int id)
 {
     var categoria = await _context.CategoriasEntradas
-        .FirstOrDefaultAsync(c => c.Id == id);
+    .FirstOrDefaultAsync(c => c.Id == id);
 
     if (categoria == null)
         return NotFound();
@@ -90,7 +97,10 @@ public async Task<IActionResult> Delete(int id)
     {
         _context.CategoriasEntradas.Remove(categoria);
         await _context.SaveChangesAsync();
-        return NoContent();
+        return Ok(new
+{
+    success = true
+});
     }
     catch (DbUpdateException)
     {

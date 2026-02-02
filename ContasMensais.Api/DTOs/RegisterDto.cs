@@ -13,8 +13,5 @@ namespace ContasMensais.Api.DTOs
 
         [Required]
         public string Senha { get; set; } = string.Empty;
-
-        // 🔐 OPCIONAL — backend decide
-        public string? Role { get; set; }
     }
 }

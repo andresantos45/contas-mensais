@@ -50,7 +50,7 @@ modelBuilder.Entity<Usuario>(entity =>
           .HasColumnName("criado_em");
 
     // 🔒 EXCLUI USUARIOS DAS MIGRATIONS
-    entity.Metadata.SetIsTableExcludedFromMigrations(true);
+    
 });
 
 // ======================

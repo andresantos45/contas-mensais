@@ -1,13 +1,24 @@
-# Node
-node_modules
-dist
+# ===== VISUAL STUDIO =====
+.vs/
+bin/
+obj/
 
-# .NET
-bin
-obj
-
-# Environment
-.env
-
-# Logs
+# ===== USUÁRIO / IDE =====
+*.user
+*.suo
+*.cache
 *.log
+
+# ===== BANCO LOCAL / CACHE =====
+*.db
+*.mdf
+*.ldf
+CodeChunks.db
+SemanticSymbols.db
+
+# ===== FRONTEND (SE EXISTIR) =====
+node_modules/
+dist/
+
+# ===== AMBIENTE =====
+.env

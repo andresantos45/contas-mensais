@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ContasMensais.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260129153058_InitialSchemaCategorias")]
-    partial class InitialSchemaCategorias
+    [Migration("20260202173111_AddCategorias")]
+    partial class AddCategorias
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -101,7 +101,50 @@ namespace ContasMensais.Api.Migrations
                     b.ToTable("contas", (string)null);
                 });
 
-            modelBuilder.Entity("ContasMensais.Api.Models.Usuario", b =>
+            modelBuilder.Entity("ContasMensais.Api.Models.Entrada", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Ano")
+                        .HasColumnType("integer")
+                        .HasColumnName("ano");
+
+                    b.Property<int>("CategoriaId")
+                        .HasColumnType("integer")
+                        .HasColumnName("categoria_id");
+
+                    b.Property<DateTime>("Data")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("descricao");
+
+                    b.Property<int>("Mes")
+                        .HasColumnType("integer")
+                        .HasColumnName("mes");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("usuario_id");
+
+                    b.Property<decimal>("Valor")
+                        .HasColumnType("numeric")
+                        .HasColumnName("valor");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("entradas", (string)null);
+                });
+
+            modelBuilder.Entity("Usuario", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer")
@@ -120,6 +163,14 @@ namespace ContasMensais.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("nome");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("text")
+                        .HasColumnName("refresh_token");
+
+                    b.Property<DateTime?>("RefreshTokenExpiraEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("refresh_token_expira_em");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -141,7 +192,7 @@ namespace ContasMensais.Api.Migrations
 
             modelBuilder.Entity("ContasMensais.Api.Models.CategoriaConta", b =>
                 {
-                    b.HasOne("ContasMensais.Api.Models.Usuario", "Usuario")
+                    b.HasOne("Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -152,7 +203,7 @@ namespace ContasMensais.Api.Migrations
 
             modelBuilder.Entity("ContasMensais.Api.Models.Conta", b =>
                 {
-                    b.HasOne("ContasMensais.Api.Models.Usuario", "Usuario")
+                    b.HasOne("Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)

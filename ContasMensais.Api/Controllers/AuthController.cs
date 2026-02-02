@@ -29,8 +29,8 @@ namespace ContasMensais.Api.Controllers
         // =========================
         // REGISTRO DE USUÁRIO
         // =========================
-       
-[HttpPost("register")]
+        [AllowAnonymous]
+        [HttpPost("register")]
 public IActionResult Register([FromBody] RegisterDto dto)
 {
     if (!ModelState.IsValid)
@@ -39,11 +39,17 @@ public IActionResult Register([FromBody] RegisterDto dto)
     // 🔒 Verifica se já existe algum usuário
     var existeUsuario = _context.Usuarios.Any();
 
-    // Se já existir usuário, só admin pode criar novos
-    if (existeUsuario && !User.IsInRole("admin"))
-        return Forbid("Somente administradores podem criar usuários");
+            // Se já existir usuário, só admin pode criar novos
+            if (existeUsuario)
+            {
+                if (!User.Identity?.IsAuthenticated ?? true)
+                    return Forbid("Somente administradores podem criar usuários");
 
-    var existeEmail = _context.Usuarios.Any(u => u.Email == dto.Email);
+                if (!User.IsInRole("admin"))
+                    return Forbid("Somente administradores podem criar usuários");
+            }
+
+            var existeEmail = _context.Usuarios.Any(u => u.Email == dto.Email);
     if (existeEmail)
         return BadRequest("Email já cadastrado");
 

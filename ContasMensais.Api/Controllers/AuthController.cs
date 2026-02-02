@@ -64,15 +64,16 @@ else
     roleFinal = dto.Role == "admin" ? "admin" : "user";
 }
 
-var usuario = new Usuario
-{
-    Nome = dto.Nome,
-    Email = dto.Email,
-    SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha),
-    Role = roleFinal
-};
+            var usuario = new Usuario
+            {
+                Nome = dto.Nome,
+                Email = dto.Email,
+                SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha),
+                Role = roleFinal,
+                CriadoEm = DateTime.UtcNow
+            };
 
-    _context.Usuarios.Add(usuario);
+            _context.Usuarios.Add(usuario);
     _context.SaveChanges();
 
     return Ok(new { message = "Usuário criado com sucesso" });

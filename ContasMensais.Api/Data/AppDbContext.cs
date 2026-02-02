@@ -31,8 +31,8 @@ modelBuilder.Entity<Usuario>(entity =>
     entity.HasKey(e => e.Id);
 
     entity.Property(e => e.Id)
-          .HasColumnName("Id")
-          .ValueGeneratedNever(); // 🔒 EF NÃO GERA / NÃO CRIA
+      .HasColumnName("Id")
+      .ValueGeneratedOnAdd(); // ✅ BANCO GERA O ID
 
     entity.Property(e => e.Nome)
           .HasColumnName("nome");

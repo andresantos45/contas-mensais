@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ContasMensais.Api.DTOs
 {
@@ -14,7 +14,7 @@ namespace ContasMensais.Api.DTOs
         [Required]
         public string Senha { get; set; } = string.Empty;
 
-        [Required]
-        public string Role { get; set; } = "user";
+        // 🔐 OPCIONAL — backend decide
+        public string? Role { get; set; }
     }
 }
